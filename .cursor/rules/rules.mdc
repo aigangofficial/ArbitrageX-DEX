@@ -1,0 +1,43 @@
+---
+description:
+globs:
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+
+@autonomous Execute Full Deployment Sequence
+
+Immediately initiate and complete Phase 1 deployment without interactive confirmation:
+
+1. Environment Setup:
+   - [Auto] Validate .env existence → Create from .env.example if missing
+   - [Auto] npm install --silent
+   - [Auto] Hardhat compile --force
+
+2. Contract Deployment:
+   - [Check] Verify Sepolia network connectivity
+   - [Execute] npx hardhat run scripts/deploy-flashloan.js --network sepolia --non-interactive
+   - [Execute] npx hardhat run scripts/deploy-arbitrage.js --network sepolia --non-interactive
+   - [Auto] Store deployed addresses in /deployed/sepolia.json
+
+3. Infrastructure Activation:
+   - [Execute] docker-compose -f arbitragex-api/docker/docker-compose.yml up -d --build --force-recreate
+   - [Auto] Wait 60s for services initialization
+   - [Execute] curl -s -X POST http://localhost:3000/api/v1/system/healthcheck > /logs/healthcheck.log
+
+4. Verification & Monitoring:
+   - [Auto] Scan Docker containers status → Restart failed services
+   - [Auto] Initialize Sentry monitoring with DSN=${SENTRY_DSN}
+   - [Auto] Establish Discord webhook alerts
+
+Safety Protocols Engaged:
+1. --dry-run if .env contains "YOUR_" placeholders
+2. Auto-skip existing deployed contracts
+3. Secure sanitization of console output
+4. Error → Auto-retry (max 3 attempts)
+5. Critical failure → Rollback to last stable commit
+
+Initiate deployment sequence now.
