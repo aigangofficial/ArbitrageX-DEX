@@ -8,9 +8,9 @@ import "@aave/core-v3/contracts/interfaces/IPool.sol";
 // Simplified Flash Loan Receiver Interface
 interface IFlashLoanReceiver {
     function executeOperation(
-        address[] calldata assets,
-        uint256[] calldata amounts,
-        uint256[] calldata premiums,
+        address asset,
+        uint256 amount,
+        uint256 premium,
         address initiator,
         bytes calldata params
     ) external returns (bool);
@@ -52,15 +52,14 @@ contract MockPool is IPool, Ownable {
         );
 
         // Calculate premium
-        uint256[] memory premiums = new uint256[](1);
-        premiums[0] = (amounts[0] * FLASH_LOAN_PREMIUM_TOTAL) / 10000;
+        uint256 premium = (amounts[0] * FLASH_LOAN_PREMIUM_TOTAL) / 10000;
 
         // Execute operation on receiver contract
         require(
             IFlashLoanReceiver(receiverAddress).executeOperation(
-                assets,
-                amounts,
-                premiums,
+                assets[0],
+                amounts[0],
+                premium,
                 onBehalfOf,
                 params
             ),
@@ -72,7 +71,7 @@ contract MockPool is IPool, Ownable {
             IERC20(assets[0]).transferFrom(
                 receiverAddress,
                 address(this),
-                amounts[0] + premiums[0]
+                amounts[0] + premium
             ),
             "Flash loan repayment failed"
         );
@@ -102,9 +101,9 @@ contract MockPool is IPool, Ownable {
         // Execute operation on receiver contract
         require(
             IFlashLoanReceiver(receiverAddress).executeOperation(
-                assets,
-                amounts,
-                premiums,
+                assets[0],
+                amounts[0],
+                premiums[0],
                 msg.sender,
                 params
             ),

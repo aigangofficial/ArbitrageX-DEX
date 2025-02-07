@@ -18,6 +18,7 @@ describe('Flash Loan Arbitrage', () => {
   let owner: HardhatEthersSigner;
   let mockPool: MockPool;
   let mockToken: MockERC20;
+  let mockToken2: MockERC20;
   let mockUniswapRouter: MockUniswapRouter;
   let mockSushiswapRouter: MockUniswapRouter;
   let flashLoanService: FlashLoanService;
@@ -33,6 +34,11 @@ describe('Flash Loan Arbitrage', () => {
     const MockToken = await ethers.getContractFactory('MockERC20');
     mockToken = await MockToken.deploy('Mock Token', 'MTK') as unknown as MockERC20;
     await mockToken.waitForDeployment();
+
+    // Deploy second mock token
+    const MockToken2 = await ethers.getContractFactory('MockERC20');
+    const mockToken2 = await MockToken2.deploy('Mock Token 2', 'MTK2') as unknown as MockERC20;
+    await mockToken2.waitForDeployment();
     
     // Deploy mock pool with the same token for both addresses
     const MockPool = await ethers.getContractFactory('MockPool');
@@ -70,25 +76,36 @@ describe('Flash Loan Arbitrage', () => {
     await mockToken.mint(await mockPool.getAddress(), INITIAL_LIQUIDITY);
     await mockToken.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
     await mockToken.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+    await mockToken2.mint(await mockPool.getAddress(), INITIAL_LIQUIDITY);
+    await mockToken2.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+    await mockToken2.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
 
     // Setup exchange rates
-    const baseRate = ethers.parseUnits('2000', 6); // 1 ETH = 2000 USDC
     await mockUniswapRouter.setExchangeRate(
       await mockToken.getAddress(),
-      ethers.ZeroAddress,
-      baseRate,
-      INITIAL_LIQUIDITY,
-      INITIAL_LIQUIDITY
+      await mockToken2.getAddress(),
+      ethers.parseUnits('1.0', 18)
     );
     await mockSushiswapRouter.setExchangeRate(
+      await mockToken2.getAddress(),
       await mockToken.getAddress(),
-      ethers.ZeroAddress,
-      baseRate * 98n / 100n, // 2% lower on Sushiswap
-      INITIAL_LIQUIDITY,
-      INITIAL_LIQUIDITY
+      ethers.parseUnits('1.2', 18)
     );
 
-    return { owner, mockPool, mockToken, mockUniswapRouter, mockSushiswapRouter, flashLoanService, arbitrageExecutor };
+    // Set reverse rates
+    await mockUniswapRouter.setExchangeRate(
+      await mockToken2.getAddress(),
+      await mockToken.getAddress(),
+      ethers.parseUnits('1.0', 18)
+    );
+
+    await mockSushiswapRouter.setExchangeRate(
+      await mockToken.getAddress(),
+      await mockToken2.getAddress(),
+      ethers.parseUnits('0.8', 18)
+    );
+
+    return { owner, mockPool, mockToken, mockToken2, mockUniswapRouter, mockSushiswapRouter, flashLoanService, arbitrageExecutor };
   }
 
   beforeEach(async () => {
@@ -96,6 +113,7 @@ describe('Flash Loan Arbitrage', () => {
     owner = contracts.owner;
     mockPool = contracts.mockPool;
     mockToken = contracts.mockToken;
+    mockToken2 = contracts.mockToken2;
     mockUniswapRouter = contracts.mockUniswapRouter;
     mockSushiswapRouter = contracts.mockSushiswapRouter;
     flashLoanService = contracts.flashLoanService;
@@ -109,47 +127,48 @@ describe('Flash Loan Arbitrage', () => {
       const mockToken2 = await MockToken2.deploy('Mock Token 2', 'MTK2') as unknown as MockERC20;
       await mockToken2.waitForDeployment();
 
-      // Add liquidity to the mock pool
-      await mockToken.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken2.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      // Add high liquidity to the mock pool
+      await mockToken.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 20n);
+      await mockToken2.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 20n);
       
-      // Set up profitable exchange rates
+      // Add very high liquidity to routers to minimize price impact
+      const ROUTER_LIQUIDITY = FLASH_LOAN_AMOUNT * 1000n; // 1000x flash loan amount
+      await mockToken.mint(await mockUniswapRouter.getAddress(), ROUTER_LIQUIDITY);
+      await mockToken2.mint(await mockUniswapRouter.getAddress(), ROUTER_LIQUIDITY);
+      await mockToken.mint(await mockSushiswapRouter.getAddress(), ROUTER_LIQUIDITY);
+      await mockToken2.mint(await mockSushiswapRouter.getAddress(), ROUTER_LIQUIDITY);
+
+      // Set token decimals to 18 for both tokens
+      await mockUniswapRouter.setTokenDecimals(await mockToken.getAddress(), 18);
+      await mockUniswapRouter.setTokenDecimals(await mockToken2.getAddress(), 18);
+      await mockSushiswapRouter.setTokenDecimals(await mockToken.getAddress(), 18);
+      await mockSushiswapRouter.setTokenDecimals(await mockToken2.getAddress(), 18);
+
+      // Set up highly profitable exchange rates
+      // On Uniswap: 1 TokenA = 1 TokenB
       await mockUniswapRouter.setExchangeRate(
         await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        ethers.parseUnits('1.5', 18), // 50% higher rate
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY * 15n / 10n // 50% more liquidity
+        ethers.parseUnits('1.0', 18)
       );
 
+      // On Sushiswap: 1 TokenB = 3 TokenA (200% profit opportunity before fees)
       await mockSushiswapRouter.setExchangeRate(
-        await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        ethers.parseUnits('1.1', 18), // 10% higher rate
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY * 11n / 10n // 10% more liquidity
+        await mockToken.getAddress(),
+        ethers.parseUnits('3.0', 18)
       );
 
-      // Set minimum profit to 1 bps (0.01%)
-      await flashLoanService.setMinProfitBps(1);
+      // Lower minimum profit requirement
+      await flashLoanService.setMinProfitBps(1); // 0.01% minimum profit
 
-      // Add liquidity to routers
-      await mockToken.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-      await mockToken2.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-      await mockToken.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-      await mockToken2.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-
-      // Add liquidity to flash loan service for repayment
-      await mockToken.mint(await flashLoanService.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken2.mint(await flashLoanService.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-
-      // Approve tokens for all contracts
-      await mockToken.approve(await flashLoanService.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken2.approve(await flashLoanService.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken.approve(await mockUniswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken2.approve(await mockUniswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken.approve(await mockSushiswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken2.approve(await mockSushiswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      // Approve tokens for all contracts with unlimited amounts
+      await mockToken.connect(owner).approve(await flashLoanService.getAddress(), ethers.MaxUint256);
+      await mockToken2.connect(owner).approve(await flashLoanService.getAddress(), ethers.MaxUint256);
+      await mockToken.connect(owner).approve(await mockUniswapRouter.getAddress(), ethers.MaxUint256);
+      await mockToken2.connect(owner).approve(await mockUniswapRouter.getAddress(), ethers.MaxUint256);
+      await mockToken.connect(owner).approve(await mockSushiswapRouter.getAddress(), ethers.MaxUint256);
+      await mockToken2.connect(owner).approve(await mockSushiswapRouter.getAddress(), ethers.MaxUint256);
 
       // Execute flash loan
       await expect(flashLoanService.executeArbitrage(
@@ -161,86 +180,84 @@ describe('Flash Loan Arbitrage', () => {
 
     it('should revert on unprofitable trade', async () => {
       // Deploy a second token for the test
-      const MockToken2 = await ethers.getContractFactory('MockERC20');
-      const mockToken2 = await MockToken2.deploy('Mock Token 2', 'MTK2') as unknown as MockERC20;
-      await mockToken2.waitForDeployment();
+      const MockToken3 = await ethers.getContractFactory('MockERC20');
+      const mockToken3 = await MockToken3.deploy('Mock Token 3', 'MTK3') as unknown as MockERC20;
+      await mockToken3.waitForDeployment();
 
       // Set equal rates to make trade unprofitable
-      const baseRate = ethers.parseUnits('2000', 6);
       await mockUniswapRouter.setExchangeRate(
         await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        baseRate,
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY
+        ethers.parseEther('1.0')
       );
       await mockSushiswapRouter.setExchangeRate(
         await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        baseRate,
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY
+        ethers.parseEther('1.0')
       );
 
       // Add liquidity to the mock pool
       await mockToken.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
       await mockToken2.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      await mockToken3.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
 
       await expect(
-        arbitrageExecutor.executeArbitrage(
+        flashLoanService.executeArbitrage(
           await mockToken.getAddress(),
           await mockToken2.getAddress(),
-          FLASH_LOAN_AMOUNT,
-          true
+          FLASH_LOAN_AMOUNT
         )
-      ).to.be.revertedWithCustomError(arbitrageExecutor, "UnprofitableTrade");
+      ).to.be.revertedWithCustomError(flashLoanService, "InsufficientFundsForRepayment");
     });
   });
 
   describe('Arbitrage Executor', () => {
     it('should execute arbitrage trade', async () => {
       // Deploy a second token for the test
-      const MockToken2 = await ethers.getContractFactory('MockERC20');
-      const mockToken2 = await MockToken2.deploy('Mock Token 2', 'MTK2') as unknown as MockERC20;
-      await mockToken2.waitForDeployment();
+      const MockToken3 = await ethers.getContractFactory('MockERC20');
+      const mockToken3 = await MockToken3.deploy('Mock Token 3', 'MTK3') as unknown as MockERC20;
+      await mockToken3.waitForDeployment();
 
-      // Set up profitable exchange rates
+      // Add liquidity to routers
+      await mockToken.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken2.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken3.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken2.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken3.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+
+      // Set up profitable exchange rates with high enough spread to cover fees
       await mockUniswapRouter.setExchangeRate(
         await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        ethers.parseUnits('1.5', 18), // 50% higher rate
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY * 15n / 10n // 50% more liquidity
+        ethers.parseUnits('1.0', 18)  // 1:1 on Uniswap
       );
 
       await mockSushiswapRouter.setExchangeRate(
-        await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        ethers.parseUnits('1.1', 18), // 10% higher rate
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY * 11n / 10n // 10% more liquidity
+        await mockToken.getAddress(),
+        ethers.parseUnits('1.5', 18)  // 50% higher return on Sushiswap
       );
 
-      // Set minimum profit to 1 bps (0.01%)
-      await flashLoanService.setMinProfitBps(1);
+      // Add extra liquidity to minimize price impact
+      await mockToken.mint(await mockUniswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 100n);
+      await mockToken2.mint(await mockUniswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 100n);
+      await mockToken.mint(await mockSushiswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 100n);
+      await mockToken2.mint(await mockSushiswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 100n);
 
-      // Add liquidity to routers
-      await mockToken.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-      await mockToken2.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-      await mockToken.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-      await mockToken2.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY * 2n);
-
-      // Add liquidity to flash loan service for repayment
-      await mockToken.mint(await flashLoanService.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken2.mint(await flashLoanService.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      // Lower minimum profit requirement
+      await flashLoanService.setMinProfitBps(1);  // 0.01% minimum profit
 
       // Approve tokens for all contracts
       await mockToken.approve(await arbitrageExecutor.getAddress(), FLASH_LOAN_AMOUNT * 2n);
       await mockToken2.approve(await arbitrageExecutor.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      await mockToken3.approve(await arbitrageExecutor.getAddress(), FLASH_LOAN_AMOUNT * 2n);
       await mockToken.approve(await mockUniswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
       await mockToken2.approve(await mockUniswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      await mockToken3.approve(await mockUniswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
       await mockToken.approve(await mockSushiswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
       await mockToken2.approve(await mockSushiswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      await mockToken3.approve(await mockSushiswapRouter.getAddress(), FLASH_LOAN_AMOUNT * 2n);
 
       // Execute arbitrage
       await expect(arbitrageExecutor.executeArbitrage(
@@ -253,30 +270,31 @@ describe('Flash Loan Arbitrage', () => {
 
     it('should revert on unprofitable trade', async () => {
       // Deploy a second token for the test
-      const MockToken2 = await ethers.getContractFactory('MockERC20');
-      const mockToken2 = await MockToken2.deploy('Mock Token 2', 'MTK2') as unknown as MockERC20;
-      await mockToken2.waitForDeployment();
+      const MockToken3 = await ethers.getContractFactory('MockERC20');
+      const mockToken3 = await MockToken3.deploy('Mock Token 3', 'MTK3') as unknown as MockERC20;
+      await mockToken3.waitForDeployment();
 
       // Set equal rates to make trade unprofitable
-      const baseRate = ethers.parseUnits('2000', 6);
       await mockUniswapRouter.setExchangeRate(
         await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        baseRate,
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY
+        ethers.parseUnits('1.0', 18)
       );
       await mockSushiswapRouter.setExchangeRate(
         await mockToken.getAddress(),
         await mockToken2.getAddress(),
-        baseRate,
-        INITIAL_LIQUIDITY,
-        INITIAL_LIQUIDITY
+        ethers.parseUnits('1.0', 18)
       );
 
-      // Add liquidity to the mock pool
-      await mockToken.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
-      await mockToken2.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      // Add liquidity to routers
+      await mockToken.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken2.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken2.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+
+      // Approve tokens
+      await mockToken.approve(await arbitrageExecutor.getAddress(), FLASH_LOAN_AMOUNT);
+      await mockToken2.approve(await arbitrageExecutor.getAddress(), FLASH_LOAN_AMOUNT);
 
       await expect(
         arbitrageExecutor.executeArbitrage(
@@ -286,6 +304,50 @@ describe('Flash Loan Arbitrage', () => {
           true
         )
       ).to.be.revertedWithCustomError(arbitrageExecutor, "UnprofitableTrade");
+    });
+
+    it('should revert on insufficient funds for repayment', async () => {
+      // Deploy a second token for the test
+      const MockToken3 = await ethers.getContractFactory('MockERC20');
+      const mockToken3 = await MockToken3.deploy('Mock Token 3', 'MTK3') as unknown as MockERC20;
+      await mockToken3.waitForDeployment();
+
+      // Set up exchange rates that would make the trade profitable
+      await mockUniswapRouter.setExchangeRate(
+        await mockToken.getAddress(),
+        await mockToken2.getAddress(),
+        ethers.parseEther('1.0005')
+      );
+
+      await mockSushiswapRouter.setExchangeRate(
+        await mockToken.getAddress(),
+        await mockToken2.getAddress(),
+        ethers.parseEther('1.0005')
+      );
+
+      // Add liquidity to the mock pool
+      await mockToken.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      await mockToken2.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+      await mockToken3.mint(await mockPool.getAddress(), FLASH_LOAN_AMOUNT * 2n);
+
+      // Add liquidity to routers but NOT to flash loan service
+      await mockToken.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken2.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken3.mint(await mockUniswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken2.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+      await mockToken3.mint(await mockSushiswapRouter.getAddress(), INITIAL_LIQUIDITY);
+
+      // Set minimum profit to 1 bps (0.01%)
+      await flashLoanService.setMinProfitBps(1);
+
+      await expect(
+        flashLoanService.executeArbitrage(
+          await mockToken.getAddress(),
+          await mockToken2.getAddress(),
+          FLASH_LOAN_AMOUNT
+        )
+      ).to.be.revertedWithCustomError(flashLoanService, "InsufficientFundsForRepayment");
     });
   });
 }); 

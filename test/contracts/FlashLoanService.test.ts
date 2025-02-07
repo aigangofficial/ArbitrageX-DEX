@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import type { FlashLoanService, MockERC20, MockUniswapRouter, MockPool } from "../typechain-types";
+import type { FlashLoanService, MockERC20, MockUniswapRouter, MockPool } from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("FlashLoanService", function () {
@@ -55,16 +55,12 @@ describe("FlashLoanService", function () {
         await mockDex1.setExchangeRate(
             await mockTokenA.getAddress(),
             await mockTokenB.getAddress(),
-            ethers.parseEther("1.2"),
-            liquidityAmount,
-            liquidityAmount
+            ethers.parseEther("1.2")
         );
         await mockDex2.setExchangeRate(
             await mockTokenB.getAddress(),
             await mockTokenA.getAddress(),
-            ethers.parseEther("1.2"),
-            liquidityAmount,
-            liquidityAmount
+            ethers.parseEther("1.2")
         );
 
         // Add liquidity to DEXes
@@ -97,16 +93,12 @@ describe("FlashLoanService", function () {
             await mockDex1.setExchangeRate(
                 await mockTokenA.getAddress(),
                 await mockTokenB.getAddress(),
-                ethers.parseEther("1.2"), // 1A = 1.2B
-                amountIn * 10n,
-                amountIn * 12n
+                ethers.parseEther("1.2") // 1A = 1.2B
             );
             await mockDex2.setExchangeRate(
                 await mockTokenB.getAddress(),
                 await mockTokenA.getAddress(),
-                ethers.parseEther("1.3"), // 1B = 1.3A
-                amountIn * 13n,
-                amountIn * 10n
+                ethers.parseEther("1.3") // 1B = 1.3A
             );
 
             // Execute flash loan
@@ -127,23 +119,19 @@ describe("FlashLoanService", function () {
             await mockDex1.setExchangeRate(
                 await mockTokenA.getAddress(),
                 await mockTokenB.getAddress(),
-                ethers.parseEther("0.8"), // 1A = 0.8B (20% loss)
-                amountIn * 10n,
-                amountIn * 8n
+                ethers.parseEther("0.8") // 1A = 0.8B (20% loss)
             );
             await mockDex2.setExchangeRate(
                 await mockTokenB.getAddress(),
                 await mockTokenA.getAddress(),
-                ethers.parseEther("0.8"), // 1B = 0.8A (another 20% loss)
-                amountIn * 8n,
-                amountIn * 10n
+                ethers.parseEther("0.8") // 1B = 0.8A (another 20% loss)
             );
 
             await expect(flashLoanService.executeArbitrage(
                 await mockTokenA.getAddress(),
                 await mockTokenB.getAddress(),
                 amountIn
-            )).to.be.revertedWith("Insufficient funds to repay flash loan");
+            )).to.be.revertedWithCustomError(flashLoanService, "InsufficientFundsForRepayment");
         });
     });
 

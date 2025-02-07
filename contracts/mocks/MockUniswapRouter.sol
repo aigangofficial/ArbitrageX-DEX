@@ -38,26 +38,37 @@ contract MockUniswapRouter is IUniswapV2Router02 {
         tokenDecimals[token] = decimals;
     }
 
-    function setExchangeRate(
-        address tokenIn,
-        address tokenOut,
-        uint256 rate,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) external {
-        require(rate > 0, "Rate must be positive");
-        uint8 decimalsIn = tokenDecimals[tokenIn] == 0 ? 18 : tokenDecimals[tokenIn];
-        uint8 decimalsOut = tokenDecimals[tokenOut] == 0 ? 18 : tokenDecimals[tokenOut];
-
-        // Store rate considering token decimals
+    function setExchangeRate(address tokenIn, address tokenOut, uint256 rate) external {
         exchangeRates[tokenIn][tokenOut] = rate;
-        exchangeRates[tokenOut][tokenIn] = (10 ** (decimalsIn + decimalsOut)) / rate;
-
-        reserves[tokenIn][tokenOut] = reserveIn;
-        reserves[tokenOut][tokenIn] = reserveOut;
-
+        // Calculate and set reverse rate
+        uint8 decimalsIn = tokenDecimals[tokenIn];
+        uint8 decimalsOut = tokenDecimals[tokenOut];
+        uint256 reverseRate = _calculateReverseRate(rate, decimalsIn, decimalsOut);
+        exchangeRates[tokenOut][tokenIn] = reverseRate;
+        
         emit RateUpdated(tokenIn, tokenOut, rate);
-        emit ReservesUpdated(tokenIn, tokenOut, reserveIn, reserveOut);
+        emit RateUpdated(tokenOut, tokenIn, reverseRate);
+        
+        // Update reserves to match rate
+        reserves[tokenIn][tokenOut] = rate;
+        reserves[tokenOut][tokenIn] = reverseRate;
+        
+        emit ReservesUpdated(tokenIn, tokenOut, rate, reverseRate);
+    }
+
+    function _calculateReverseRate(uint256 rate, uint8 decimalsIn, uint8 decimalsOut) internal pure returns (uint256) {
+        uint256 baseUnit = 10**18;  // Use 18 decimals as base
+        if (decimalsIn == decimalsOut) {
+            return (baseUnit * baseUnit) / rate;
+        }
+        
+        if (decimalsIn > decimalsOut) {
+            uint256 scaledRate = rate * 10**(decimalsIn - decimalsOut);
+            return (baseUnit * baseUnit) / scaledRate;
+        } else {
+            uint256 scaledRate = rate / 10**(decimalsOut - decimalsIn);
+            return (baseUnit * baseUnit) / scaledRate;
+        }
     }
 
     function getAmountsOut(uint256 amountIn, address[] memory path) public view returns (uint256[] memory amounts) {
@@ -66,34 +77,39 @@ contract MockUniswapRouter is IUniswapV2Router02 {
         amounts[0] = amountIn;
 
         for (uint i; i < path.length - 1; i++) {
-            uint256 reserveIn = reserves[path[i]][path[i + 1]];
-            uint256 reserveOut = reserves[path[i + 1]][path[i]];
             uint256 rate = exchangeRates[path[i]][path[i + 1]];
+            require(rate > 0, "Rate not set");
+
+            // Get token decimals
+            uint8 decimalsIn = tokenDecimals[path[i]] == 0 ? 18 : tokenDecimals[path[i]];
+            uint8 decimalsOut = tokenDecimals[path[i + 1]] == 0 ? 18 : tokenDecimals[path[i + 1]];
 
             // Calculate base amount out before price impact
-            uint256 amountOut = (amountIn * rate) / (10 ** 18);
+            uint256 amountOut;
+            if (decimalsIn == decimalsOut) {
+                amountOut = (amountIn * rate) / PRECISION;
+            } else if (decimalsIn > decimalsOut) {
+                // Example: ETH (18) -> USDC (6)
+                amountOut = (amountIn * rate) / (10 ** decimalsIn);
+            } else {
+                // Example: USDC (6) -> ETH (18)
+                amountOut = (amountIn * rate * (10 ** (decimalsOut - decimalsIn))) / PRECISION;
+            }
 
             // Calculate price impact based on trade size relative to reserves
-            uint256 priceImpactBps;
+            uint256 reserveIn = reserves[path[i]][path[i + 1]];
+            uint256 priceImpactBps = IMPACT_BPS; // Base 2% impact
             if (reserveIn > 0) {
-                uint256 tradeRatio = (amountIn * 10000) / reserveIn;
-                
-                // Minimum 2% impact for trades > 5% of reserves
-                if (tradeRatio > 500) {
-                    priceImpactBps = 200 + ((tradeRatio - 500) * 2) / 100;
-                    if (priceImpactBps > 400) {
-                        priceImpactBps = 400; // Cap at 4%
-                    }
-                } else {
-                    priceImpactBps = 200; // Base 2% impact
+                uint256 tradeRatio = (amountIn * BPS) / reserveIn;
+                if (tradeRatio > 500) { // If trade is > 5% of reserves
+                    priceImpactBps = IMPACT_BPS + ((tradeRatio - 500) * 2) / 100;
+                    if (priceImpactBps > 400) priceImpactBps = 400; // Cap at 4%
                 }
-            } else {
-                priceImpactBps = 200; // Default to 2% if no reserves
             }
 
             // Apply price impact and trading fee
-            uint256 priceImpact = (amountOut * priceImpactBps) / 10000;
-            uint256 tradingFee = (amountOut * 30) / 10000; // 0.3% trading fee
+            uint256 priceImpact = (amountOut * priceImpactBps) / BPS;
+            uint256 tradingFee = (amountOut * FEE_BPS) / BPS;
             amountOut = amountOut - priceImpact - tradingFee;
 
             amounts[i + 1] = amountOut;
@@ -193,16 +209,37 @@ contract MockUniswapRouter is IUniswapV2Router02 {
         return (amountA * reserveB) / reserveA;
     }
     
-    function getAmountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut) external pure override returns (uint256) {
-        require(amountIn > 0, "Insufficient input amount");
-        require(reserveIn > 0 && reserveOut > 0, "Insufficient liquidity");
-        return (amountIn * reserveOut) / (reserveIn + amountIn);
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public pure returns (uint amountOut) {
+        require(amountIn > 0, 'INSUFFICIENT_INPUT_AMOUNT');
+        require(reserveIn > 0 && reserveOut > 0, 'INSUFFICIENT_LIQUIDITY');
+        
+        // Calculate base amount with 0.3% fee
+        uint amountInWithFee = amountIn * 997;
+        
+        // Calculate output with constant product formula
+        uint numerator = amountInWithFee * reserveOut;
+        uint denominator = (reserveIn * 1000) + amountInWithFee;
+        
+        // Calculate base output amount
+        amountOut = numerator / denominator;
+        
+        // Apply slippage impact based on trade size relative to reserves
+        uint slippageImpact = (amountIn * 1000) / reserveIn;  // In basis points (0.01%)
+        if (slippageImpact > 100) {  // If trade size > 1% of reserves
+            // Apply additional slippage (up to 2% for large trades)
+            uint additionalSlippage = (slippageImpact - 100) * 2;  // 2 bps per 0.01% above threshold
+            if (additionalSlippage > 200) additionalSlippage = 200;  // Cap at 2%
+            amountOut = amountOut * (10000 - additionalSlippage) / 10000;
+        }
     }
     
-    function getAmountIn(uint256 amountOut, uint256 reserveIn, uint256 reserveOut) external pure override returns (uint256) {
-        require(amountOut > 0, "Insufficient output amount");
-        require(reserveIn > 0 && reserveOut > 0, "Insufficient liquidity");
-        return (reserveIn * amountOut * 1000) / ((reserveOut - amountOut) * 997);
+    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) public pure returns (uint amountIn) {
+        require(amountOut > 0, 'INSUFFICIENT_OUTPUT_AMOUNT');
+        require(reserveIn > 0 && reserveOut > 0, 'INSUFFICIENT_LIQUIDITY');
+        
+        uint numerator = reserveIn * amountOut * 1000;
+        uint denominator = (reserveOut - amountOut) * 997;
+        amountIn = (numerator / denominator) + 1;
     }
 
     // Implement remaining interface functions with minimal functionality

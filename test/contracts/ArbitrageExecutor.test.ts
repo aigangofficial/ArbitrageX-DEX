@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import type { ArbitrageExecutor, FlashLoanService, MockERC20, MockUniswapRouter } from "../typechain-types";
+import type { ArbitrageExecutor, FlashLoanService, MockERC20, MockUniswapRouter } from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { Contract } from "ethers";
 
@@ -68,17 +68,13 @@ describe("ArbitrageExecutor", function () {
         await mockUniswapRouter.setExchangeRate(
             await mockTokenA.getAddress(),
             await mockTokenB.getAddress(),
-            UNISWAP_RATE,
-            INITIAL_LIQUIDITY,
-            UNISWAP_LIQUIDITY_B
+            ethers.parseEther("1.2")
         );
 
         await mockSushiswapRouter.setExchangeRate(
-            await mockTokenA.getAddress(),
             await mockTokenB.getAddress(),
-            SUSHISWAP_RATE,
-            INITIAL_LIQUIDITY,
-            SUSHISWAP_LIQUIDITY_B
+            await mockTokenA.getAddress(),
+            ethers.parseEther("1.1")
         );
 
         // Set a reasonable slippage tolerance for testing
@@ -104,18 +100,14 @@ describe("ArbitrageExecutor", function () {
             await mockUniswapRouter.setExchangeRate(
                 await mockTokenA.getAddress(),
                 await mockTokenB.getAddress(),
-                ethers.parseEther("1.2"),
-                INITIAL_LIQUIDITY,
-                INITIAL_LIQUIDITY
+                ethers.parseEther("1.2")
             );
 
             // SushiSwap: 1B = 1.1A (making arbitrage profitable)
             await mockSushiswapRouter.setExchangeRate(
                 await mockTokenB.getAddress(),
                 await mockTokenA.getAddress(),
-                ethers.parseEther("1.1"),
-                INITIAL_LIQUIDITY,
-                INITIAL_LIQUIDITY
+                ethers.parseEther("1.1")
             );
 
             // Approve tokens for routers
@@ -135,16 +127,12 @@ describe("ArbitrageExecutor", function () {
             await mockUniswapRouter.setExchangeRate(
                 await mockTokenA.getAddress(),
                 await mockTokenB.getAddress(),
-                ethers.parseEther("1.0"),
-                INITIAL_LIQUIDITY,
-                INITIAL_LIQUIDITY
+                ethers.parseEther("1.0")
             );
             await mockSushiswapRouter.setExchangeRate(
                 await mockTokenA.getAddress(),
                 await mockTokenB.getAddress(),
-                ethers.parseEther("1.0"),
-                INITIAL_LIQUIDITY,
-                INITIAL_LIQUIDITY
+                ethers.parseEther("1.0")
             );
 
             await mockTokenA.mint(owner.address, TRADE_AMOUNT);

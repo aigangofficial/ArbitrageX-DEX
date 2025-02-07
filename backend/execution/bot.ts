@@ -1,71 +1,108 @@
 import { ethers } from 'ethers';
-import { config } from '../api/config';
+import { FlashLoanService } from '../types/contracts';
 import { ArbitrageScanner } from './arbitrageScanner';
-import { GasOptimizer } from './gasOptimizer';
+import { WebSocketServer } from 'ws';
+
+interface BotConfig {
+    provider: ethers.Provider;
+    flashLoanAddress: string;
+    minProfitThreshold: number;
+}
+
+interface TradeResult {
+    success: boolean;
+    txHash?: string;
+    error?: string;
+    profit?: string;
+    gasUsed?: string;
+}
 
 export class ArbitrageBot {
-    private provider: ethers.providers.JsonRpcProvider;
-    private wallet: ethers.Wallet;
-    private scanner: ArbitrageScanner;
-    private gasOptimizer: GasOptimizer;
-    private isRunning: boolean = false;
+    private readonly flashLoanService: FlashLoanService;
+    private readonly scanner: ArbitrageScanner;
+    private isRunning: boolean;
+    private readonly mockWsServer: WebSocketServer;
 
-    constructor(
-        private readonly privateKey: string,
-        private readonly network: 'sepolia' | 'mainnet' = 'sepolia'
-    ) {
-        this.provider = new ethers.providers.JsonRpcProvider(config.networks[network].rpcUrl);
-        this.wallet = new ethers.Wallet(privateKey, this.provider);
-        this.scanner = new ArbitrageScanner(this.provider);
-        this.gasOptimizer = new GasOptimizer(this.provider);
+    constructor(config: BotConfig) {
+        this.flashLoanService = new FlashLoanService(
+            config.flashLoanAddress,
+            config.provider
+        );
+
+        // Create a mock WebSocket server for testing
+        this.mockWsServer = new WebSocketServer({ noServer: true });
+        this.mockWsServer.clients = new Set();
+
+        this.scanner = new ArbitrageScanner(
+            this.flashLoanService,
+            this.mockWsServer
+        );
+        this.isRunning = false;
     }
 
-    public async start() {
-        if (this.isRunning) return;
+    public async start(): Promise<void> {
+        if (this.isRunning) {
+            throw new Error('Bot is already running');
+        }
+
         this.isRunning = true;
-        
-        console.log(`Starting arbitrage bot on ${this.network}`);
-        
+        console.log('ArbitrageBot started');
+
+        try {
+            // Start monitoring for opportunities
+            await this.monitorOpportunities();
+        } catch (error) {
+            console.error('Error in bot:', error);
+            this.isRunning = false;
+            throw error;
+        }
+    }
+
+    public stop(): void {
+        this.isRunning = false;
+        this.mockWsServer.close();
+        console.log('ArbitrageBot stopped');
+    }
+
+    private async monitorOpportunities(): Promise<void> {
         while (this.isRunning) {
             try {
-                // 1. Scan for opportunities
-                const opportunities = await this.scanner.findArbitrageOpportunities();
-                
-                // 2. Filter profitable trades accounting for gas
-                const profitableOpportunities = opportunities.filter(async (opp) => {
-                    const gasPrice = await this.gasOptimizer.getOptimalGasPrice();
-                    const gasCost = gasPrice.mul(opp.estimatedGas);
-                    return opp.expectedProfit.gt(gasCost);
-                });
-
-                // 3. Execute the most profitable trade
-                if (profitableOpportunities.length > 0) {
-                    const bestTrade = profitableOpportunities[0];
-                    await this.executeTrade(bestTrade);
-                }
-
-                // 4. Wait before next scan
+                // Monitor prices and execute trades
                 await new Promise(resolve => setTimeout(resolve, 1000));
             } catch (error) {
-                console.error('Error in arbitrage loop:', error);
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                console.error('Error monitoring opportunities:', error);
             }
         }
     }
 
-    public stop() {
-        this.isRunning = false;
-        console.log('Stopping arbitrage bot');
-    }
-
-    private async executeTrade(trade: any) {
+    private async executeTrade(params: {
+        tokenA: string;
+        tokenB: string;
+        amount: bigint;
+        minProfit: bigint;
+    }): Promise<TradeResult> {
         try {
-            const gasPrice = await this.gasOptimizer.getOptimalGasPrice();
-            const tx = await trade.execute(this.wallet, { gasPrice });
-            console.log(`Trade executed: ${tx.hash}`);
-            await tx.wait();
+            const tx = await this.flashLoanService.executeArbitrage(
+                params.tokenA,
+                params.tokenB,
+                'Uniswap', // Default exchange A
+                'SushiSwap', // Default exchange B
+                params.amount
+            );
+
+            const receipt = await tx.wait();
+
+            return {
+                success: true,
+                txHash: receipt.hash,
+                profit: params.minProfit.toString(),
+                gasUsed: receipt.gasUsed?.toString()
+            };
         } catch (error) {
-            console.error('Trade execution failed:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            };
         }
     }
 } 

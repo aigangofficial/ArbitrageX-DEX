@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "./interfaces/IArbitrageExecutor.sol";
+import "./interfaces/IFlashLoanReceiver.sol";
 import "./FlashLoanService.sol";
 
 contract ArbitrageExecutor is Ownable, IArbitrageExecutor {
@@ -17,7 +18,7 @@ contract ArbitrageExecutor is Ownable, IArbitrageExecutor {
         address indexed tokenA,
         address indexed tokenB,
         uint256 amountIn,
-        uint256 profit
+        uint256 amountOut
     );
 
     constructor(
@@ -65,7 +66,7 @@ contract ArbitrageExecutor is Ownable, IArbitrageExecutor {
 
         uint256 profit = finalBalance - amountIn;
         IERC20(tokenA).transfer(msg.sender, finalBalance);
-        emit ArbitrageExecuted(tokenA, tokenB, amountIn, profit);
+        emit ArbitrageExecuted(tokenA, tokenB, amountIn, finalBalance);
         return profit;
     }
 

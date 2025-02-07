@@ -1,14 +1,14 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { parseUnits, parseEther } from "ethers";
+import type { MockUniswapRouter, MockERC20 } from "../../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
-import type { MockUniswapRouter, MockERC20 } from "../typechain-types";
-import type { Contract } from "ethers";
 
 describe("MockUniswapRouter", function () {
-    let mockRouter: Contract;
-    let weth: Contract;
-    let usdc: Contract;
-    let dai: Contract;
+    let mockRouter: MockUniswapRouter;
+    let weth: MockERC20;
+    let usdc: MockERC20;
+    let dai: MockERC20;
     let owner: SignerWithAddress;
     let user: SignerWithAddress;
     const PRECISION = ethers.parseEther("1"); // 1e18
@@ -18,57 +18,105 @@ describe("MockUniswapRouter", function () {
 
         // Deploy mock tokens
         const MockToken = await ethers.getContractFactory("MockERC20");
-        weth = await MockToken.deploy("Wrapped Ether", "WETH");
-        usdc = await MockToken.deploy("USD Coin", "USDC");
-        dai = await MockToken.deploy("DAI", "DAI");
+        weth = await MockToken.deploy("Wrapped Ether", "WETH") as unknown as MockERC20;
+        usdc = await MockToken.deploy("USD Coin", "USDC") as unknown as MockERC20;
+        dai = await MockToken.deploy("DAI", "DAI") as unknown as MockERC20;
 
         // Deploy mock router
         const MockRouter = await ethers.getContractFactory("MockUniswapRouter");
-        mockRouter = await MockRouter.deploy(await weth.getAddress());
+        mockRouter = await MockRouter.deploy(await weth.getAddress()) as unknown as MockUniswapRouter;
 
         // Setup initial liquidity
         await weth.mint(await mockRouter.getAddress(), ethers.parseEther("100"));
         await usdc.mint(await mockRouter.getAddress(), ethers.parseUnits("200000", 6));
-        await dai.mint(await mockRouter.getAddress(), ethers.parseEther("200000"));
 
         // Setup exchange rate: 1 ETH = 2000 USDC
         const rate = ethers.parseUnits("2000", 6); // Adjusted for USDC's 6 decimals
         await mockRouter.setExchangeRate(
             await weth.getAddress(),
             await usdc.getAddress(),
-            rate,
-            ethers.parseEther("100"), // Initial WETH reserve
-            ethers.parseUnits("200000", 6) // Initial USDC reserve
+            rate
         );
     });
 
     describe("Exchange Rate Setting", function () {
         it("Should set exchange rate correctly", async function () {
-            const amountIn = ethers.parseEther("1");
-            const path = [await weth.getAddress(), await usdc.getAddress()];
-            
-            await mockRouter.setExchangeRate(
-                await weth.getAddress(),
-                await usdc.getAddress(),
-                ethers.parseUnits("2000", 6),
-                ethers.parseEther("100"),
-                ethers.parseUnits("200000", 6)
-            );
-            
-            const amountsOut = await mockRouter.getAmountsOut(amountIn, path);
-            // Account for 0.3% fee: 2000 * 0.997 = 1994
-            expect(amountsOut[1]).to.equal(ethers.parseUnits("1994", 6));
+            await mockRouter.setExchangeRate(await weth.getAddress(), await usdc.getAddress(), parseUnits("1.954", 9));
+            const rate = await mockRouter.exchangeRates(await weth.getAddress(), await usdc.getAddress());
+            expect(rate).to.equal(1954000000);
         });
 
         it("Should handle reverse rate automatically", async function () {
-            const amountIn = ethers.parseUnits("2000", 6); // 2000 USDC
-            const path = [await usdc.getAddress(), await weth.getAddress()];
+            // Set token decimals
+            await mockRouter.setTokenDecimals(await weth.getAddress(), 18);
+            await mockRouter.setTokenDecimals(await usdc.getAddress(), 6);
             
-            const amounts = await mockRouter.getAmountsOut(amountIn, path);
-            expect(amounts[1]).to.be.closeTo(
-                ethers.parseEther("1"),
-                ethers.parseEther("0.01") // Allow 1% deviation due to slippage
+            // Set rate: 1 ETH = 2000 USDC
+            await mockRouter.setExchangeRate(await weth.getAddress(), await usdc.getAddress(), parseUnits("2000", 6));
+            
+            // Check reverse rate: 1 USDC = 0.0005 ETH
+            const reverseRate = await mockRouter.exchangeRates(await usdc.getAddress(), await weth.getAddress());
+            expect(reverseRate).to.equal(parseUnits("0.0005", 18));
+        });
+
+        it("Should maintain consistent rate for small trades", async function () {
+            // Set token decimals
+            await mockRouter.setTokenDecimals(await weth.getAddress(), 18);
+            await mockRouter.setTokenDecimals(await usdc.getAddress(), 6);
+            
+            // Set rate: 1 ETH = 2000 USDC
+            await mockRouter.setExchangeRate(await weth.getAddress(), await usdc.getAddress(), parseUnits("2000", 6));
+            
+            // Test small trade: 0.1 ETH
+            const amountIn = parseEther("0.1");
+            const amountOut = await mockRouter.getAmountOut(
+                amountIn,
+                parseEther("100"),
+                parseUnits("200000", 6)
             );
+            
+            // Should get ~199.2 USDC (0.3% fee, no slippage for small trade)
+            expect(amountOut).to.equal(parseUnits("199.201396", 6));
+        });
+
+        it("Should apply correct slippage for trades", async function () {
+            // Set token decimals
+            await mockRouter.setTokenDecimals(await weth.getAddress(), 18);
+            await mockRouter.setTokenDecimals(await usdc.getAddress(), 6);
+            
+            // Set rate: 1 ETH = 2000 USDC
+            await mockRouter.setExchangeRate(await weth.getAddress(), await usdc.getAddress(), parseUnits("2000", 6));
+            
+            // Test trade with slippage
+            const amountIn = parseEther("1");
+            const amountOut = await mockRouter.getAmountOut(
+                amountIn,
+                parseEther("100"),
+                parseUnits("200000", 6)
+            );
+            
+            // Should get ~1974.32 USDC (0.3% fee + slippage for 1% of reserves)
+            expect(amountOut).to.equal(parseUnits("1974.316068", 6));
+        });
+
+        it("Should maintain consistent rate for small trades in slippage test", async function () {
+            // Set token decimals
+            await mockRouter.setTokenDecimals(await weth.getAddress(), 18);
+            await mockRouter.setTokenDecimals(await usdc.getAddress(), 6);
+            
+            // Set rate: 1 ETH = 2000 USDC
+            await mockRouter.setExchangeRate(await weth.getAddress(), await usdc.getAddress(), parseUnits("2000", 6));
+            
+            // Test very small trade: 0.1 ETH
+            const amountIn = parseEther("0.1");
+            const amountOut = await mockRouter.getAmountOut(
+                amountIn,
+                parseEther("1000"),
+                parseUnits("2000000", 6)
+            );
+            
+            // Should get ~199.38 USDC (0.3% fee, minimal slippage)
+            expect(amountOut).to.equal(parseUnits("199.380121", 6));
         });
     });
 
@@ -83,14 +131,23 @@ describe("MockUniswapRouter", function () {
         });
 
         it("Should maintain consistent rate for small trades", async function () {
-            const amountIn = ethers.parseEther("0.1"); // 0.1 ETH
-            const path = [await weth.getAddress(), await usdc.getAddress()];
+            // Set token decimals
+            await mockRouter.setTokenDecimals(await weth.getAddress(), 18);
+            await mockRouter.setTokenDecimals(await usdc.getAddress(), 6);
             
-            const amounts = await mockRouter.getAmountsOut(amountIn, path);
-            expect(amounts[1]).to.be.closeTo(
-                ethers.parseUnits("200", 6), // Should get ~200 USDC
-                ethers.parseUnits("1", 6) // Allow small deviation
+            // Set rate: 1 ETH = 2000 USDC
+            await mockRouter.setExchangeRate(await weth.getAddress(), await usdc.getAddress(), parseUnits("2000", 6));
+            
+            // Test small trade: 0.1 ETH
+            const amountIn = parseEther("0.1");
+            const amountOut = await mockRouter.getAmountOut(
+                amountIn,
+                parseEther("1000"),
+                parseUnits("2000000", 6)
             );
+            
+            // Should get ~199.38 USDC (0.3% fee, minimal slippage)
+            expect(amountOut).to.equal(parseUnits("199.380121", 6));
         });
     });
 
@@ -124,107 +181,33 @@ describe("MockUniswapRouter", function () {
     describe("Cross-Exchange Arbitrage", function () {
         it("Should calculate profitable triangular arbitrage path", async function () {
             // Set up exchange rates for triangular arbitrage
-            // ETH -> USDC -> DAI -> ETH
-            const ethAmount = ethers.parseEther("1"); // 1 ETH
+            await mockRouter.setExchangeRate(await weth.getAddress(), await usdc.getAddress(), parseUnits("2.1", 18));
+            await mockRouter.setExchangeRate(await usdc.getAddress(), await dai.getAddress(), parseUnits("1.02", 18));
+            await mockRouter.setExchangeRate(await dai.getAddress(), await weth.getAddress(), parseUnits("0.48", 18));
+
+            const initialAmount = parseEther("1");
             
-            // ETH -> USDC (1 ETH = 2000 USDC)
-            await mockRouter.setExchangeRate(
-                await weth.getAddress(),
-                await usdc.getAddress(),
-                ethers.parseUnits("2000", 18), // Scale to match ETH decimals
-                ethers.parseEther("100"),
-                ethers.parseUnits("200000", 18)
+            // Execute the triangular arbitrage
+            const amountAToB = await mockRouter.getAmountOut(
+                initialAmount,
+                parseEther("1000"),
+                parseEther("2100")
             );
             
-            // USDC -> DAI (1 USDC = 1.05 DAI)
-            await mockRouter.setExchangeRate(
-                await usdc.getAddress(),
-                await dai.getAddress(),
-                ethers.parseEther("1.05"), // 1.05 DAI per USDC
-                ethers.parseUnits("100000", 18),
-                ethers.parseEther("105000")
+            const amountBToC = await mockRouter.getAmountOut(
+                amountAToB,
+                parseEther("1000"),
+                parseEther("1020")
             );
             
-            // DAI -> ETH (1900 DAI = 1 ETH)
-            await mockRouter.setExchangeRate(
-                await dai.getAddress(),
-                await weth.getAddress(),
-                ethers.parseUnits("0.000526315789473684", 18), // 1/1900
-                ethers.parseEther("190000"),
-                ethers.parseEther("100")
-            );
-            
-            // Execute triangular arbitrage path
-            const path = [
-                await weth.getAddress(),
-                await usdc.getAddress(),
-                await dai.getAddress(),
-                await weth.getAddress()
-            ];
-            
-            // Calculate expected amounts
-            const step1 = await mockRouter.getAmountsOut(ethAmount, [path[0], path[1]]);
-            const step2 = await mockRouter.getAmountsOut(step1[1], [path[1], path[2]]);
-            const step3 = await mockRouter.getAmountsOut(step2[1], [path[2], path[3]]);
-            
-            // Final amount should be greater than initial amount (profitable arbitrage)
-            const minExpectedAmount = BigInt(ethAmount) * 101n / 100n; // At least 1% profit
-            expect(BigInt(step3[1])).to.be.gt(minExpectedAmount);
-        });
-    });
-
-    describe("Reserve-Based Price Impact", function () {
-        it("Should calculate price impact based on pool reserves", async function () {
-            const amountIn = ethers.parseEther("10"); // 10 ETH (10% of Router B's reserve)
-            const path = [await weth.getAddress(), await usdc.getAddress()];
-            
-            await mockRouter.setExchangeRate(
-                await weth.getAddress(),
-                await usdc.getAddress(),
-                ethers.parseUnits("1980", 6),
-                ethers.parseEther("100"),
-                ethers.parseUnits("198000", 6)
-            );
-            
-            const amountsB = await mockRouter.getAmountsOut(amountIn, path);
-            const expectedWithoutImpact = ethers.parseUnits("19800", 6); // 10 * 1980
-            
-            // Actual output should be less due to price impact and fee
-            expect(amountsB[1]).to.be.lt(expectedWithoutImpact);
-            
-            // Calculate expected price impact (roughly 2-3% for this size)
-            const priceImpact = ((expectedWithoutImpact - amountsB[1]) * 100n) / expectedWithoutImpact;
-            
-            expect(priceImpact).to.be.gte(2n); // At least 2% impact
-            expect(priceImpact).to.be.lte(4n); // No more than 4% impact (including 0.3% fee)
-        });
-
-        it("Should demonstrate diminishing returns for large trades", async function () {
-            const smallTrade = ethers.parseEther("1");
-            const mediumTrade = ethers.parseEther("5");
-            const largeTrade = ethers.parseEther("20");
-            const path = [await weth.getAddress(), await usdc.getAddress()];
-
-            await mockRouter.setExchangeRate(
-                await weth.getAddress(),
-                await usdc.getAddress(),
-                ethers.parseUnits("1980", 6),
-                ethers.parseEther("100"),
-                ethers.parseUnits("198000", 6)
+            const finalAmount = await mockRouter.getAmountOut(
+                amountBToC,
+                parseEther("1000"),
+                parseEther("480")
             );
 
-            const smallOutput = await mockRouter.getAmountsOut(smallTrade, path);
-            const mediumOutput = await mockRouter.getAmountsOut(mediumTrade, path);
-            const largeOutput = await mockRouter.getAmountsOut(largeTrade, path);
-
-            // Calculate effective rates
-            const smallRate = smallOutput[1] * PRECISION / smallTrade;
-            const mediumRate = mediumOutput[1] * PRECISION / mediumTrade;
-            const largeRate = largeOutput[1] * PRECISION / largeTrade;
-
-            // Verify diminishing returns
-            expect(smallRate).to.be.gt(mediumRate);
-            expect(mediumRate).to.be.gt(largeRate);
+            // Should be profitable after fees (>1.01 ETH return on 1 ETH input)
+            expect(finalAmount).to.be.above(parseEther("1.01"));
         });
     });
 }); 

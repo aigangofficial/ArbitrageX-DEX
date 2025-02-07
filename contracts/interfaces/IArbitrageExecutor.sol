@@ -7,7 +7,7 @@ interface IArbitrageExecutor {
     function executeArbitrage(
         address tokenA,
         address tokenB,
-        uint256 amountIn,
-        bool isUniToSushi
+        uint256 amount,
+        bool useUniswapFirst
     ) external returns (uint256);
 } 
