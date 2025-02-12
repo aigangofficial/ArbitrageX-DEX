@@ -1,30 +1,15 @@
-# Dependencies
+# Dependency directories
 node_modules/
-package-lock.json
-
-# Environment variables
 .env
-.env.local
-.env.*.local
-
-# Build outputs
-dist/
-build/
-artifacts/
-cache/
-typechain/
-typechain-types/
-coverage/
 
 # Hardhat files
-.hardhat/
-hardhat-cache/
-coverage.json
-coverage/
+cache/
+artifacts/
+typechain-types/
 
 # IDE files
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
 
@@ -37,11 +22,157 @@ coverage/
 ehthumbs.db
 Thumbs.db
 
+# Build files
+dist/
+build/
+coverage/
+coverage.json
+
+# Deployment files
+deployments/*/solcInputs/
+deployments/*/build-info/
+
 # Debug logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-debug.log
 
-# Contract artifacts
-contracts/artifacts/ 
+# Temporary files
+*.tmp
+*.temp
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Contract size debug files
+sizeReport.txt
+
+# Gas reporter files
+gasReporter.txt
+
+# Tenderly files
+.tenderly
+
+# Hardhat local network files
+deployments/localhost/
+
+# Coverage directory
+coverage/
+.coverage_artifacts/
+.coverage_cache/
+.coverage_contracts/
+
+# Environment files
+.env.*
+!.env.example
+config/.env.*
+!config/.env.example
+
+# Private keys and secrets
+*.secret
+*.key
+mnemonic.txt
+
+# Test files
+.nyc_output/
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+config/.env
+config/.env.*
+!config/.env.example
+*.secret
+*.key
+mnemonic.txt
+.secret
+privatekey.json
+
+# Security & Keys
+.keys/
+.secrets/
+**/aws.json
+**/*.pem
+**/*.key
+**/*.crt
+
+# Dependencies & Build
+node_modules/
+dist/
+build/
+coverage/
+coverage.json
+typechain-types/
+cache/
+artifacts/
+
+# IDE & Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs & Debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+debug/
+.debug/
+
+# Test & Coverage
+coverage/
+.coverage_artifacts/
+.coverage_cache/
+.coverage_contracts/
+.nyc_output/
+
+# Hardhat
+cache/
+artifacts/
+typechain-types/
+deployments/**/solcInputs/
+deployments/localhost/
+.openzeppelin/unknown-*.json
+
+# Gas & Performance
+gasReporter.txt
+sizeReport.txt
+.tenderly/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary
+*.tmp
+*.temp
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Deployment
+deployed-addresses.json
+deployment-*.json
+verify-*.json
+
+# Misc
+.cursor/
+*.bak
+*.orig
+*.rej 

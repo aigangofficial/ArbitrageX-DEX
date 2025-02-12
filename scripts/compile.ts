@@ -28,20 +28,20 @@ async function needsRecompilation(contractsDir: string, cacheFile: string): Prom
   try {
     const cache: CompilationCache = JSON.parse(await fs.promises.readFile(cacheFile, 'utf8'));
     const files = await fs.promises.readdir(contractsDir);
-    
+
     for (const file of files) {
       if (!file.endsWith('.sol')) continue;
-      
+
       const filePath = path.join(contractsDir, file);
       const stats = await fs.promises.stat(filePath);
       const currentHash = await getFileHash(filePath);
-      
+
       const cached = cache.contracts.find(c => c.path === filePath);
       if (!cached || cached.hash !== currentHash || cached.lastCompiled < stats.mtimeMs) {
         return true;
       }
     }
-    
+
     return false;
   } catch (error) {
     console.error('Error checking compilation cache:', error);
@@ -52,20 +52,20 @@ async function needsRecompilation(contractsDir: string, cacheFile: string): Prom
 async function updateCache(contractsDir: string, cacheFile: string): Promise<void> {
   const cache: CompilationCache = {
     contracts: [],
-    lastCompilation: Date.now()
+    lastCompilation: Date.now(),
   };
 
   const files = await fs.promises.readdir(contractsDir);
   for (const file of files) {
     if (!file.endsWith('.sol')) continue;
-    
+
     const filePath = path.join(contractsDir, file);
     const hash = await getFileHash(filePath);
-    
+
     cache.contracts.push({
       path: filePath,
       hash,
-      lastCompiled: Date.now()
+      lastCompiled: Date.now(),
     });
   }
 
@@ -78,16 +78,16 @@ export async function smartCompile(hre: HardhatRuntimeEnvironment) {
 
   if (await needsRecompilation(contractsDir, cacheFile)) {
     console.log('🔄 Changes detected in contracts. Recompiling...');
-    
+
     // Clean artifacts and cache
     await hre.run('clean');
-    
+
     // Compile contracts
     await hre.run('compile');
-    
+
     // Update cache
     await updateCache(contractsDir, cacheFile);
-    
+
     console.log('✅ Compilation completed successfully.');
   } else {
     console.log('✅ No changes detected. Using existing artifacts.');
@@ -99,8 +99,8 @@ if (require.main === module) {
   const hre = require('hardhat');
   smartCompile(hre)
     .then(() => process.exit(0))
-    .catch((error) => {
+    .catch(error => {
       console.error('Error during compilation:', error);
       process.exit(1);
     });
-} 
+}

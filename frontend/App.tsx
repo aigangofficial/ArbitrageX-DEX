@@ -1,17 +1,24 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import { ChakraProvider, Box, Flex, VStack, Heading, Text } from '@chakra-ui/react';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import {
+  ChakraProvider,
+  Box,
+  Flex,
+  VStack,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
 
 // Pages
-import Dashboard from './pages/Dashboard';
-import Trades from './pages/Trades';
-import Settings from './pages/Settings';
-import Analytics from './pages/Analytics';
+import Dashboard from "./pages/Dashboard";
+import Trades from "./pages/Trades";
+import Settings from "./pages/Settings";
+import Analytics from "./pages/Analytics";
 
 // Components
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
-import StatusBar from './components/StatusBar';
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
+import StatusBar from "./components/StatusBar";
 
 function App() {
   return (
@@ -27,7 +34,7 @@ function App() {
             {/* Main Content */}
             <Box flex="1">
               <Header />
-              
+
               <Box p="6">
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
@@ -49,4 +56,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

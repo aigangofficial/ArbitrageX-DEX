@@ -1,102 +1,129 @@
-import express from 'express';
-import http from 'http';
 import cors from 'cors';
 import { ethers } from 'ethers';
-import { connectDB } from '../database/db';
-import { ArbitrageWebSocketService } from './websocket/arbitrageWebSocket';
-import { ArbitrageScanner } from '../execution/arbitrageScanner';
-import { FlashLoanService } from '../types/contracts';
+import express from 'express';
+import mongoose from 'mongoose';
+import { WebSocketServer } from 'ws';
 import { ArbitrageTrade } from '../database/models';
+import { ArbitrageScanner } from '../execution/arbitrageScanner';
+import { config } from './config';
 
 const app = express();
-const server = http.createServer(app);
+const port = config.api.port;
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: config.api.corsOrigin,
+  })
+);
 app.use(express.json());
 
-// Initialize WebSocket service
-const wsService = new ArbitrageWebSocketService(server);
+// Initialize provider and contracts
+const provider = new ethers.JsonRpcProvider(config.network.rpc);
 
-// Initialize blockchain provider
-const provider = new ethers.JsonRpcProvider(process.env.ETH_RPC_URL);
+// Initialize WebSocket server
+const wss = new WebSocketServer({ port: config.api.wsPort });
 
-// Initialize Flash Loan service
-const flashLoanAddress = process.env.FLASH_LOAN_ADDRESS;
-if (!flashLoanAddress) {
-    throw new Error('FLASH_LOAN_ADDRESS environment variable is not set');
-}
+// Initialize scanner
+const scanner = new ArbitrageScanner(
+  provider,
+  wss,
+  config.contracts.flashLoanService,
+  config.contracts.quickswapRouter,
+  config.contracts.sushiswapRouter
+);
 
-const flashLoanService = new FlashLoanService(flashLoanAddress, provider);
-
-// Initialize arbitrage scanner
-const scanner = new ArbitrageScanner(flashLoanService, wsService.getServer());
-
-// API Routes
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+// Health check endpoint
+app.get('/api/health', (_req, res) => {
+  return res.json({ status: 'ok' });
 });
 
-app.get('/api/trades', async (req, res) => {
-    try {
-        const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
-        const trades = await ArbitrageTrade.find()
-            .sort({ timestamp: -1 })
-            .limit(limit);
-        res.json(trades);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch trades' });
-    }
+// Get all trades
+app.get('/api/trades', async (_req, res) => {
+  try {
+    const trades = await ArbitrageTrade.find().sort({ createdAt: -1 }).limit(10);
+    return res.json(trades);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch trades' });
+  }
 });
 
+// Get trade by ID
 app.get('/api/trades/:id', async (req, res) => {
-    try {
-        const trade = await ArbitrageTrade.findById(req.params.id);
-        if (!trade) {
-            return res.status(404).json({ error: 'Trade not found' });
-        }
-        res.json(trade);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch trade' });
+  try {
+    const trade = await ArbitrageTrade.findById(req.params.id);
+    if (!trade) {
+      return res.status(404).json({ error: 'Trade not found' });
     }
+    return res.json(trade);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch trade' });
+  }
 });
 
-app.post('/api/execute', async (req, res) => {
-    try {
-        const { tradeId } = req.body;
-        const trade = await ArbitrageTrade.findById(tradeId);
-        
-        if (!trade) {
-            return res.status(404).json({ error: 'Trade not found' });
-        }
+// Execute arbitrage trade
+app.post('/api/arbitrage/execute', async (req, res) => {
+  try {
+    const { tokenA, tokenB, amount, exchangeA, exchangeB } = req.body;
 
-        if (trade.status !== 'pending') {
-            return res.status(400).json({ error: 'Trade is not in pending state' });
-        }
-
-        // Execute the trade
-        await scanner.executeArbitrage(trade);
-        res.json({ message: 'Trade execution initiated' });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to execute trade' });
+    if (!tokenA || !tokenB || !amount || !exchangeA || !exchangeB) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['tokenA', 'tokenB', 'amount', 'exchangeA', 'exchangeB'],
+      });
     }
+
+    console.log('Creating trade with parameters:', {
+      tokenA,
+      tokenB,
+      amount,
+      exchangeA,
+      exchangeB,
+    });
+
+    const trade = await ArbitrageTrade.create({
+      tokenA,
+      tokenB,
+      amount: Number(amount),
+      exchangeA,
+      exchangeB,
+      path: [tokenA, tokenB],
+      expectedProfit: 0, // Will be calculated during scanning
+      status: 'pending',
+    });
+
+    console.log('Trade created:', trade);
+
+    // Start scanning for this trade
+    scanner.startScanning();
+
+    return res.json({
+      message: 'Trade initiated',
+      tradeId: trade._id,
+      trade,
+    });
+  } catch (error: unknown) {
+    console.error('Error executing trade:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    return res.status(500).json({ error: 'Failed to execute trade', details: errorMessage });
+  }
 });
 
-// Start the server
-const PORT = process.env.PORT || 3000;
+// Connect to MongoDB
+mongoose
+  .connect(config.database.uri, config.database.options)
+  .then(() => {
+    console.log('Connected to MongoDB');
 
-async function startServer() {
-    try {
-        // Connect to MongoDB
-        await connectDB();
-        
-        server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
-    }
-}
+    // Start the server
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+      console.log(`WebSocket server running on port ${config.api.wsPort}`);
+    });
+  })
+  .catch(error => {
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
+  });
 
-startServer(); 
+export default app;

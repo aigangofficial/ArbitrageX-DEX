@@ -50,8 +50,8 @@ if (require.main === module) {
   }
   updateNetwork(network)
     .then(() => process.exit(0))
-    .catch((error) => {
+    .catch(error => {
       console.error('Error switching network:', error);
       process.exit(1);
     });
-} 
+}

@@ -1,51 +1,51 @@
 import { ethers } from 'ethers';
 
 export class GasOptimizer {
-    private readonly MAX_GWEI = 150; // Maximum gas price we're willing to pay
-    private readonly MIN_GWEI = 10;  // Minimum gas price for transaction to be included
-    private readonly SPEED_MULTIPLIER = 1.1; // Multiply base fee by this to get included faster
+  private readonly MAX_GWEI = 150; // Maximum gas price we're willing to pay
+  private readonly MIN_GWEI = 10; // Minimum gas price for transaction to be included
+  private readonly SPEED_MULTIPLIER = 1.1; // 10% faster than base fee
+  private readonly provider: ethers.Provider;
 
-    constructor(private provider: ethers.Provider) {}
+  constructor(provider: ethers.Provider) {
+    this.provider = provider;
+  }
 
-    public async getOptimalGasPrice(): Promise<ethers.BigNumber> {
-        try {
-            // Get latest block to check current network conditions
-            const block = await this.provider.getBlock('latest');
-            
-            if (!block) {
-                throw new Error('Could not fetch latest block');
-            }
+  public async getOptimalGasPrice(): Promise<bigint> {
+    try {
+      const feeData = await this.provider.getFeeData();
+      const baseFeePerGas = feeData.gasPrice || feeData.maxFeePerGas || BigInt(0);
 
-            // Calculate optimal gas price based on network conditions
-            const baseFeePerGas = block.baseFeePerGas || ethers.parseUnits('20', 'gwei');
-            let optimalPrice = baseFeePerGas.mul(Math.floor(this.SPEED_MULTIPLIER * 100)).div(100);
+      if (!baseFeePerGas) {
+        throw new Error('Could not determine base fee');
+      }
 
-            // Ensure gas price is within our limits
-            const maxPrice = ethers.parseUnits(this.MAX_GWEI.toString(), 'gwei');
-            const minPrice = ethers.parseUnits(this.MIN_GWEI.toString(), 'gwei');
+      // Calculate optimal price (multiply by SPEED_MULTIPLIER)
+      const multiplier = BigInt(Math.floor(this.SPEED_MULTIPLIER * 100));
+      const optimalPrice = (baseFeePerGas * multiplier) / BigInt(100);
 
-            if (optimalPrice.gt(maxPrice)) {
-                optimalPrice = maxPrice;
-            } else if (optimalPrice.lt(minPrice)) {
-                optimalPrice = minPrice;
-            }
+      // Ensure price is within bounds
+      const maxPrice = BigInt(this.MAX_GWEI) * BigInt(1e9); // Convert to wei
+      const minPrice = BigInt(this.MIN_GWEI) * BigInt(1e9); // Convert to wei
 
-            return optimalPrice;
-        } catch (error) {
-            console.error('Error calculating optimal gas price:', error);
-            // Return default gas price if calculation fails
-            return ethers.parseUnits('20', 'gwei');
-        }
+      if (optimalPrice > maxPrice) return maxPrice;
+      if (optimalPrice < minPrice) return minPrice;
+
+      return optimalPrice;
+    } catch (error) {
+      console.error('Error calculating optimal gas price:', error);
+      throw error;
     }
+  }
 
-    public async estimateGasLimit(tx: ethers.providers.TransactionRequest): Promise<ethers.BigNumber> {
-        try {
-            const gasEstimate = await this.provider.estimateGas(tx);
-            // Add 20% buffer to gas estimate
-            return gasEstimate.mul(120).div(100);
-        } catch (error) {
-            console.error('Error estimating gas limit:', error);
-            throw error;
-        }
+  public async estimateGasLimit(tx: ethers.TransactionRequest): Promise<bigint> {
+    try {
+      const gasEstimate = await this.provider.estimateGas(tx);
+
+      // Add 20% buffer for safety
+      return (gasEstimate * BigInt(120)) / BigInt(100);
+    } catch (error) {
+      console.error('Error estimating gas limit:', error);
+      throw error;
     }
-} 
+  }
+}

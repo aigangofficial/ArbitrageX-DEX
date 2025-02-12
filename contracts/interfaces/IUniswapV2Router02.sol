@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 interface IUniswapV2Router02 {
     function swapExactTokensForTokens(
@@ -14,4 +14,4 @@ interface IUniswapV2Router02 {
         uint256 amountIn,
         address[] calldata path
     ) external view returns (uint256[] memory amounts);
-} 
+}

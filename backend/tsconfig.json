@@ -3,32 +3,38 @@
     "target": "es2020",
     "module": "commonjs",
     "lib": ["es2020"],
-    "outDir": "./dist",
-    "rootDir": "./",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
     "declaration": true,
-    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"]
-    }
+      "*": ["../node_modules/*", "../typechain-types/*"]
+    },
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "typeRoots": ["../node_modules/@types", "./types"]
   },
   "include": [
     "api/**/*",
     "database/**/*",
     "execution/**/*",
-    "websocket/**/*",
+    "types/**/*",
     "tests/**/*",
-    "*.js",
-    "*.ts"
+    "__mocks__/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
-} 
+  "exclude": ["node_modules", "dist"]
+}

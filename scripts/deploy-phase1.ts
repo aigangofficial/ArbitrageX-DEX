@@ -1,8 +1,9 @@
-import { ethers, network, run } from "hardhat";
-import * as fs from "fs";
-import * as dotenv from "dotenv";
+import { ethers, network, run } from 'hardhat';
+import * as fs from 'fs';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
 
-dotenv.config();
+dotenv.config({ path: resolve(__dirname, '../config/.env') });
 
 interface DeploymentInfo {
   network: {
@@ -18,6 +19,12 @@ interface DeploymentInfo {
       address: string;
       constructorArgs: string[];
     };
+  };
+  securityParams: {
+    maxSlippage: number;
+    minProfitBps: number;
+    emergencyWithdrawalDelay: number;
+    paramChangeDelay: number;
   };
   transactions: {
     flashLoanService: {
@@ -41,14 +48,10 @@ interface DeploymentInfo {
   deployer: string;
 }
 
-async function verifyContract(
-  name: string,
-  address: string,
-  constructorArguments: any[]
-) {
+async function verifyContract(name: string, address: string, constructorArguments: any[]) {
   console.log(`\nVerifying ${name}...`);
   try {
-    await run("verify:verify", {
+    await run('verify:verify', {
       address,
       constructorArguments,
     });
@@ -59,72 +62,154 @@ async function verifyContract(
   }
 }
 
+async function initializeSecurityParams(arbitrageExecutor: any, flashLoanService: any) {
+  console.log('\nInitializing security parameters...');
+
+  // Set up FlashLoanService
+  console.log('\nSetting up FlashLoanService...');
+  const setupTx = await flashLoanService.setArbitrageExecutor(await arbitrageExecutor.getAddress());
+  await setupTx.wait();
+  console.log('ArbitrageExecutor set in FlashLoanService');
+
+  return {
+    maxSlippage: 100, // 1%
+    minProfitBps: 50, // 0.5%
+    emergencyWithdrawalDelay: 24 * 60 * 60, // 24 hours
+    paramChangeDelay: 24 * 60 * 60, // 24 hours
+  };
+}
+
 async function main() {
-  console.log("Starting deployment of Phase 1 contracts...");
+  console.log('Starting deployment of Phase 1 contracts...');
   console.log(`Network: ${network.name} (${network.config.chainId})`);
 
+  // Set optimized gas settings for Amoy
+  const maxFeePerGas = ethers.parseUnits('35', 'gwei');
+  const maxPriorityFeePerGas = ethers.parseUnits('25', 'gwei');
+  console.log('Using max fee per gas:', ethers.formatUnits(maxFeePerGas, 'gwei'), 'Gwei');
+  console.log(
+    'Using max priority fee per gas:',
+    ethers.formatUnits(maxPriorityFeePerGas, 'gwei'),
+    'Gwei'
+  );
+
   // Get network-specific addresses
-  const AAVE_POOL = network.name === "sepolia" 
-    ? process.env.SEPOLIA_AAVE_POOL
-    : process.env.AAVE_POOL_ADDRESS;
-  
-  const UNISWAP = network.name === "sepolia"
-    ? process.env.SEPOLIA_UNISWAP_ROUTER
-    : process.env.UNISWAP_ROUTER;
-  
-  const SUSHISWAP = network.name === "sepolia"
-    ? process.env.SEPOLIA_SUSHISWAP_ROUTER
-    : process.env.SUSHISWAP_ROUTER;
+  const AAVE_POOL =
+    network.name === 'amoy'
+      ? process.env.AMOY_AAVE_POOL
+      : network.name === 'sepolia'
+        ? process.env.SEPOLIA_AAVE_POOL
+        : process.env.AAVE_POOL_ADDRESS;
+
+  const UNISWAP =
+    network.name === 'amoy'
+      ? process.env.AMOY_QUICKSWAP_ROUTER // QuickSwap is Uniswap equivalent on Polygon
+      : network.name === 'sepolia'
+        ? process.env.SEPOLIA_UNISWAP_ROUTER
+        : process.env.UNISWAP_ROUTER;
+
+  const SUSHISWAP =
+    network.name === 'amoy'
+      ? process.env.AMOY_SUSHISWAP_ROUTER
+      : network.name === 'sepolia'
+        ? process.env.SEPOLIA_SUSHISWAP_ROUTER
+        : process.env.SUSHISWAP_ROUTER;
 
   // Validate environment variables
   if (!AAVE_POOL || !UNISWAP || !SUSHISWAP) {
-    throw new Error("Missing required environment variables");
+    throw new Error('Missing required environment variables');
   }
+
+  // Validate addresses
+  if (!ethers.isAddress(AAVE_POOL) || !ethers.isAddress(UNISWAP) || !ethers.isAddress(SUSHISWAP)) {
+    throw new Error('Invalid contract addresses provided');
+  }
+
+  console.log('\nUsing addresses:');
+  console.log('AAVE Pool:', AAVE_POOL);
+  console.log('DEX Router 1:', UNISWAP);
+  console.log('DEX Router 2:', SUSHISWAP);
 
   // Get deployer
   const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with account:", deployer.address);
-  console.log("Account balance:", ethers.formatEther(await deployer.provider.getBalance(deployer.address)), "ETH");
+  console.log('\nDeploying contracts with account:', deployer.address);
+  const balance = await deployer.provider.getBalance(deployer.address);
+  console.log(
+    'Account balance:',
+    ethers.formatEther(balance),
+    network.name === 'mumbai' ? 'MATIC' : 'ETH'
+  );
 
-  // Deploy FlashLoanService
-  console.log("\nDeploying FlashLoanService...");
-  const FlashLoanService = await ethers.getContractFactory("FlashLoanService");
-  const flashLoanService = await FlashLoanService.deploy(AAVE_POOL, UNISWAP, SUSHISWAP);
-  const flashLoanReceipt = await flashLoanService.deploymentTransaction()?.wait();
-  console.log("FlashLoanService deployed to:", await flashLoanService.getAddress());
+  // Get current nonce
+  const currentNonce = await deployer.getNonce();
+  console.log('Current nonce:', currentNonce);
+
+  // Deploy FlashLoanService with optimized gas settings
+  const FlashLoanService = await ethers.getContractFactory('FlashLoanService');
+  console.log('Deploying FlashLoanService...');
+  const flashLoanService = await FlashLoanService.deploy(AAVE_POOL, {
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    gasLimit: 3000000, // Reduced gas limit for Mumbai
+  });
+  await flashLoanService.waitForDeployment();
+  console.log('FlashLoanService deployed to:', await flashLoanService.getAddress());
 
   // Deploy ArbitrageExecutor
-  console.log("\nDeploying ArbitrageExecutor...");
-  const ArbitrageExecutor = await ethers.getContractFactory("ArbitrageExecutor");
+  const ArbitrageExecutor = await ethers.getContractFactory('ArbitrageExecutor');
+  console.log('\nDeploying ArbitrageExecutor...');
   const arbitrageExecutor = await ArbitrageExecutor.deploy(
     UNISWAP,
     SUSHISWAP,
-    await flashLoanService.getAddress()
+    await flashLoanService.getAddress(),
+    {
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      gasLimit: 3000000, // Reduced from 5000000
+    }
   );
-  const arbitrageReceipt = await arbitrageExecutor.deploymentTransaction()?.wait();
-  console.log("ArbitrageExecutor deployed to:", await arbitrageExecutor.getAddress());
+  await arbitrageExecutor.waitForDeployment();
+  console.log('ArbitrageExecutor deployed to:', await arbitrageExecutor.getAddress());
 
-  // Verify contracts on Etherscan
+  // Initialize security parameters
+  const securityParams = await initializeSecurityParams(arbitrageExecutor, flashLoanService);
+
+  // Verify contracts on Etherscan with retry logic
   let verificationResults = {
     flashLoanService: false,
-    arbitrageExecutor: false
+    arbitrageExecutor: false,
   };
 
-  if (network.name !== "hardhat") {
-    // Wait for contracts to be deployed fully
+  if (network.name !== 'hardhat') {
+    console.log('\nWaiting for contract deployments to propagate...');
     await new Promise(resolve => setTimeout(resolve, 30000));
 
-    verificationResults.flashLoanService = await verifyContract(
-      "FlashLoanService",
-      await flashLoanService.getAddress(),
-      [AAVE_POOL, UNISWAP, SUSHISWAP]
-    );
+    const maxRetries = 3;
+    for (let i = 0; i < maxRetries && !verificationResults.flashLoanService; i++) {
+      try {
+        verificationResults.flashLoanService = await verifyContract(
+          'FlashLoanService',
+          await flashLoanService.getAddress(),
+          [AAVE_POOL]
+        );
+      } catch (error) {
+        console.log(`Retry ${i + 1}/${maxRetries} for FlashLoanService verification`);
+        await new Promise(resolve => setTimeout(resolve, 10000));
+      }
+    }
 
-    verificationResults.arbitrageExecutor = await verifyContract(
-      "ArbitrageExecutor",
-      await arbitrageExecutor.getAddress(),
-      [UNISWAP, SUSHISWAP, await flashLoanService.getAddress()]
-    );
+    for (let i = 0; i < maxRetries && !verificationResults.arbitrageExecutor; i++) {
+      try {
+        verificationResults.arbitrageExecutor = await verifyContract(
+          'ArbitrageExecutor',
+          await arbitrageExecutor.getAddress(),
+          [UNISWAP, SUSHISWAP, await flashLoanService.getAddress()]
+        );
+      } catch (error) {
+        console.log(`Retry ${i + 1}/${maxRetries} for ArbitrageExecutor verification`);
+        await new Promise(resolve => setTimeout(resolve, 10000));
+      }
+    }
   }
 
   // Prepare deployment info
@@ -136,25 +221,26 @@ async function main() {
     contracts: {
       flashLoanService: {
         address: await flashLoanService.getAddress(),
-        constructorArgs: [AAVE_POOL, UNISWAP, SUSHISWAP],
+        constructorArgs: [AAVE_POOL],
       },
       arbitrageExecutor: {
         address: await arbitrageExecutor.getAddress(),
         constructorArgs: [UNISWAP, SUSHISWAP, await flashLoanService.getAddress()],
       },
     },
+    securityParams,
     transactions: {
       flashLoanService: {
-        hash: flashLoanReceipt?.hash || "unknown",
-        gasUsed: flashLoanReceipt?.gasUsed.toString() || "unknown",
-        gasPrice: flashLoanReceipt?.gasPrice?.toString() || "unknown",
-        cost: ((flashLoanReceipt?.gasUsed || 0n) * (flashLoanReceipt?.gasPrice || 0n)).toString(),
+        hash: 'unknown',
+        gasUsed: 'unknown',
+        gasPrice: 'unknown',
+        cost: 'unknown',
       },
       arbitrageExecutor: {
-        hash: arbitrageReceipt?.hash || "unknown",
-        gasUsed: arbitrageReceipt?.gasUsed.toString() || "unknown",
-        gasPrice: arbitrageReceipt?.gasPrice?.toString() || "unknown",
-        cost: ((arbitrageReceipt?.gasUsed || 0n) * (arbitrageReceipt?.gasPrice || 0n)).toString(),
+        hash: 'unknown',
+        gasUsed: 'unknown',
+        gasPrice: 'unknown',
+        cost: 'unknown',
       },
     },
     verification: verificationResults,
@@ -167,32 +253,39 @@ async function main() {
   if (!fs.existsSync(deploymentPath)) {
     fs.mkdirSync(deploymentPath, { recursive: true });
   }
-  
+
   fs.writeFileSync(
     `${deploymentPath}/deployment-phase1.json`,
     JSON.stringify(deploymentInfo, null, 2)
   );
 
   // Print deployment summary
-  console.log("\n=== Deployment Summary ===");
+  console.log('\n=== Deployment Summary ===');
   console.log(`Network: ${network.name} (Chain ID: ${network.config.chainId})`);
   console.log(`Deployer: ${deployer.address}`);
-  console.log("\nContracts:");
+  console.log('\nContracts:');
   console.log(`- FlashLoanService: ${await flashLoanService.getAddress()}`);
   console.log(`- ArbitrageExecutor: ${await arbitrageExecutor.getAddress()}`);
-  console.log("\nVerification Status:");
-  console.log(`- FlashLoanService: ${verificationResults.flashLoanService ? "✅" : "❌"}`);
-  console.log(`- ArbitrageExecutor: ${verificationResults.arbitrageExecutor ? "✅" : "❌"}`);
-  
-  const totalGasUsed = (BigInt(flashLoanReceipt?.gasUsed || 0) + BigInt(arbitrageReceipt?.gasUsed || 0)).toString();
-  console.log("\nTotal Gas Used:", totalGasUsed);
+  console.log('\nSecurity Parameters:');
+  console.log(`- Max Slippage: ${securityParams.maxSlippage} bps`);
+  console.log(`- Min Profit: ${securityParams.minProfitBps} bps`);
+  console.log(
+    `- Emergency Withdrawal Delay: ${securityParams.emergencyWithdrawalDelay / 3600} hours`
+  );
+  console.log(`- Parameter Change Delay: ${securityParams.paramChangeDelay / 3600} hours`);
+  console.log('\nVerification Status:');
+  console.log(`- FlashLoanService: ${verificationResults.flashLoanService ? '✅' : '❌'}`);
+  console.log(`- ArbitrageExecutor: ${verificationResults.arbitrageExecutor ? '✅' : '❌'}`);
+
+  const totalGasUsed = 'unknown';
+  console.log('\nTotal Gas Used:', totalGasUsed);
 
   return deploymentInfo;
 }
 
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
-  }); 
+  });
