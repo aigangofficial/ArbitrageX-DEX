@@ -1,6 +1,6 @@
-import { ethers, network, run } from 'hardhat';
-import * as fs from 'fs';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
+import { ethers, network, run } from 'hardhat';
 import { resolve } from 'path';
 
 dotenv.config({ path: resolve(__dirname, '../config/.env') });
@@ -84,12 +84,19 @@ async function main() {
   console.log(`Network: ${network.name} (${network.config.chainId})`);
 
   // Set optimized gas settings for Amoy
-  const maxFeePerGas = ethers.parseUnits('35', 'gwei');
-  const maxPriorityFeePerGas = ethers.parseUnits('25', 'gwei');
-  console.log('Using max fee per gas:', ethers.formatUnits(maxFeePerGas, 'gwei'), 'Gwei');
+  const deploymentConfig = {
+    maxFeePerGas: ethers.parseUnits('35', 'gwei'),
+    maxPriorityFeePerGas: ethers.parseUnits('25', 'gwei'),
+    gasLimit: 3000000,
+  };
+  console.log(
+    'Using max fee per gas:',
+    ethers.formatUnits(deploymentConfig.maxFeePerGas, 'gwei'),
+    'Gwei'
+  );
   console.log(
     'Using max priority fee per gas:',
-    ethers.formatUnits(maxPriorityFeePerGas, 'gwei'),
+    ethers.formatUnits(deploymentConfig.maxPriorityFeePerGas, 'gwei'),
     'Gwei'
   );
 
@@ -144,38 +151,29 @@ async function main() {
   const currentNonce = await deployer.getNonce();
   console.log('Current nonce:', currentNonce);
 
-  // Deploy FlashLoanService with optimized gas settings
+  // Deploy FlashLoanService
   const FlashLoanService = await ethers.getContractFactory('FlashLoanService');
   console.log('Deploying FlashLoanService...');
-  const flashLoanService = await FlashLoanService.deploy(AAVE_POOL, {
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    gasLimit: 3000000, // Reduced gas limit for Mumbai
-  });
+  const flashLoanService = await FlashLoanService.deploy(AAVE_POOL, { ...deploymentConfig });
   await flashLoanService.waitForDeployment();
-  console.log('FlashLoanService deployed to:', await flashLoanService.getAddress());
+  const flashLoanAddress = await flashLoanService.getAddress();
+  console.log('FlashLoanService deployed to:', flashLoanAddress);
 
   // Deploy ArbitrageExecutor
   const ArbitrageExecutor = await ethers.getContractFactory('ArbitrageExecutor');
   console.log('\nDeploying ArbitrageExecutor...');
-  const arbitrageExecutor = await ArbitrageExecutor.deploy(
-    UNISWAP,
-    SUSHISWAP,
-    await flashLoanService.getAddress(),
-    {
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      gasLimit: 3000000, // Reduced from 5000000
-    }
-  );
+  const arbitrageExecutor = await ArbitrageExecutor.deploy(UNISWAP, SUSHISWAP, flashLoanAddress, {
+    ...deploymentConfig,
+  });
   await arbitrageExecutor.waitForDeployment();
-  console.log('ArbitrageExecutor deployed to:', await arbitrageExecutor.getAddress());
+  const arbitrageAddress = await arbitrageExecutor.getAddress();
+  console.log('ArbitrageExecutor deployed to:', arbitrageAddress);
 
   // Initialize security parameters
   const securityParams = await initializeSecurityParams(arbitrageExecutor, flashLoanService);
 
   // Verify contracts on Etherscan with retry logic
-  let verificationResults = {
+  const verificationResults = {
     flashLoanService: false,
     arbitrageExecutor: false,
   };

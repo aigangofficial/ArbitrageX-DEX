@@ -49,7 +49,7 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
     mapping(address => bool) public isFlashLoanProvider;
     IPoolAddressesProvider private immutable _addressesProvider;
 
-    constructor(address _tokenA, address _tokenB, address _provider) Ownable(msg.sender) {
+    constructor(address _tokenA, address _tokenB, address _provider) Ownable() {
         if (_tokenA == address(0) || _tokenB == address(0) || _provider == address(0)) {
             revert InvalidAddress();
         }

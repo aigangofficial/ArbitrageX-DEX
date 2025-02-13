@@ -33,7 +33,7 @@ contract MockDEX is IUniswapV2Router02, Ownable {
         uint256 impact
     );
 
-    constructor(address weth) Ownable(msg.sender) {
+    constructor(address weth) Ownable() {
         _transferOwnership(msg.sender);
     }
 

@@ -30,7 +30,7 @@ abstract contract SecurityAdmin is Ownable, Pausable, ReentrancyGuard {
     );
     event ParameterChangeCancelled(string indexed parameter);
 
-    constructor() Ownable(msg.sender) {
+    constructor() Ownable() {
         _transferOwnership(msg.sender);
     }
 

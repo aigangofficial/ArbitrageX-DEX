@@ -21,6 +21,7 @@ contract ArbitrageExecutor is Ownable {
     IUniswapV2Router02 public immutable uniswapRouter;
     IUniswapV2Router02 public immutable sushiswapRouter;
     IFlashLoanService public immutable flashLoanService;
+    address public immutable WETH;
 
     event ArbitrageExecuted(
         address indexed tokenA,
@@ -40,14 +41,16 @@ contract ArbitrageExecutor is Ownable {
     );
 
     constructor(
+        address _flashLoanService,
         address _uniswapRouter,
         address _sushiswapRouter,
-        address _flashLoanService
-    ) Ownable(msg.sender) {
+        address _weth
+    ) Ownable() {
         if (
             _uniswapRouter == address(0) ||
             _sushiswapRouter == address(0) ||
-            _flashLoanService == address(0)
+            _flashLoanService == address(0) ||
+            _weth == address(0)
         ) {
             revert InvalidAddress();
         }
@@ -55,6 +58,7 @@ contract ArbitrageExecutor is Ownable {
         uniswapRouter = IUniswapV2Router02(_uniswapRouter);
         sushiswapRouter = IUniswapV2Router02(_sushiswapRouter);
         flashLoanService = IFlashLoanService(_flashLoanService);
+        WETH = _weth;
 
         _transferOwnership(msg.sender);
     }

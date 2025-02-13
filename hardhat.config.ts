@@ -58,12 +58,20 @@ const config = {
       },
     },
     amoy: {
-      url: 'https://rpc-amoy.polygon.technology',
+      url: 'https://polygon-amoy.g.alchemy.com/v2/dTwNgMXtwagIb1lZBjP_A03m5ko7WaR1',
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
-      gasPrice: 50000000000, // 50 Gwei
+      gasPrice: 26130000000, // 26.13 Gwei
       gas: 5000000,
-      timeout: 120000, // 2 minutes
+      timeout: 180000, // 3 minutes
+      httpHeaders: {
+        'User-Agent': 'arbitragex-v1',
+      },
       chainId: 80002, // Polygon Amoy chainId
+      verify: {
+        etherscan: {
+          apiUrl: 'https://api-amoy.polygonscan.com',
+        },
+      },
     },
     mumbai: {
       url: process.env.MUMBAI_RPC || '',
