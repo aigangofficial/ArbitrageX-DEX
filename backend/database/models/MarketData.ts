@@ -46,7 +46,7 @@ const MarketDataSchema = new Schema<IMarketData>(
     exchange: {
       type: String,
       required: true,
-      enum: ['UNISWAP_V2', 'SUSHISWAP'],
+      enum: ['QUICKSWAP', 'SUSHISWAP'],
       index: true,
     },
     price: {
@@ -139,10 +139,7 @@ MarketDataSchema.statics.findArbitrageOpportunities = async function (
             in: {
               $multiply: [
                 {
-                  $divide: [
-                    { $subtract: ['$$maxPrice', '$$minPrice'] },
-                    '$$minPrice',
-                  ],
+                  $divide: [{ $subtract: ['$$maxPrice', '$$minPrice'] }, '$$minPrice'],
                 },
                 100,
               ],

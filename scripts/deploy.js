@@ -145,32 +145,16 @@ async function main() {
         console.log('Uniswap Router:', colors.yellow + config.addresses.uniswapRouter + colors.reset);
         console.log('Sushiswap Router:', colors.yellow + config.addresses.sushiswapRouter + colors.reset);
         console.log('WMATIC:', colors.yellow + config.addresses.wmatic + colors.reset);
-        // Load mock addresses
-        const mockAddresses = JSON.parse((0, fs_1.readFileSync)((0, path_1.join)(__dirname, '../config/mock-addresses.json'), 'utf-8'));
-        // Configure network settings
-        const mockConfig = {
-            gas: {
-                limit: 3000000n,
-                maxPriorityFeePerGas: hardhat_1.network.name === 'amoy' ? 35000000000n : 3000000000n, // 35 gwei for Amoy, 3 gwei for others
-                maxFeePerGas: hardhat_1.network.name === 'amoy' ? 50000000000n : 10000000000n, // 50 gwei for Amoy, 10 gwei for others
-            },
-            addresses: {
-                aavePool: process.env.SEPOLIA_AAVE_POOL || '',
-                uniswapRouter: process.env.UNISWAP_ROUTER || '0x8954AfA98594b838bda56FE4C12a09D7739D179b',
-                sushiswapRouter: process.env.SUSHISWAP_ROUTER || '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
-                wmatic: mockAddresses.wmatic,
-            },
-        };
         // Deploy FlashLoanService
         console.log(colors.cyan + '\nDeploying FlashLoanService...' + colors.reset);
         const FlashLoanService = await hardhat_1.ethers.getContractFactory('FlashLoanService');
-        const flashLoanService = await FlashLoanService.deploy(mockConfig.addresses.aavePool);
+        const flashLoanService = await FlashLoanService.deploy(config.addresses.aavePool);
         await flashLoanService.waitForDeployment();
         console.log(colors.green + '✅ FlashLoanService deployed to:', flashLoanService.target + colors.reset);
         // Deploy ArbitrageExecutor
         console.log(colors.cyan + '\nDeploying ArbitrageExecutor...' + colors.reset);
         const ArbitrageExecutor = await hardhat_1.ethers.getContractFactory('ArbitrageExecutor');
-        const arbitrageExecutor = await ArbitrageExecutor.deploy(mockConfig.addresses.uniswapRouter, mockConfig.addresses.sushiswapRouter);
+        const arbitrageExecutor = await ArbitrageExecutor.deploy(config.addresses.uniswapRouter, config.addresses.sushiswapRouter);
         await arbitrageExecutor.waitForDeployment();
         console.log(colors.green + '✅ ArbitrageExecutor deployed to:', arbitrageExecutor.target + colors.reset);
         // Set up FlashLoanService with ArbitrageExecutor
@@ -180,12 +164,12 @@ async function main() {
         console.log(colors.green + '✅ ArbitrageExecutor set in FlashLoanService' + colors.reset);
         // Whitelist WMATIC token in ArbitrageExecutor
         console.log(colors.cyan + '\nWhitelisting WMATIC token...' + colors.reset);
-        const whitelistTokenTx = await arbitrageExecutor.whitelistToken(mockConfig.addresses.wmatic);
+        const whitelistTokenTx = await arbitrageExecutor.whitelistToken(config.addresses.wmatic);
         await whitelistTokenTx.wait();
         console.log(colors.green + '✅ WMATIC token whitelisted' + colors.reset);
         // Check WMATIC token
         console.log(colors.cyan + '\nChecking WMATIC token...' + colors.reset);
-        const wmatic = await hardhat_1.ethers.getContractAt('MockWMATIC', mockConfig.addresses.wmatic);
+        const wmatic = await hardhat_1.ethers.getContractAt('MockWMATIC', config.addresses.wmatic);
         const wmaticBalance = await wmatic.balanceOf(deployer.address);
         console.log('WMATIC Balance:', hardhat_1.ethers.formatEther(wmaticBalance), 'WMATIC');
         // Approve tokens for FlashLoanService
@@ -195,7 +179,7 @@ async function main() {
         console.log(colors.green + '✅ WMATIC approved for FlashLoanService' + colors.reset);
         // Set up token approvals in FlashLoanService
         console.log(colors.cyan + '\nSetting up token approvals in FlashLoanService...' + colors.reset);
-        const setupApprovalsTx = await flashLoanService.approveTokens([mockConfig.addresses.wmatic], [arbitrageExecutor.target]);
+        const setupApprovalsTx = await flashLoanService.approveTokens([config.addresses.wmatic], [arbitrageExecutor.target]);
         await setupApprovalsTx.wait();
         console.log(colors.green + '✅ Token approvals set up in FlashLoanService' + colors.reset);
         // Save contract addresses

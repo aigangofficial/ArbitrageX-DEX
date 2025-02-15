@@ -1,4 +1,4 @@
-import { Document, Schema, model } from 'mongoose';
+import { Document, model, Model, Schema } from 'mongoose';
 
 export interface ITrade extends Document {
   tokenA: string;
@@ -14,6 +14,11 @@ export interface ITrade extends Document {
   errorMessage?: string;
   profit?: string;
   priceImpact?: number;
+}
+
+interface TradeModel extends Model<ITrade> {
+  getStatistics(timeframe: string): Promise<any>;
+  getRecentSuccessful(limit: number): Promise<ITrade[]>;
 }
 
 const TradeSchema = new Schema<ITrade>(
@@ -151,4 +156,4 @@ TradeSchema.statics.getRecentSuccessful = async function (limit: number = 10): P
   return this.find({ status: 'completed' }).sort({ timestamp: -1 }).limit(limit).lean();
 };
 
-export const Trade = model<ITrade>('Trade', TradeSchema);
+export const Trade = model<ITrade, TradeModel>('Trade', TradeSchema);

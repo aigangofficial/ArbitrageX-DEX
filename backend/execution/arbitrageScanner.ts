@@ -19,7 +19,7 @@ class ArbitrageScanner {
 
   constructor() {
     this.provider = new ethers.JsonRpcProvider(config.network.rpc);
-    this.dexList = ['uniswap', 'sushiswap'];
+    this.dexList = ['QUICKSWAP', 'SUSHISWAP'];
     this.isScanning = false;
   }
 
@@ -54,12 +54,22 @@ class ArbitrageScanner {
 
   private async scanMarkets() {
     const tokenPairs = [
-      { tokenA: config.contracts.wmatic, tokenB: config.contracts.quickswapRouter },
-      { tokenA: config.contracts.wmatic, tokenB: config.contracts.sushiswapRouter },
+      { tokenA: config.contracts.wmatic, tokenB: config.contracts.usdc },
+      { tokenA: config.contracts.wmatic, tokenB: config.contracts.usdt },
+      { tokenA: config.contracts.wmatic, tokenB: config.contracts.dai },
     ];
 
     for (const pair of tokenPairs) {
       try {
+        logger.info('Processing token pair:', {
+          tokenA: pair.tokenA,
+          tokenB: pair.tokenB,
+          tokenAExists: Boolean(pair.tokenA),
+          tokenBExists: Boolean(pair.tokenB),
+          tokenALength: pair.tokenA?.length,
+          tokenBLength: pair.tokenB?.length,
+        });
+
         const prices: PriceData[] = await Promise.all(
           this.dexList.map(dex => this.getPriceData(dex, pair.tokenA, pair.tokenB))
         );
@@ -67,7 +77,64 @@ class ArbitrageScanner {
         const opportunities = this.findArbitrageOpportunities(prices);
 
         if (opportunities.length > 0) {
-          await this.saveOpportunities(opportunities);
+          // Save each opportunity to the database
+          try {
+            logger.info(
+              'Attempting to save opportunities:',
+              JSON.stringify(
+                {
+                  tokenPair: pair,
+                  prices,
+                  opportunities,
+                  opportunityValidation: opportunities.map(opp => ({
+                    hasTokenA: Boolean(opp.tokenA),
+                    hasTokenB: Boolean(opp.tokenB),
+                    tokenALength: opp.tokenA?.length,
+                    tokenBLength: opp.tokenB?.length,
+                    hasExchange: Boolean(opp.exchange),
+                    hasPrice: typeof opp.price === 'number',
+                    hasLiquidity: typeof opp.liquidity === 'number',
+                    hasTimestamp: opp.timestamp instanceof Date,
+                    hasBlockNumber: typeof opp.blockNumber === 'number',
+                  })),
+                },
+                null,
+                2
+              )
+            );
+
+            // Log each opportunity before saving
+            opportunities.forEach((opp, index) => {
+              logger.info(`Opportunity ${index + 1} data:`, {
+                tokenA: opp.tokenA,
+                tokenB: opp.tokenB,
+                exchange: opp.exchange,
+                price: opp.price,
+                liquidity: opp.liquidity,
+                timestamp: opp.timestamp,
+                blockNumber: opp.blockNumber,
+                spread: opp.spread,
+              });
+            });
+
+            await MarketData.insertMany(opportunities).catch(error => {
+              if (error.name === 'ValidationError') {
+                logger.error('MongoDB validation error:', {
+                  error: error.message,
+                  errors: error.errors,
+                  validationErrors: Object.keys(error.errors).map(field => ({
+                    field,
+                    message: error.errors[field].message,
+                    value: error.errors[field].value,
+                    valueType: typeof error.errors[field].value,
+                  })),
+                });
+              }
+              throw error;
+            });
+          } catch (error) {
+            logger.error('Error saving arbitrage opportunities:', error);
+          }
         }
       } catch (error) {
         logger.error('Error scanning pair:', {
@@ -86,7 +153,7 @@ class ArbitrageScanner {
       const mockLiquidity = Math.random() * 1000000;
 
       return {
-        dex: dex.toUpperCase() === 'UNISWAP' ? 'UNISWAP_V2' : 'SUSHISWAP',
+        dex: dex.toUpperCase() === 'QUICKSWAP' ? 'QUICKSWAP' : 'SUSHISWAP',
         tokenA,
         tokenB,
         price: mockPrice,
@@ -115,57 +182,59 @@ class ArbitrageScanner {
         const spread = Math.abs((priceA - priceB) / priceA) * 100;
 
         if (spread >= minProfitThreshold) {
+          // Log the price data before creating opportunities
+          logger.info('Creating opportunity from prices:', {
+            price1: {
+              dex: prices[i].dex,
+              tokenA: prices[i].tokenA,
+              tokenB: prices[i].tokenB,
+              price: priceA,
+              liquidity: prices[i].liquidity,
+            },
+            price2: {
+              dex: prices[j].dex,
+              tokenA: prices[j].tokenA,
+              tokenB: prices[j].tokenB,
+              price: priceB,
+              liquidity: prices[j].liquidity,
+            },
+          });
+
           // Format data according to MarketData schema
-          opportunities.push({
+          const opportunity1 = {
             tokenA: prices[i].tokenA,
             tokenB: prices[i].tokenB,
-            exchange: prices[i].dex, // Already formatted in getPriceData
+            exchange: prices[i].dex.toUpperCase() === 'QUICKSWAP' ? 'QUICKSWAP' : 'SUSHISWAP',
             price: priceA,
             liquidity: prices[i].liquidity,
             timestamp: new Date(),
+            blockNumber: 0, // This will be set by the blockchain
             spread,
-          });
+          };
 
-          // Add the second exchange's data
-          opportunities.push({
+          const opportunity2 = {
             tokenA: prices[j].tokenA,
             tokenB: prices[j].tokenB,
-            exchange: prices[j].dex,
+            exchange: prices[j].dex.toUpperCase() === 'QUICKSWAP' ? 'QUICKSWAP' : 'SUSHISWAP',
             price: priceB,
             liquidity: prices[j].liquidity,
             timestamp: new Date(),
+            blockNumber: 0, // This will be set by the blockchain
             spread,
+          };
+
+          // Log the created opportunities
+          logger.info('Created opportunities:', {
+            opportunity1,
+            opportunity2,
           });
+
+          opportunities.push(opportunity1, opportunity2);
         }
       }
     }
 
     return opportunities;
-  }
-
-  private async saveOpportunities(opportunities: any[]) {
-    try {
-      const currentBlock = await this.provider.getBlockNumber();
-
-      await MarketData.insertMany(
-        opportunities.map(opp => ({
-          tokenA: opp.tokenA,
-          tokenB: opp.tokenB,
-          exchange: opp.exchange,
-          price: opp.price,
-          liquidity: opp.liquidity,
-          timestamp: opp.timestamp,
-          blockNumber: currentBlock,
-          spread: opp.spread,
-        }))
-      );
-
-      logger.info('Saved arbitrage opportunities:', {
-        count: opportunities.length,
-      });
-    } catch (error) {
-      logger.error('Error saving arbitrage opportunities:', error);
-    }
   }
 }
 

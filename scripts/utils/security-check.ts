@@ -34,7 +34,7 @@
 const chalk = require('chalk');
 const { execSync } = require('child_process');
 
-async function main() {
+async function securityCheck() {
   console.log(chalk.blue('🔍 Running security checks...'));
 
   const checks = [
@@ -66,9 +66,10 @@ async function main() {
       console.log(chalk.cyan(`\nRunning ${check.name}...`));
       execSync(check.command, { stdio: 'inherit' });
       console.log(chalk.green(`✅ ${check.name} passed`));
-    } catch (error) {
+    } catch (err) {
       hasErrors = true;
-      const message = `❌ ${check.name} failed: ${error.message}`;
+      const error = err as Error;
+      const message = `❌ ${check.name} failed: ${error.message || 'Unknown error'}`;
       if (check.critical) {
         console.error(chalk.red(message));
         process.exit(1);
@@ -86,7 +87,9 @@ async function main() {
   }
 }
 
-main().catch(error => {
-  console.error(chalk.red('\n❌ Security checks failed:'), error);
-  process.exit(1);
-});
+if (require.main === module) {
+  securityCheck().catch(error => {
+    console.error(chalk.red('\n❌ Security checks failed:'), error);
+    process.exit(1);
+  });
+}

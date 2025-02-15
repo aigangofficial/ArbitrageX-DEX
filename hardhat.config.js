@@ -48,9 +48,6 @@ for (const envVar of REQUIRED_ENV_VARS) {
     if (!process.env[envVar]) {
         console.warn(`Warning: ${envVar} is not set in config/.env`);
     }
-    else {
-        console.log(`Found ${envVar}`);
-    }
 }
 const config = {
     solidity: {
@@ -68,11 +65,10 @@ const config = {
             chainId: 31337,
         },
         amoy: {
-            url: process.env.AMOY_RPC || 'https://polygon-amoy-testnet.public.blastapi.io',
-            accounts: [process.env.DEPLOYER_PRIVATE_KEY?.replace('0x', '') || ''],
-            gasPrice: 50000000000, // 50 gwei
+            url: process.env.AMOY_RPC || 'https://polygon-amoy.public.blastapi.io',
+            accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
             chainId: 80002,
-            timeout: 60000, // 60 seconds
+            gasPrice: 'auto',
         },
         sepolia: {
             url: process.env.SEPOLIA_RPC || '',
@@ -89,6 +85,10 @@ const config = {
         tests: './test',
         cache: './cache',
         artifacts: './artifacts',
+    },
+    typechain: {
+        outDir: 'typechain-types',
+        target: 'ethers-v6',
     },
 };
 exports.default = config;

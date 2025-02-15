@@ -6,7 +6,7 @@ const router = Router();
 // Test validation error
 router.get('/error/validation', (_req, res, next) => {
   try {
-    throw new ValidationError('Test validation error', { field: 'test' });
+    throw new ValidationError('Test validation error');
   } catch (error) {
     next(error);
   }
