@@ -8,35 +8,61 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log('Deploying contracts with account:', deployer.address);
 
-  const gasLimit = 2000000; // Reduced gas limit
-  const gasPrice = ethers.parseUnits('25', 'gwei'); // Adjusted gas price to meet minimum requirement
+  const gasLimit = 1000000; // Lower gas limit
+  const gasPrice = ethers.parseUnits('10', 'gwei'); // Lower gas price
 
-  // Deploy Mock WMATIC
-  const MockWMATIC = await ethers.getContractFactory('MockWMATIC');
-  const wmatic = await MockWMATIC.deploy({ gasLimit, gasPrice });
-  await wmatic.waitForDeployment();
-  const wmaticAddress = await wmatic.getAddress();
-  console.log('MockWMATIC deployed to:', wmaticAddress);
+  console.log('Deploying mock tokens...');
 
-  // Deploy Mock USDC
-  const MockUSDC = await ethers.getContractFactory('MockUSDC');
-  const usdc = await MockUSDC.deploy({ gasLimit, gasPrice });
-  await usdc.waitForDeployment();
-  const usdcAddress = await usdc.getAddress();
-  console.log('MockUSDC deployed to:', usdcAddress);
+  // Deploy WMATIC
+  const MockWMATIC = await ethers.getContractFactory('contracts/mocks/MockWMATIC.sol:MockWMATIC');
+  const mockWMATIC = await MockWMATIC.deploy({
+    gasLimit,
+    gasPrice,
+  });
+  await mockWMATIC.waitForDeployment();
+  console.log('MockWMATIC deployed to:', await mockWMATIC.getAddress());
 
-  // Deploy Mock USDT
-  const MockUSDT = await ethers.getContractFactory('MockUSDT');
-  const usdt = await MockUSDT.deploy({ gasLimit, gasPrice });
-  await usdt.waitForDeployment();
-  const usdtAddress = await usdt.getAddress();
-  console.log('MockUSDT deployed to:', usdtAddress);
+  // Deploy USDC
+  const MockUSDC = await ethers.getContractFactory('contracts/mocks/MockUSDC.sol:MockUSDC');
+  const mockUSDC = await MockUSDC.deploy({
+    gasLimit,
+    gasPrice,
+  });
+  await mockUSDC.waitForDeployment();
+  console.log('MockUSDC deployed to:', await mockUSDC.getAddress());
+
+  // Deploy USDT
+  const MockUSDT = await ethers.getContractFactory('contracts/mocks/MockUSDT.sol:MockUSDT');
+  const mockUSDT = await MockUSDT.deploy({
+    gasLimit,
+    gasPrice,
+  });
+  await mockUSDT.waitForDeployment();
+  console.log('MockUSDT deployed to:', await mockUSDT.getAddress());
+
+  // Mint some tokens to deployer
+  const mintAmount = ethers.parseUnits('1000000', 18); // 1 million tokens
+
+  await mockWMATIC.mint(deployer.address, mintAmount, {
+    gasLimit: 100000,
+    gasPrice,
+  });
+  await mockUSDC.mint(deployer.address, mintAmount, {
+    gasLimit: 100000,
+    gasPrice,
+  });
+  await mockUSDT.mint(deployer.address, mintAmount, {
+    gasLimit: 100000,
+    gasPrice,
+  });
+
+  console.log('Minted 1 million tokens each to:', deployer.address);
 
   // Save addresses to a JSON file
   const addresses = {
-    WMATIC: wmaticAddress,
-    USDC: usdcAddress,
-    USDT: usdtAddress,
+    WMATIC: await mockWMATIC.getAddress(),
+    USDC: await mockUSDC.getAddress(),
+    USDT: await mockUSDT.getAddress(),
   };
 
   const addressesPath = join(__dirname, '../..', 'backend/config/testnet-addresses.json');

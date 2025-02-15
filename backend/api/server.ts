@@ -2,10 +2,18 @@ import cors from 'cors';
 import { ethers } from 'ethers';
 import express from 'express';
 import mongoose from 'mongoose';
+import path from 'path';
 import { WebSocketServer } from 'ws';
-import { ArbitrageTrade } from '../database/models';
-import { ArbitrageScanner } from '../execution/arbitrageScanner';
+import connectDB from '../database/connection';
+import ArbitrageScanner from '../execution/arbitrageScanner';
 import { config } from './config';
+import { errorHandler } from './middleware/errorHandler';
+import { marketDataLimiter } from './middleware/rateLimit';
+import arbitrageRoutes from './routes/arbitrage';
+import marketRoutes from './routes/market';
+import testRoutes from './routes/test';
+import tradeRoutes from './routes/trade';
+import { requestLogger } from './utils/logger';
 
 const app = express();
 const port = config.api.port;
@@ -14,9 +22,12 @@ const port = config.api.port;
 app.use(
   cors({
     origin: config.api.corsOrigin,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 app.use(express.json());
+app.use(requestLogger);
 
 // Initialize provider and contracts
 const provider = new ethers.JsonRpcProvider(config.network.rpc);
@@ -25,105 +36,79 @@ const provider = new ethers.JsonRpcProvider(config.network.rpc);
 const wss = new WebSocketServer({ port: config.api.wsPort });
 
 // Initialize scanner
-const scanner = new ArbitrageScanner(
-  provider,
-  wss,
-  config.contracts.flashLoanService,
-  config.contracts.quickswapRouter,
-  config.contracts.sushiswapRouter
-);
+const scanner = new ArbitrageScanner();
+
+// Serve static files from the frontend build directory
+app.use(express.static(path.join(__dirname, '../../../frontend-new/build')));
+
+// Test rate limiting
+app.use('/api/test', marketDataLimiter, testRoutes);
+
+// Routes
+app.use('/api/arbitrage', arbitrageRoutes);
+app.use('/api/market', marketRoutes);
+app.use('/api/trades', tradeRoutes);
 
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
-  return res.json({ status: 'ok' });
+  const wsStatus = wss.clients.size > 0 ? 'connected' : 'waiting';
+  const scannerStatus = scanner.getIsScanning() ? 'running' : 'stopped';
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+
+  const services = {
+    api: 'healthy',
+    websocket: wsStatus,
+    scanner: scannerStatus,
+    database: dbStatus,
+  };
+
+  const isHealthy = Object.values(services).every(
+    status => status === 'healthy' || status === 'connected' || status === 'running'
+  );
+
+  return res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? 'ok' : 'degraded',
+    services,
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// Get all trades
-app.get('/api/trades', async (_req, res) => {
-  try {
-    const trades = await ArbitrageTrade.find().sort({ createdAt: -1 }).limit(10);
-    return res.json(trades);
-  } catch (error) {
-    return res.status(500).json({ error: 'Failed to fetch trades' });
-  }
+// Catch-all route to serve the React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../../frontend-new/build', 'index.html'));
 });
 
-// Get trade by ID
-app.get('/api/trades/:id', async (req, res) => {
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// Start the server
+async function startServer() {
   try {
-    const trade = await ArbitrageTrade.findById(req.params.id);
-    if (!trade) {
-      return res.status(404).json({ error: 'Trade not found' });
+    // Connect to MongoDB
+    await connectDB();
+
+    // Create logs directory if it doesn't exist
+    const fs = require('fs');
+    const logDir = config.logging.directory || 'logs';
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
     }
-    return res.json(trade);
-  } catch (error) {
-    return res.status(500).json({ error: 'Failed to fetch trade' });
-  }
-});
-
-// Execute arbitrage trade
-app.post('/api/arbitrage/execute', async (req, res) => {
-  try {
-    const { tokenA, tokenB, amount, exchangeA, exchangeB } = req.body;
-
-    if (!tokenA || !tokenB || !amount || !exchangeA || !exchangeB) {
-      return res.status(400).json({
-        error: 'Missing required fields',
-        required: ['tokenA', 'tokenB', 'amount', 'exchangeA', 'exchangeB'],
-      });
-    }
-
-    console.log('Creating trade with parameters:', {
-      tokenA,
-      tokenB,
-      amount,
-      exchangeA,
-      exchangeB,
-    });
-
-    const trade = await ArbitrageTrade.create({
-      tokenA,
-      tokenB,
-      amount: Number(amount),
-      exchangeA,
-      exchangeB,
-      path: [tokenA, tokenB],
-      expectedProfit: 0, // Will be calculated during scanning
-      status: 'pending',
-    });
-
-    console.log('Trade created:', trade);
-
-    // Start scanning for this trade
-    scanner.startScanning();
-
-    return res.json({
-      message: 'Trade initiated',
-      tradeId: trade._id,
-      trade,
-    });
-  } catch (error: unknown) {
-    console.error('Error executing trade:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return res.status(500).json({ error: 'Failed to execute trade', details: errorMessage });
-  }
-});
-
-// Connect to MongoDB
-mongoose
-  .connect(config.database.uri, config.database.options)
-  .then(() => {
-    console.log('Connected to MongoDB');
 
     // Start the server
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
       console.log(`WebSocket server running on port ${config.api.wsPort}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
-  })
-  .catch(error => {
-    console.error('MongoDB connection error:', error);
+
+    // Start the scanner
+    await scanner.start();
+  } catch (error) {
+    console.error('Failed to start server:', error);
     process.exit(1);
-  });
+  }
+}
+
+startServer();
 
 export default app;

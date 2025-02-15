@@ -1,6 +1,5 @@
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-ethers';
-import '@nomicfoundation/hardhat-toolbox';
 import '@typechain/hardhat';
 import * as dotenv from 'dotenv';
 import 'hardhat-gas-reporter';
@@ -12,14 +11,7 @@ import 'solidity-coverage';
 dotenv.config({ path: resolve(__dirname, './config/.env') });
 
 // Ensure required environment variables are set
-const REQUIRED_ENV_VARS = [
-  'SEPOLIA_RPC',
-  'MAINNET_RPC',
-  'AMOY_RPC',
-  'DEPLOYER_PRIVATE_KEY',
-  'ETHERSCAN_API_KEY',
-  'POLYGONSCAN_API_KEY',
-];
+const REQUIRED_ENV_VARS = ['AMOY_RPC', 'DEPLOYER_PRIVATE_KEY', 'POLYGONSCAN_API_KEY'];
 
 for (const envVar of REQUIRED_ENV_VARS) {
   if (!process.env[envVar]) {
@@ -27,70 +19,29 @@ for (const envVar of REQUIRED_ENV_VARS) {
   }
 }
 
-const config = {
+const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.21',
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
-        details: {
-          yul: true,
-          yulDetails: {
-            stackAllocation: true,
-            optimizerSteps: 'dhfoDgvulfnTUtnIf',
-          },
-        },
       },
       viaIR: true,
-      metadata: {
-        bytecodeHash: 'none',
-      },
     },
   },
   networks: {
     hardhat: {
       chainId: 31337,
-      allowUnlimitedContractSize: true,
-      forking: {
-        url: process.env.MAINNET_RPC || '',
-        enabled: false,
-      },
     },
     amoy: {
-      url: 'https://polygon-amoy.g.alchemy.com/v2/dTwNgMXtwagIb1lZBjP_A03m5ko7WaR1',
+      url: process.env.AMOY_RPC || 'https://polygon-amoy.public.blastapi.io',
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
-      gasPrice: 26130000000, // 26.13 Gwei
-      gas: 5000000,
-      timeout: 180000, // 3 minutes
-      httpHeaders: {
-        'User-Agent': 'arbitragex-v1',
-      },
-      chainId: 80002, // Polygon Amoy chainId
-      verify: {
-        etherscan: {
-          apiUrl: 'https://api-amoy.polygonscan.com',
-        },
-      },
-    },
-    mumbai: {
-      url: process.env.MUMBAI_RPC || '',
-      accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+      chainId: 80002,
       gasPrice: 'auto',
-      gas: 5000000,
-      timeout: 120000, // 2 minutes
     },
     sepolia: {
-      url:
-        process.env.SEPOLIA_RPC?.replace('YOUR-PROJECT-ID', process.env.INFURA_API_KEY || '') || '',
-      accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
-      gasPrice: 'auto',
-      gas: 8000000,
-      timeout: 120000,
-    },
-    mainnet: {
-      url:
-        process.env.MAINNET_RPC?.replace('YOUR-PROJECT-ID', process.env.INFURA_API_KEY || '') || '',
+      url: process.env.SEPOLIA_RPC || '',
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
       gasPrice: 'auto',
     },
@@ -98,35 +49,17 @@ const config = {
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: 'USD',
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    gasPrice: 30,
-    excludeContracts: ['Mock'],
-  },
-  etherscan: {
-    apiKey: {
-      sepolia: process.env.ETHERSCAN_API_KEY || '',
-      polygonAmoy: process.env.POLYGONSCAN_API_KEY || '',
-    },
   },
   paths: {
     sources: './contracts',
     tests: './test',
     cache: './cache',
     artifacts: './artifacts',
-    root: '.',
-  },
-  mocha: {
-    timeout: 40000,
-  },
-  sourcify: {
-    enabled: true,
   },
   typechain: {
     outDir: 'typechain-types',
     target: 'ethers-v6',
-    alwaysGenerateOverloads: true,
-    discriminateTypes: true,
   },
-} as HardhatUserConfig;
+};
 
 export default config;

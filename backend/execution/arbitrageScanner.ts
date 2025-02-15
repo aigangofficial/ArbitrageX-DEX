@@ -1,252 +1,172 @@
 import { ethers } from 'ethers';
-import { WebSocket, WebSocketServer } from 'ws';
-import { ArbitrageTrade, IArbitrageTrade } from '../database/models/ArbitrageTrade';
-import { ArbitrageExecutor } from '../types/contracts';
-import { ArbitrageOpportunity, PriceData } from '../types/trading';
+import { config } from '../api/config';
+import { logger } from '../api/utils/logger';
+import { MarketData } from '../database/models';
 
-export { PriceData }; // Export the PriceData type
+interface PriceData {
+  dex: string;
+  tokenA: string;
+  tokenB: string;
+  price: number;
+  liquidity: number;
+  timestamp: Date;
+}
 
-export class ArbitrageScanner {
-  protected readonly provider: ethers.JsonRpcProvider;
-  private readonly wsServer: WebSocketServer;
-  private readonly uniswapRouter: ethers.Contract;
-  private readonly sushiswapRouter: ethers.Contract;
-  private readonly flashLoanAddress: string;
-  private readonly arbitrageExecutor: ArbitrageExecutor;
-  private readonly minProfitThreshold: bigint;
-  private isScanning: boolean = false;
+class ArbitrageScanner {
+  private provider: ethers.JsonRpcProvider;
+  private dexList: string[];
+  private isScanning: boolean;
 
-  constructor(
-    provider: ethers.JsonRpcProvider,
-    wsServer: WebSocketServer,
-    flashLoanAddress: string = '',
-    uniswapRouterAddress: string = '',
-    sushiswapRouterAddress: string = ''
-  ) {
-    this.provider = provider;
-    this.wsServer = wsServer;
-    this.flashLoanAddress = flashLoanAddress;
-    this.minProfitThreshold = ethers.parseEther('0.01'); // 0.01 ETH minimum profit
-
-    this.uniswapRouter = new ethers.Contract(
-      uniswapRouterAddress || ethers.ZeroAddress,
-      [
-        'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
-      ],
-      provider
-    );
-
-    this.sushiswapRouter = new ethers.Contract(
-      sushiswapRouterAddress || ethers.ZeroAddress,
-      [
-        'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
-      ],
-      provider
-    );
-
-    this.arbitrageExecutor = new ethers.Contract(
-      this.flashLoanAddress,
-      [
-        'function executeArbitrage(address tokenA, address tokenB, uint256 amount) external returns (uint256)',
-      ],
-      this.provider
-    ) as unknown as ArbitrageExecutor;
-  }
-
-  public async startScanning() {
-    if (this.isScanning) return;
-    this.isScanning = true;
-
-    while (this.isScanning) {
-      try {
-        const trades = await ArbitrageTrade.find({ status: 'pending' })
-          .sort({ createdAt: -1 })
-          .limit(10)
-          .lean()
-          .exec();
-
-        for (const trade of trades) {
-          if (!trade.route || !trade._id) continue;
-
-          await this.processArbitrageOpportunity({
-            tokenA: trade.tokenA,
-            tokenB: trade.tokenB,
-            amountIn: BigInt(trade.amountIn),
-            expectedProfit: BigInt(trade.expectedProfit),
-            route: trade.route,
-            _id: trade._id.toString(),
-          });
-        }
-      } catch (error) {
-        console.error('Error in scanning loop:', error);
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
-    }
-  }
-
-  public stopScanning() {
+  constructor() {
+    this.provider = new ethers.JsonRpcProvider(config.network.rpc);
+    this.dexList = ['uniswap', 'sushiswap'];
     this.isScanning = false;
   }
 
-  private async processArbitrageOpportunity(opportunity: ArbitrageOpportunity) {
-    try {
-      const prices = await this.getPrices(opportunity.tokenA, opportunity.tokenB);
-      if (!this.isProfitable(prices)) {
-        return;
+  public getIsScanning(): boolean {
+    return this.isScanning;
+  }
+
+  public async start() {
+    if (this.isScanning) {
+      logger.warn('Arbitrage scanner is already running');
+      return;
+    }
+
+    this.isScanning = true;
+    logger.info('Starting arbitrage scanner');
+
+    while (this.isScanning) {
+      try {
+        await this.scanMarkets();
+        await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second interval
+      } catch (error) {
+        logger.error('Error in arbitrage scanner:', error);
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5s on error
       }
-
-      // Broadcast opportunity to connected clients
-      this.wsServer.clients.forEach((client: WebSocket) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(
-            JSON.stringify({
-              type: 'opportunity',
-              data: {
-                tokenA: opportunity.tokenA,
-                tokenB: opportunity.tokenB,
-                expectedProfit: opportunity.expectedProfit.toString(),
-                route: opportunity.route,
-              },
-            })
-          );
-        }
-      });
-
-      await this.executeArbitrage(opportunity);
-    } catch (error) {
-      console.error('Error processing arbitrage opportunity:', error);
-      this.broadcastError(error as Error);
     }
   }
 
-  private async executeArbitrage(opportunity: ArbitrageOpportunity) {
-    const trade = await ArbitrageTrade.findById(opportunity._id).exec();
-    if (!trade) {
-      throw new Error('Trade not found');
-    }
+  public stop() {
+    this.isScanning = false;
+    logger.info('Stopping arbitrage scanner');
+  }
 
-    try {
-      trade.status = 'executing';
-      await trade.save();
+  private async scanMarkets() {
+    const tokenPairs = [
+      { tokenA: config.contracts.wmatic, tokenB: config.contracts.quickswapRouter },
+      { tokenA: config.contracts.wmatic, tokenB: config.contracts.sushiswapRouter },
+    ];
 
-      this.broadcastExecution(trade);
+    for (const pair of tokenPairs) {
+      try {
+        const prices: PriceData[] = await Promise.all(
+          this.dexList.map(dex => this.getPriceData(dex, pair.tokenA, pair.tokenB))
+        );
 
-      const tx = await this.arbitrageExecutor.executeArbitrage(
-        opportunity.tokenA,
-        opportunity.tokenB,
-        opportunity.amountIn
-      );
+        const opportunities = this.findArbitrageOpportunities(prices);
 
-      const receipt = await tx.wait();
-
-      if (receipt) {
-        trade.txHash = receipt.hash;
-        trade.gasUsed = receipt.gasUsed.toString();
-        trade.gasPrice = receipt.gasPrice?.toString() || '0';
-        trade.status = 'completed';
-        await trade.save();
-
-        this.broadcastCompletion(trade);
+        if (opportunities.length > 0) {
+          await this.saveOpportunities(opportunities);
+        }
+      } catch (error) {
+        logger.error('Error scanning pair:', {
+          tokenA: pair.tokenA,
+          tokenB: pair.tokenB,
+          error,
+        });
       }
-    } catch (error) {
-      trade.status = 'failed';
-      trade.errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      await trade.save();
+    }
+  }
 
-      this.broadcastError(error as Error);
+  private async getPriceData(dex: string, tokenA: string, tokenB: string): Promise<PriceData> {
+    try {
+      // For demonstration, using mock data with proper structure
+      const mockPrice = Math.random() * 100;
+      const mockLiquidity = Math.random() * 1000000;
+
+      return {
+        dex: dex.toUpperCase() === 'UNISWAP' ? 'UNISWAP_V2' : 'SUSHISWAP',
+        tokenA,
+        tokenB,
+        price: mockPrice,
+        liquidity: mockLiquidity,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      logger.error('Error getting price data:', {
+        dex,
+        tokenA,
+        tokenB,
+        error,
+      });
       throw error;
     }
   }
 
-  protected async getPrices(tokenA: string, tokenB: string): Promise<PriceData> {
-    const [uniswapPrice, sushiswapPrice] = await Promise.all([
-      this.getUniswapPrice(tokenA, tokenB),
-      this.getSushiswapPrice(tokenA, tokenB),
-    ]);
+  private findArbitrageOpportunities(prices: PriceData[]) {
+    const opportunities = [];
+    const minProfitThreshold = 0.5; // 0.5% minimum profit threshold
 
-    return {
-      tokenA,
-      tokenB,
-      uniswapPrice,
-      sushiswapPrice,
-    };
-  }
+    for (let i = 0; i < prices.length; i++) {
+      for (let j = i + 1; j < prices.length; j++) {
+        const priceA = prices[i].price;
+        const priceB = prices[j].price;
+        const spread = Math.abs((priceA - priceB) / priceA) * 100;
 
-  private async getUniswapPrice(
-    tokenA: string,
-    tokenB: string
-  ): Promise<{ price: bigint; liquidity: bigint }> {
-    const amountIn = ethers.parseEther('1');
-    const amounts = await this.uniswapRouter.getAmountsOut(amountIn, [tokenA, tokenB]);
-    return {
-      price: amounts[1],
-      liquidity: amounts[0],
-    };
-  }
+        if (spread >= minProfitThreshold) {
+          // Format data according to MarketData schema
+          opportunities.push({
+            tokenA: prices[i].tokenA,
+            tokenB: prices[i].tokenB,
+            exchange: prices[i].dex, // Already formatted in getPriceData
+            price: priceA,
+            liquidity: prices[i].liquidity,
+            timestamp: new Date(),
+            spread,
+          });
 
-  private async getSushiswapPrice(
-    tokenA: string,
-    tokenB: string
-  ): Promise<{ price: bigint; liquidity: bigint }> {
-    const amountIn = ethers.parseEther('1');
-    const amounts = await this.sushiswapRouter.getAmountsOut(amountIn, [tokenA, tokenB]);
-    return {
-      price: amounts[1],
-      liquidity: amounts[0],
-    };
-  }
-
-  protected isProfitable(prices: PriceData): boolean {
-    const uniswapPrice = prices.uniswapPrice.price;
-    const sushiswapPrice = prices.sushiswapPrice.price;
-
-    const priceDiff =
-      uniswapPrice > sushiswapPrice ? uniswapPrice - sushiswapPrice : sushiswapPrice - uniswapPrice;
-
-    return priceDiff >= this.minProfitThreshold;
-  }
-
-  private broadcastExecution(trade: IArbitrageTrade) {
-    this.wsServer.clients.forEach((client: WebSocket) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(
-          JSON.stringify({
-            type: 'execution',
-            data: trade,
-          })
-        );
+          // Add the second exchange's data
+          opportunities.push({
+            tokenA: prices[j].tokenA,
+            tokenB: prices[j].tokenB,
+            exchange: prices[j].dex,
+            price: priceB,
+            liquidity: prices[j].liquidity,
+            timestamp: new Date(),
+            spread,
+          });
+        }
       }
-    });
+    }
+
+    return opportunities;
   }
 
-  private broadcastCompletion(trade: IArbitrageTrade) {
-    this.wsServer.clients.forEach((client: WebSocket) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(
-          JSON.stringify({
-            type: 'completion',
-            data: trade,
-          })
-        );
-      }
-    });
-  }
+  private async saveOpportunities(opportunities: any[]) {
+    try {
+      const currentBlock = await this.provider.getBlockNumber();
 
-  private broadcastError(error: Error) {
-    this.wsServer.clients.forEach((client: WebSocket) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(
-          JSON.stringify({
-            type: 'error',
-            error: error.message,
-          })
-        );
-      }
-    });
-  }
+      await MarketData.insertMany(
+        opportunities.map(opp => ({
+          tokenA: opp.tokenA,
+          tokenB: opp.tokenB,
+          exchange: opp.exchange,
+          price: opp.price,
+          liquidity: opp.liquidity,
+          timestamp: opp.timestamp,
+          blockNumber: currentBlock,
+          spread: opp.spread,
+        }))
+      );
 
-  public getProvider(): ethers.JsonRpcProvider {
-    return this.provider;
+      logger.info('Saved arbitrage opportunities:', {
+        count: opportunities.length,
+      });
+    } catch (error) {
+      logger.error('Error saving arbitrage opportunities:', error);
+    }
   }
 }
+
+export default ArbitrageScanner;

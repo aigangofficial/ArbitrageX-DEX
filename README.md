@@ -4,186 +4,320 @@ A decentralized arbitrage trading system leveraging flash loans for cross-DEX ar
 
 ## Project Structure
 
-```
 ArbitrageX/
-│── contracts/                 # Smart Contracts (Solidity)
-│   ├── FlashLoanService.sol    # Flash Loan logic
-│   ├── ArbitrageExecutor.sol   # Executes arbitrage trades
-│   ├── interfaces/             # External contract interfaces
-│   ├── mocks/                  # Mock contracts for testing
+│── contracts/ # Smart Contracts (Solidity)
+│ ├── FlashLoanService.sol # Flash Loan logic
+│ ├── ArbitrageExecutor.sol # Executes arbitrage trades
+│ ├── SecurityAdmin.sol # Core security module
+│ ├── interfaces/ # External contract interfaces
+│ ├── mocks/ # Mock contracts for testing
 │
-│── backend/                    # Backend API & Execution Engine
-│   ├── api/                    # Express API Server
-│   ├── execution/              # Trade Execution Logic
-│   ├── ai/                     # AI Learning Bot
-│   ├── database/               # MongoDB Integration
+│── backend/ # Backend API & Execution Engine
+│ ├── api/ # Express API Server
+│ ├── execution/ # Trade Execution Logic
+│ ├── ai/ # AI Learning Bot
+│ ├── services/ # Real-time Market Data Fetching
+│ ├── database/ # MongoDB Integration
 │
-│── frontend/                   # Web Dashboard
-│   ├── components/             # UI Components
-│   ├── pages/                  # Dashboard Pages
-│   ├── services/               # API Integration
+│── frontend/ # Web Dashboard
+│ ├── components/ # UI Components
+│ ├── pages/ # Dashboard Pages
+│ ├── services/ # API & WebSocket Connection
 │
-│── scripts/                    # Deployment Scripts
-│── tests/                      # Testing Suite
-```
+│── scripts/ # Deployment & Automation Scripts
+│ ├── deploy.ts # Deploys Smart Contracts
+│ ├── switchNetwork.ts # Network switching utility
+│ ├── testAutoTrade.ts # Test trade execution
+│ ├── utils/ # Utility Scripts
+│ ├── config.ts # Configuration management
+│ ├── setup-env.ts # Environment setup
+│ ├── security-check.ts # Security validation
 
-## Prerequisites
+## Available Scripts
 
-- Node.js v18+
-- Hardhat
-- MongoDB
-- Ethers.js v6
-- TypeScript
+### Core Scripts
 
-## Environment Setup
+1. **deploy.ts**
 
-1. Create a `config/.env` file with the following variables:
+   - Deploys and configures smart contracts
+
+   ```bash
+   # Deploy to Sepolia testnet
+   npx hardhat run scripts/deploy.ts --network sepolia
+
+   # Deploy to mainnet
+   npx hardhat run scripts/deploy.ts --network mainnet
+   ```
+
+2. **switchNetwork.ts**
+
+   - Manages network switching between environments
+
+   ```bash
+   # Switch to Sepolia testnet
+   npm run switch:testnet
+
+   # Switch to mainnet
+   npm run switch:mainnet
+   ```
+
+3. **testAutoTrade.ts**
+
+   - Tests automated trading strategies
+
+   ```bash
+   # Run tests on Sepolia
+   npm run test:auto-trade:testnet
+
+   # Run tests on mainnet fork
+   npm run test:auto-trade:fork
+   ```
+
+### Utility Scripts
+
+1. **utils/config.ts**
+
+   - Manages configuration and environment settings
+
+   ```typescript
+   import { loadConfig, updateConfig } from './utils/config';
+
+   // Load configuration
+   const config = loadConfig();
+
+   // Update configuration
+   await updateConfig({ network: 'sepolia' });
+   ```
+
+2. **utils/setup-env.ts**
+
+   - Sets up development environment
+
+   ```bash
+   # Initialize development environment
+   npm run setup:dev
+
+   # Initialize production environment
+   npm run setup:prod
+   ```
+
+3. **utils/security-check.ts**
+
+   - Performs security validations
+
+   ```bash
+   # Run security checks
+   npm run security:check
+
+   # Run security audit
+   npm run security:audit
+   ```
+
+## Development Phases
+
+## 🛠 Phase 1: Core System & Smart Contract Development ✅
+
+Features Implemented:
+
+- Flash Loan Smart Contract (Aave V3)
+  - Borrow funds without collateral
+  - Execute arbitrage trades within a single transaction
+  - Repay the flash loan automatically
+- Arbitrage Execution Contract
+  - Swap tokens between Uniswap & SushiSwap
+  - Calculate expected profit after fees
+  - Validate price impact & slippage
+- Error Handling & Security
+  - Revert on unprofitable trades
+  - Implement gas fee estimation & dynamic adjustments
+  - Test with mock DEX pools before deploying live
+
+Deployment Status:
+
+- FlashLoanService: 0x486C74E420B845c178B6636823827812546dF997
+- ArbitrageExecutor: 0x376a75b8b237aFF8B50e1b9F2a80110869993859
+- Network: Polygon Amoy Testnet
+
+## 🛠 Phase 2: Backend API Development 🚧
+
+Features to Implement:
+
+- Real-Time Arbitrage Scanner
+  - Monitor DEX price feeds & liquidity pools
+  - Detect price discrepancies between Uniswap, SushiSwap
+  - Calculate potential profit opportunities
+- WebSocket API for Live Updates
+  - Provide real-time trade opportunities
+  - Push trade execution status & profit reports
+- Database Integration (MongoDB)
+  - Store arbitrage opportunities & trade logs
+  - Track historical performance & analytics
+- Backend Trade Execution Logic
+  - Call smart contracts when opportunity detected
+  - Handle gas fee optimization & retry logic
+
+Testing Requirements:
 
 ```bash
-# Network Configuration
-INFURA_API_KEY=your_key
-SEPOLIA_PRIVATE_KEY=your_key
-ETHERSCAN_API_KEY=your_key
+# Test WebSocket API
+wscat -c ws://localhost:3001/api/ws/arbitrage
 
-# Contract Addresses
-SEPOLIA_AAVE_POOL=0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951
-SEPOLIA_UNISWAP_ROUTER=0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E
-SEPOLIA_SUSHISWAP_ROUTER=0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506
-
-# Backend Configuration
-MONGODB_URI=mongodb://localhost:27017/arbitragex
-API_PORT=3000
-WS_PORT=3001
-
-# Optional: AI Configuration
-ENABLE_AI_OPTIMIZATION=false
+# Test Trade Execution
+curl -X POST http://localhost:3000/api/v1/trades/execute \
+  -H "Content-Type: application/json" \
+  -d '{"tokenA":"WMATIC","tokenB":"USDC","amount":"1.0"}'
 ```
 
-2. Install dependencies:
+## 🛠 Phase 3: AI Learning Mode 🔄
+
+Features to Implement:
+
+- Machine Learning Model Integration
+  - Train on historical arbitrage data
+  - Predict profitable opportunities
+  - Optimize trade parameters
+- Risk Management System
+  - Calculate risk metrics
+  - Set dynamic risk thresholds
+  - Monitor market conditions
+- Performance Analytics
+  - Track success rate & ROI
+  - Generate performance reports
+  - Optimize strategy parameters
+
+Key Components:
+
+- LSTM Model for Price Prediction
+- Adaptive Risk Manager
+- Strategy Optimizer
+- Backtesting Engine
+
+## 🛠 Phase 4: Web Dashboard Development 📊
+
+Features to Implement:
+
+- Real-Time Monitoring Dashboard
+  - Live trade visualization
+  - Profit/loss tracking
+  - Market opportunity display
+- Trade Management Interface
+  - Manual trade execution
+  - Strategy parameter adjustment
+  - Risk threshold configuration
+- Analytics & Reporting
+  - Historical performance charts
+  - Risk metrics visualization
+  - Custom report generation
+
+UI Components:
+
+- Trade Monitor
+- Market Scanner
+- Performance Analytics
+- Risk Dashboard
+
+## 🛠 Phase 5: Production Deployment & Optimization 🚀
+
+Final Steps:
+
+- Security Audit & Testing
+  - Smart contract audit
+  - Penetration testing
+  - Load testing
+- Performance Optimization
+  - Gas optimization
+  - Trade execution speed
+  - Database query optimization
+- Monitoring & Maintenance
+  - Alert system setup
+  - Backup procedures
+  - Upgrade mechanisms
+
+## Security Features
+
+### Core Security Module (SecurityAdmin.sol)
+
+The project implements robust security measures through the SecurityAdmin contract, which is inherited by both FlashLoanService and ArbitrageExecutor. This module provides:
+
+- **Emergency Protocol Control**
+
+  - Immediate pause functionality for all contract operations
+  - Time-locked parameter changes (24-hour delay)
+  - Protected withdrawal mechanisms with delay and validation
+
+- **Access Control**
+
+  - Role-based access control for critical functions
+  - Enhanced ownership controls with renounce protection
+  - Multi-step process for critical parameter changes
+
+- **Transaction Safety**
+
+  - Reentrancy protection on all critical functions
+  - Slippage control for trades
+  - Gas optimization for all operations
+
+- **Risk Management**
+  - Configurable profit thresholds
+  - Maximum trade size limits
+  - Liquidity validation before trades
+
+### Security Best Practices
+
+- All critical parameter changes require a 24-hour timelock
+- Emergency withdrawals include a mandatory delay period
+- Contracts can be paused immediately in case of detected vulnerabilities
+- Comprehensive event logging for all security-related actions
+- Regular automated security checks and monitoring
+
+## Getting Started
+
+1. Clone the repository
 
 ```bash
-# Install root project dependencies
+git clone https://github.com/yourusername/arbitragex.git
+cd arbitragex
+```
+
+2. Install dependencies
+
+```bash
 npm install
-
-# Install contract dependencies
-cd contracts && npm install
-
-# Install backend dependencies
 cd backend && npm install
-
-# Install frontend dependencies
 cd frontend && npm install
 ```
 
-## Deployment
-
-### Phase 1: Smart Contracts (Testnet)
-
-1. Compile contracts:
+3. Configure environment
 
 ```bash
-npx hardhat compile
+cp config/.env.example config/.env
+# Edit .env with your settings
 ```
 
-2. Run tests:
+4. Deploy contracts
 
 ```bash
-npx hardhat test
+npx hardhat run scripts/deploy.ts --network amoy
 ```
 
-3. Deploy to Sepolia testnet:
+5. Start services
 
 ```bash
-npx hardhat run scripts/deploy-phase1.ts --network sepolia
+# Start backend
+cd backend && npm run start:dev
+
+# Start frontend
+cd frontend && npm run dev
 ```
-
-4. Verify contracts:
-
-```bash
-# FlashLoanService
-npx hardhat verify --network sepolia <FLASH_LOAN_ADDRESS> <AAVE_POOL>
-
-# ArbitrageExecutor
-npx hardhat verify --network sepolia <ARBITRAGE_EXECUTOR> <UNISWAP> <SUSHISWAP> <FLASH_LOAN_ADDRESS>
-```
-
-### Phase 2: Backend Services
-
-1. Start MongoDB:
-
-```bash
-docker-compose -f backend/docker-compose.yml up -d
-```
-
-2. Start API server:
-
-```bash
-cd backend/api && npm run start:prod
-```
-
-3. Start execution engine:
-
-```bash
-cd backend/execution && npm run bot:start
-```
-
-### Phase 3: Frontend Dashboard
-
-1. Build frontend:
-
-```bash
-cd frontend && npm run build
-```
-
-2. Start frontend server:
-
-```bash
-serve -s build -l 3001
-```
-
-## Testing
-
-### Smart Contract Tests
-
-```bash
-# Run all tests
-npm test
-
-# Run specific test file
-npx hardhat test test/FlashLoanArbitrage.test.ts
-
-# Run with gas reporting
-REPORT_GAS=true npx hardhat test
-```
-
-### Backend Tests
-
-```bash
-cd backend && npm test
-```
-
-### Frontend Tests
-
-```bash
-cd frontend && npm test
-```
-
-## Security
-
-- All smart contracts are thoroughly tested and follow best practices
-- Flash loan validation ensures profitable trades only
-- Slippage protection prevents sandwich attacks
-- Gas optimization for cost-effective execution
-- Automated security checks in CI/CD pipeline
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+```
+
+```

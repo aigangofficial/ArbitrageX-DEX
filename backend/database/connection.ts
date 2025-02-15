@@ -1,49 +1,46 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { config } from '../api/config';
+import { logger } from '../api/utils/logger';
 
-dotenv.config();
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/arbitragex';
-
-const connectOptions = {
-  maxPoolSize: Number(process.env.MONGODB_MAX_POOL_SIZE) || 10,
-  minPoolSize: Number(process.env.MONGODB_MIN_POOL_SIZE) || 5,
-  connectTimeoutMS: 10000,
-  socketTimeoutMS: 45000,
-  retryWrites: true,
-  retryReads: true,
-};
-
-export async function connectDB(): Promise<void> {
+const connectDB = async () => {
   try {
+    const conn = await mongoose.connect(config.database.uri);
+
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
+
+    // Handle connection events
     mongoose.connection.on('error', err => {
-      console.error('MongoDB error:', err);
+      logger.error('MongoDB connection error:', err);
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.warn('MongoDB disconnected. Attempting to reconnect...');
+      logger.warn('MongoDB disconnected');
     });
 
     mongoose.connection.on('reconnected', () => {
-      console.log('MongoDB reconnected');
+      logger.info('MongoDB reconnected');
     });
 
-    await mongoose.connect(MONGODB_URI, connectOptions);
-    console.log('✅ Connected to MongoDB');
-
-    // Create indexes if database is available
-    if (mongoose.connection.db) {
-      const collections = await mongoose.connection.db.collections();
-      for (const collection of collections) {
-        await collection.createIndexes([]);
+    // Graceful shutdown
+    process.on('SIGINT', async () => {
+      try {
+        await mongoose.connection.close();
+        logger.info('MongoDB connection closed through app termination');
+        process.exit(0);
+      } catch (err) {
+        logger.error('Error during MongoDB shutdown:', err);
+        process.exit(1);
       }
-      console.log('✅ Database indexes created');
-    }
+    });
+
+    return conn;
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
+    logger.error('MongoDB connection error:', error);
     process.exit(1);
   }
-}
+};
+
+export default connectDB;
 
 export async function disconnectDB(): Promise<void> {
   try {

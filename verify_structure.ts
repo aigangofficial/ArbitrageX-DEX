@@ -1,6 +1,10 @@
-import fs from 'fs';
-import path from 'path';
 import chalk from 'chalk';
+import fs from 'fs';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 interface DirectoryStructure {
   [key: string]: {
@@ -70,9 +74,8 @@ function validateStructure(): ValidationResult {
     status: 'success',
   };
 
-  // Check each expected directory and its files
   Object.entries(expectedStructure).forEach(([dir, { required, optional = [] }]) => {
-    const normalizedDir = path.normalize(dir);
+    const normalizedDir = path.resolve(dir);
 
     // Check if directory exists
     if (!fs.existsSync(normalizedDir)) {
@@ -95,20 +98,27 @@ function validateStructure(): ValidationResult {
       const filePath = path.join(normalizedDir, file);
       if (!fs.existsSync(filePath)) {
         result.missingOptionalFiles.push(path.join(dir, file));
-        result.status = 'warning';
+        if (result.status !== 'error') {
+          result.status = 'warning';
+        }
       }
     });
 
     // Check for duplicate files in contracts directory
     if (dir.startsWith('contracts')) {
+      const fileMap = new Map<string, number>();
       const files = fs.readdirSync(normalizedDir).filter(file => file.endsWith('.sol'));
 
-      const uniqueFiles = new Set(files);
-      if (files.length !== uniqueFiles.size) {
-        const duplicates = files.filter(file => files.filter(f => f === file).length > 1);
-        result.duplicateFiles.push(...duplicates.map(f => path.join(dir, f)));
-        result.status = 'error';
-      }
+      files.forEach(file => {
+        fileMap.set(file, (fileMap.get(file) || 0) + 1);
+      });
+
+      fileMap.forEach((count, file) => {
+        if (count > 1) {
+          result.duplicateFiles.push(path.join(dir, file));
+          result.status = 'error';
+        }
+      });
     }
 
     // Check for unexpected files
@@ -137,37 +147,27 @@ function printValidationResults(results: ValidationResult): void {
 
   if (results.missingDirs.length > 0) {
     console.log(chalk.red('\n❌ Missing Required Directories:'));
-    results.missingDirs.forEach(dir => {
-      console.log(chalk.red(`  • ${dir}`));
-    });
+    results.missingDirs.forEach(dir => console.log(chalk.red(`  • ${dir}`)));
   }
 
   if (results.missingRequiredFiles.length > 0) {
     console.log(chalk.red('\n❌ Missing Required Files:'));
-    results.missingRequiredFiles.forEach(file => {
-      console.log(chalk.red(`  • ${file}`));
-    });
+    results.missingRequiredFiles.forEach(file => console.log(chalk.red(`  • ${file}`)));
   }
 
   if (results.duplicateFiles.length > 0) {
     console.log(chalk.red('\n❌ Duplicate Files Detected:'));
-    results.duplicateFiles.forEach(file => {
-      console.log(chalk.red(`  • ${file}`));
-    });
+    results.duplicateFiles.forEach(file => console.log(chalk.red(`  • ${file}`)));
   }
 
   if (results.missingOptionalFiles.length > 0) {
     console.log(chalk.yellow('\n⚠️  Missing Optional Files:'));
-    results.missingOptionalFiles.forEach(file => {
-      console.log(chalk.yellow(`  • ${file}`));
-    });
+    results.missingOptionalFiles.forEach(file => console.log(chalk.yellow(`  • ${file}`)));
   }
 
   if (results.unexpectedFiles.length > 0) {
     console.log(chalk.blue('\nℹ️  Unexpected Files:'));
-    results.unexpectedFiles.forEach(file => {
-      console.log(chalk.blue(`  • ${file}`));
-    });
+    results.unexpectedFiles.forEach(file => console.log(chalk.blue(`  • ${file}`)));
   }
 
   console.log('\n📊 Validation Status:');
@@ -203,8 +203,8 @@ function validateBeforeCommand(command: string): boolean {
   return true;
 }
 
-// Main execution
-function main() {
+// Update the main execution part
+const main = () => {
   const command = process.argv[2];
   if (command) {
     if (!validateBeforeCommand(command)) {
@@ -215,11 +215,11 @@ function main() {
     printValidationResults(results);
     process.exit(results.status === 'error' ? 1 : 0);
   }
-}
+};
 
-// Run the script if it's called directly
-if (require.main === module) {
+// Run the script if it's the main module
+if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-export { validateStructure, printValidationResults, validateBeforeCommand };
+export { printValidationResults, validateBeforeCommand, validateStructure };

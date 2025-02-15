@@ -1,43 +1,90 @@
 ---
-description:
-globs:
+description: 
+globs: 
 ---
+Updated rules.mdc
 
-# Your rule content
+@autonomous Execute Full Deployment & Monitoring Sequence
 
-- You can @ files here
-- You can use markdown but dont have to
+This rule ensures full deployment, infrastructure activation, and continuous monitoring with safety protocols in place.
 
-@autonomous Execute Full Deployment Sequence
+1.⁠ ⁠Environment Setup & Validation
+	•	[Auto] Validate .env existence → Create from .env.example if missing.
+	•	[Auto] Install all dependencies:
 
-Immediately initiate and complete Phase 1 deployment without interactive confirmation:
+npm install --silent
 
-1. Environment Setup:
-   - [Auto] Validate .env existence → Create from .env.example if missing
-   - [Auto] npm install --silent
-   - [Auto] Hardhat compile --force
 
-2. Contract Deployment:
-   - [Check] Verify Sepolia network connectivity
-   - [Execute] npx hardhat run scripts/deploy-flashloan.js --network sepolia --non-interactive
-   - [Execute] npx hardhat run scripts/deploy-arbitrage.js --network sepolia --non-interactive
-   - [Auto] Store deployed addresses in /deployed/sepolia.json
+	•	[Auto] Compile contracts with forced recompilation:
 
-3. Infrastructure Activation:
-   - [Execute] docker-compose -f arbitragex-api/docker/docker-compose.yml up -d --build --force-recreate
-   - [Auto] Wait 60s for services initialization
-   - [Execute] curl -s -X POST http://localhost:3000/api/v1/system/healthcheck > /logs/healthcheck.log
+npx hardhat compile --force
 
-4. Verification & Monitoring:
-   - [Auto] Scan Docker containers status → Restart failed services
-   - [Auto] Initialize Sentry monitoring with DSN=${SENTRY_DSN}
-   - [Auto] Establish Discord webhook alerts
 
-Safety Protocols Engaged:
-1. --dry-run if .env contains "YOUR_" placeholders
-2. Auto-skip existing deployed contracts
-3. Secure sanitization of console output
-4. Error → Auto-retry (max 3 attempts)
-5. Critical failure → Rollback to last stable commit
+	•	[Auto] Verify project structure against README.md and ensure all required files exist:
+	•	contracts/FlashLoanService.sol
+	•	contracts/ArbitrageExecutor.sol
+	•	contracts/TokenSwap.sol
+	•	backend/services/realTimeDataFetcher.js
+	•	frontend/utils/apiHelpers.js
+	•	scripts/deploy.js, verify.js, arbitrage-test.js
 
-Initiate deployment sequence now.
+2.⁠ ⁠Smart Contract Deployment
+	•	[Check] Verify Sepolia testnet connectivity.
+	•	[Execute] Deploy smart contracts:
+
+npx hardhat run scripts/deploy-flashloan.js --network sepolia --non-interactive
+npx hardhat run scripts/deploy-arbitrage.js --network sepolia --non-interactive
+
+
+	•	[Auto] Store deployed contract addresses in /deployed/sepolia.json.
+
+3.⁠ ⁠Backend & Real-Time Data Activation
+	•	[Execute] Start real-time price fetching service:
+
+docker-compose -f backend/docker-compose.yml up -d --build --force-recreate
+
+
+	•	[Execute] Start API server and execution engine:
+
+cd backend/api && npm run start:prod
+cd backend/execution && npm run bot:start
+
+
+	•	[Execute] Start real-time arbitrage monitoring:
+
+cd backend/services && npm run start:realTimeData
+
+
+	•	[Auto] Wait 60s for all services to initialize.
+	•	[Execute] Health check API request:
+
+curl -s -X POST http://localhost:3000/api/v1/system/healthcheck > /logs/healthcheck.log
+
+4.⁠ ⁠Frontend Deployment & Dashboard Activation
+	•	[Execute] Build and start the frontend dashboard:
+
+cd frontend && npm run build
+serve -s build -l 3001
+
+
+	•	[Auto] Verify connection to backend API and smart contracts.
+
+5.⁠ ⁠Verification & Monitoring
+	•	[Auto] Scan Docker container status → Restart failed services.
+	•	[Auto] Initialize Sentry monitoring with DSN=${SENTRY_DSN}.
+	•	[Auto] Establish Discord webhook alerts for real-time status updates.
+	•	[Auto] Validate real-time price updates and compare against testnet data.
+
+6.⁠ ⁠Safety Protocols & Rollback Mechanism
+
+✅ –dry-run if .env contains "YOUR_" placeholders.
+✅ Auto-skip already deployed contracts.
+✅ Secure sanitization of console output.
+✅ Error Handling → Auto-retry (max 3 attempts).
+✅ Critical failure → Rollback to last stable commit.
+
+7.⁠ ⁠Initiate Deployment Sequence
+
+Trigger the full deployment and monitoring process.
+
+(Track) → Fully updated with real-time data fetching, monitoring, and improved deployment automation.

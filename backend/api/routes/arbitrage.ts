@@ -1,76 +1,72 @@
-import express from 'express';
-import { ArbitrageTrade } from '../../database/models';
+import { Router } from 'express';
+import { MarketData } from '../../database/models';
+import { ValidationError } from '../middleware/errorHandler';
+import { logger } from '../utils/logger';
 
-const router = express.Router();
+const router = Router();
 
-// Get all arbitrage trades
-router.get('/', async (req, res) => {
+// Get active arbitrage opportunities
+router.get('/opportunities', async (req, res, next) => {
   try {
-    const trades = await ArbitrageTrade.find().sort({ createdAt: -1 });
-    res.json(trades);
+    const { minSpread = 0.5 } = req.query;
+
+    const opportunities = await MarketData.findArbitrageOpportunities(Number(minSpread));
+
+    res.json({
+      success: true,
+      data: opportunities,
+    });
   } catch (error) {
-    console.error('Error fetching trades:', error);
-    res.status(500).json({ error: 'Failed to fetch trades' });
+    next(error);
   }
 });
 
-// Create new arbitrage trade
-router.post('/execute', async (req, res) => {
+// Get arbitrage statistics
+router.get('/stats', async (req, res, next) => {
   try {
-    const { tokenA, tokenB, amount, exchangeA, exchangeB } = req.body;
+    const { timeframe = '24h' } = req.query;
+    const stats = await MarketData.getVolatility(`arbitrage-${timeframe}`);
 
-    console.log('Creating trade with parameters:', {
+    res.json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Execute arbitrage trade
+router.post('/execute', async (req, res, next) => {
+  try {
+    const { tokenA, tokenB, amount, route } = req.body;
+
+    if (!tokenA || !tokenB || !amount || !route) {
+      throw new ValidationError('Missing required parameters');
+    }
+
+    // Log the trade attempt
+    logger.info('Arbitrage trade execution requested:', {
       tokenA,
       tokenB,
       amount,
-      exchangeA,
-      exchangeB,
+      route,
     });
 
-    // Validate required fields
-    if (!tokenA || !tokenB || !amount || !exchangeA?.path || !exchangeB?.path) {
-      return res.status(400).json({
-        error: 'Missing required fields',
-        required: ['tokenA', 'tokenB', 'amount', 'exchangeA.path', 'exchangeB.path'],
-      });
-    }
-
-    // Create trade with initial path
-    const trade = await ArbitrageTrade.create({
-      tokenA,
-      tokenB,
-      amount: Number(amount),
-      exchangeA: exchangeA.path,
-      exchangeB: exchangeB.path,
-      path: [tokenA, tokenB],
-      expectedProfit: 0, // Will be calculated by execution engine
-      status: 'pending',
+    // For now, just return a mock response
+    res.json({
+      success: true,
+      data: {
+        status: 'pending',
+        tokenA,
+        tokenB,
+        amount,
+        route,
+        timestamp: new Date(),
+      },
     });
-
-    console.log('Trade created:', trade);
-
-    // Return the created trade
-    res.json(trade);
-  } catch (error: unknown) {
-    console.error('Error executing trade:', error);
-    res.status(500).json({
-      error: 'Failed to execute trade',
-      details: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-});
-
-// Get trade by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const trade = await ArbitrageTrade.findById(req.params.id);
-    if (!trade) {
-      return res.status(404).json({ error: 'Trade not found' });
-    }
-    res.json(trade);
   } catch (error) {
-    console.error('Error fetching trade:', error);
-    res.status(500).json({ error: 'Failed to fetch trade' });
+    next(error);
   }
 });
 

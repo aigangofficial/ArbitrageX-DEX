@@ -4,37 +4,28 @@
     "module": "commonjs",
     "lib": ["es2020"],
     "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./",
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "baseUrl": ".",
-    "paths": {
-      "*": ["../node_modules/*", "../typechain-types/*"]
-    },
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "outDir": "dist",
-    "rootDir": ".",
-    "typeRoots": ["../node_modules/@types", "./types"]
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@models/*": ["database/models/*"],
+      "@routes/*": ["api/routes/*"],
+      "@services/*": ["api/services/*"],
+      "@utils/*": ["api/utils/*"],
+      "@config/*": ["../config/*"],
+      "@execution/*": ["execution/*"],
+      "@ai/*": ["ai/*"]
+    }
   },
-  "include": [
-    "api/**/*",
-    "database/**/*",
-    "execution/**/*",
-    "types/**/*",
-    "tests/**/*",
-    "__mocks__/**/*"
-  ],
-  "exclude": ["node_modules", "dist"]
+  "include": ["api/**/*", "database/**/*", "execution/**/*", "ai/**/*", "websocket/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

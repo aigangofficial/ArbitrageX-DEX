@@ -2,24 +2,18 @@
 pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MockERC20 is ERC20 {
+contract MockERC20 is ERC20, Ownable {
     uint8 private _decimals;
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
-        _decimals = 18;
+    constructor(string memory name, string memory symbol, uint8 decimalsValue) ERC20(name, symbol) {
+        _decimals = decimalsValue;
+        _transferOwnership(msg.sender);
     }
 
-    function mint(address account, uint256 amount) external {
-        _mint(account, amount);
-    }
-
-    function burn(address account, uint256 amount) external {
-        _burn(account, amount);
-    }
-
-    function setDecimals(uint8 decimals_) external {
-        _decimals = decimals_;
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
     }
 
     function decimals() public view virtual override returns (uint8) {

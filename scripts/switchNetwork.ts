@@ -1,5 +1,38 @@
-import fs from 'fs';
+/**
+ * @title Network Switching Utility
+ * @description Manages network switching between testnet and mainnet environments
+ *
+ * FEATURES:
+ * 1. Network Management:
+ *    - Switches between Sepolia testnet and mainnet
+ *    - Updates configuration files
+ *    - Validates network endpoints
+ *
+ * 2. Safety Checks:
+ *    - Verifies network availability
+ *    - Validates API endpoints
+ *    - Confirms contract addresses
+ *
+ * 3. Configuration Updates:
+ *    - Updates environment variables
+ *    - Modifies contract addresses
+ *    - Adjusts gas settings
+ *
+ * USAGE:
+ * ```bash
+ * # Switch to Sepolia testnet
+ * npm run switch:testnet
+ *
+ * # Switch to mainnet
+ * npm run switch:mainnet
+ * ```
+ *
+ * @requires dotenv
+ * @requires ethers
+ */
+
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 
 export async function updateNetwork(network: 'testnet' | 'mainnet') {

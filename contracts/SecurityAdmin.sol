@@ -5,6 +5,21 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+/**
+ * @title SecurityAdmin
+ * @dev Core security module providing:
+ * - Emergency pause functionality for immediate protocol shutdown
+ * - Time-locked parameter changes with 24-hour delay
+ * - Protected withdrawal mechanisms with delay and validation
+ * - Reentrancy guards for all critical functions
+ * - Enhanced ownership controls with renounce protection
+ *
+ * Used by both FlashLoanService and ArbitrageExecutor to ensure:
+ * - Safe parameter updates through time-locks
+ * - Protected emergency withdrawals
+ * - Immediate protocol pause in case of detected vulnerabilities
+ * - Prevention of ownership renouncement
+ */
 abstract contract SecurityAdmin is Ownable, Pausable, ReentrancyGuard {
     uint256 public constant EMERGENCY_WITHDRAWAL_DELAY = 24 hours;
     uint256 public constant PARAM_CHANGE_DELAY = 24 hours;
