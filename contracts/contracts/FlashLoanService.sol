@@ -41,6 +41,7 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@aave/core-v3/contracts/interfaces/IPool.sol";
 import "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import "./interfaces/IFlashLoanService.sol";
@@ -62,6 +63,18 @@ error InvalidFlashLoanAmount();
 error FlashLoanFailed();
 error InvalidParameter();
 
+interface IAavePool {
+    function flashLoan(
+        address receiverAddress,
+        address[] calldata assets,
+        uint256[] calldata amounts,
+        uint256[] calldata modes,
+        address onBehalfOf,
+        bytes calldata params,
+        uint16 referralCode
+    ) external;
+}
+
 contract FlashLoanService is
     IFlashLoanService,
     IFlashLoanReceiver,
@@ -69,6 +82,8 @@ contract FlashLoanService is
     ReentrancyGuard,
     SecurityAdmin
 {
+    using SafeERC20 for IERC20;
+
     uint256 private constant BPS = 10000;
 
     IPool public immutable pool;
@@ -79,11 +94,14 @@ contract FlashLoanService is
     uint256 public minFlashLoanAmount;
     uint256 public maxFlashLoanAmount;
 
-    event FlashLoanExecuted(
-        address indexed token,
-        uint256 amount,
-        address indexed borrower,
-        uint256 fee
+    IAavePool public immutable aavePool;
+
+    event FlashLoanExecuted(address[] assets, uint256[] amounts, uint256 timestamp);
+    event FlashLoanExecutionFailed(
+        address[] assets,
+        uint256[] amounts,
+        string reason,
+        uint256 timestamp
     );
     event MinProfitBpsUpdated(uint16 oldValue, uint16 newValue);
     event FlashLoanProviderAdded(address indexed provider);
@@ -91,82 +109,86 @@ contract FlashLoanService is
     event ArbitrageExecutorUpdated(address indexed oldExecutor, address indexed newExecutor);
     event TokenApprovalUpdated(address indexed token, address indexed spender, uint256 amount);
 
-    constructor(address _pool) SecurityAdmin() {
+    constructor(address _pool, address _aavePool, address _executor) SecurityAdmin() {
         if (_pool == address(0)) revert InvalidPath();
         pool = IPool(_pool);
+        aavePool = IAavePool(_aavePool);
+        if (_executor == address(0)) revert InvalidArbitrageExecutor();
+        arbitrageExecutor = IArbitrageExecutor(_executor);
         flashLoanProviders[msg.sender] = true;
         emit FlashLoanProviderAdded(msg.sender);
     }
 
-    function executeArbitrage(
-        address tokenA,
-        address tokenB,
-        uint256 amount,
-        bytes calldata params
-    ) external override nonReentrant whenNotPaused {
-        if (tokenA == address(0) || tokenB == address(0)) revert InvalidTokenAddresses();
-        if (amount == 0) revert InvalidAmount();
-        if (address(arbitrageExecutor) == address(0)) revert InvalidArbitrageExecutor();
-
-        bytes memory flashLoanParams = abi.encode(params, tokenB);
-
-        address[] memory assets = new address[](1);
-        assets[0] = tokenA;
-        uint256[] memory amounts = new uint256[](1);
-        amounts[0] = amount;
-        uint256[] memory modes = new uint256[](1);
-        modes[0] = 0;
+    function executeFlashLoan(
+        address[] calldata assets,
+        uint256[] calldata amounts,
+        bytes calldata tradeData
+    ) external override nonReentrant {
+        require(msg.sender == address(arbitrageExecutor), "Unauthorized");
+        require(assets.length == amounts.length, "Length mismatch");
+        require(assets.length > 0, "Empty assets array");
 
         try
-            pool.flashLoan(address(this), assets, amounts, modes, address(this), flashLoanParams, 0)
+            aavePool.flashLoan(
+                address(this),
+                assets,
+                amounts,
+                new uint256[](assets.length), // Modes: 0 = no debt
+                address(0), // onBehalfOf
+                abi.encode(tradeData, msg.sender),
+                0 // referralCode
+            )
         {
-            emit FlashLoanExecuted(tokenA, amount, msg.sender, FLASH_LOAN_FEE);
+            emit FlashLoanExecuted(assets, amounts, block.timestamp);
         } catch Error(string memory reason) {
-            revert(bytes(reason).length > 0 ? reason : "UnprofitableTrade");
-        } catch {
-            revert UnprofitableTrade();
+            emit FlashLoanExecutionFailed(assets, amounts, reason, block.timestamp);
+            revert(reason);
         }
     }
 
     function executeOperation(
-        address token,
-        uint256 amount,
-        uint256 fee,
+        address[] calldata assets,
+        uint256[] calldata amounts,
+        uint256[] calldata premiums,
         address initiator,
         bytes calldata params
     ) external override(IFlashLoanReceiver, IFlashLoanService) returns (bool) {
-        if (!flashLoanProviders[msg.sender]) revert InvalidFlashLoanProvider();
+        require(msg.sender == address(aavePool), "Unauthorized callback");
 
-        // Decode the params to get tokenB and arbitrage parameters
-        (bytes memory arbitrageParams, address tokenB) = abi.decode(params, (bytes, address));
+        // Decode trade data and original caller
+        (bytes memory tradeData, address caller) = abi.decode(params, (bytes, address));
 
-        // Approve arbitrage executor to spend tokens
-        bool success = IERC20(token).approve(address(arbitrageExecutor), amount);
-        if (!success) revert InvalidTokenApproval();
+        // Execute the arbitrage trade
+        (bool success, ) = address(arbitrageExecutor).call(tradeData);
+        require(success, "Trade execution failed");
 
-        // Execute the arbitrage
-        try
-            arbitrageExecutor.executeArbitrage(
-                token,
-                tokenB,
-                amount,
-                abi.decode(arbitrageParams, (bool))
-            )
-        returns (uint256 finalBalance) {
-            // Verify we have enough to repay the flash loan
-            uint256 amountToRepay = amount + fee;
-            if (finalBalance < amountToRepay) revert InsufficientFundsForRepayment();
-
-            // Approve the pool to take the repayment
-            success = IERC20(token).approve(msg.sender, amountToRepay);
-            if (!success) revert InvalidTokenApproval();
-
-            return true;
-        } catch Error(string memory reason) {
-            revert(bytes(reason).length > 0 ? reason : "UnprofitableTrade");
-        } catch {
-            revert UnprofitableTrade();
+        // Approve repayment
+        for (uint256 i = 0; i < assets.length; i++) {
+            uint256 amountOwed = amounts[i] + premiums[i];
+            IERC20(assets[i]).safeApprove(address(aavePool), amountOwed);
         }
+
+        return true;
+    }
+
+    function executeArbitrage(
+        address token,
+        uint256 amount,
+        bytes calldata data
+    ) external override returns (uint256) {
+        require(msg.sender == address(arbitrageExecutor), "Unauthorized");
+        require(token != address(0), "Invalid token");
+        require(amount > 0, "Invalid amount");
+
+        // Execute the arbitrage trade
+        (bool success, bytes memory result) = address(arbitrageExecutor).call(data);
+        require(success, "Trade execution failed");
+
+        // Decode the result to get the profit
+        uint256 profit = abi.decode(result, (uint256));
+        require(profit > 0, "No profit generated");
+
+        return profit;
     }
 
     function setMinProfitBps(uint16 _minProfitBps) external onlyOwner {

@@ -40,7 +40,17 @@ const scanner = new ArbitrageScanner(
   provider,
   config.contracts.quickswapRouter,
   config.contracts.sushiswapRouter,
-  config.contracts.aavePool
+  config.contracts.aavePool,
+  {
+    minProfitThreshold: config.security.minProfitThreshold,
+    minNetProfit: 0.01,
+    gasLimit: config.security.gasPriceLimit,
+    scanInterval: 15000
+  },
+  [
+    { tokenA: config.contracts.wmatic, tokenB: config.contracts.usdc },
+    { tokenA: config.contracts.wmatic, tokenB: config.contracts.usdt }
+  ]
 );
 
 // Serve static files from the frontend build directory

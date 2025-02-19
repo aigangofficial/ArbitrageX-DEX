@@ -1,8 +1,10 @@
 import { ethers } from 'ethers';
+import { EventEmitter } from 'events';
 import { config } from '../api/config';
 import { logger } from '../api/utils/logger';
 import { MarketData } from '../database/models';
 import GasOptimizer from './gasOptimizer';
+import { DEXRouterFactory, IDEXRouter } from './interfaces/IDEXRouter';
 import { TradeExecutor } from './tradeExecutor';
 
 // Router ABI for DEX interactions
@@ -34,33 +36,26 @@ interface TokenPair {
   tokenB: string;
 }
 
+interface ScannerConfig {
+  minProfitThreshold: number;
+  minNetProfit: number;
+  gasLimit: number;
+  scanInterval: number;
+}
+
 interface ArbitrageOpportunity {
-  exchange: string;
-  tokenA: string;
-  tokenB: string;
-  price: number;
-  liquidity: number;
-  timestamp: Date;
-  blockNumber: number;
+  pair: string;
+  dexA: string;
+  dexB: string;
+  priceA: number;
+  priceB: number;
   spread: number;
+  timestamp: number;
+  netProfit?: number;
 }
 
-interface IDEXRouter {
-  estimateGas: {
-    swapExactTokensForTokens(
-      amountIn: bigint,
-      amountOutMin: bigint,
-      path: string[],
-      to: string,
-      deadline: number
-    ): Promise<bigint>;
-  };
-  getAmountsOut(amountIn: bigint, path: string[]): Promise<bigint[]>;
-  address: string;
-}
-
-export class ArbitrageScanner {
-  private provider: ethers.Provider;
+export class ArbitrageScanner extends EventEmitter {
+  private provider: ethers.JsonRpcProvider;
   private quickswapRouter: IDEXRouter;
   private sushiswapRouter: IDEXRouter;
   private aavePool: any;
@@ -68,32 +63,23 @@ export class ArbitrageScanner {
   private gasOptimizer: GasOptimizer;
   private isScanning: boolean;
   private tokenPairs: TokenPair[];
+  private config: ScannerConfig;
 
   constructor(
-    provider: ethers.Provider,
+    provider: ethers.JsonRpcProvider,
     quickswapRouterAddress: string,
     sushiswapRouterAddress: string,
-    aavePoolAddress: string
+    aavePoolAddress: string,
+    config: ScannerConfig,
+    tokenPairs: TokenPair[]
   ) {
+    super();
     this.provider = provider;
     this.gasOptimizer = new GasOptimizer();
 
     // Initialize contracts with proper interface casting
-    this.quickswapRouter = new ethers.Contract(
-      quickswapRouterAddress,
-      [
-        'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
-      ],
-      provider
-    ) as unknown as IDEXRouter;
-
-    this.sushiswapRouter = new ethers.Contract(
-      sushiswapRouterAddress,
-      [
-        'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
-      ],
-      provider
-    ) as unknown as IDEXRouter;
+    this.quickswapRouter = DEXRouterFactory.connect(quickswapRouterAddress, provider);
+    this.sushiswapRouter = DEXRouterFactory.connect(sushiswapRouterAddress, provider);
 
     this.aavePool = new ethers.Contract(
       aavePoolAddress,
@@ -111,21 +97,8 @@ export class ArbitrageScanner {
     );
 
     this.isScanning = false;
-
-    // Initialize token pairs using config
-    const wmatic = process.env.AMOY_WMATIC || '';
-    const usdc = process.env.AMOY_USDC || '';
-    const usdt = process.env.AMOY_USDT || '';
-    const dai = process.env.AMOY_DAI || '';
-
-    this.tokenPairs = [
-      { tokenA: wmatic, tokenB: usdc },
-      { tokenA: wmatic, tokenB: usdt },
-      { tokenA: wmatic, tokenB: dai },
-      { tokenA: usdc, tokenB: usdt },
-      { tokenA: usdc, tokenB: dai },
-      { tokenA: usdt, tokenB: dai },
-    ].filter(pair => pair.tokenA && pair.tokenB);
+    this.config = config;
+    this.tokenPairs = tokenPairs;
 
     logger.info(`Initialized ${this.tokenPairs.length} token pairs for scanning`);
     logger.info('Token pairs:', this.tokenPairs);
@@ -189,15 +162,14 @@ export class ArbitrageScanner {
                   prices,
                   opportunities,
                   opportunityValidation: opportunities.map(opp => ({
-                    hasTokenA: Boolean(opp.tokenA),
-                    hasTokenB: Boolean(opp.tokenB),
-                    tokenALength: opp.tokenA?.length,
-                    tokenBLength: opp.tokenB?.length,
-                    hasExchange: Boolean(opp.exchange),
-                    hasPrice: typeof opp.price === 'number',
-                    hasLiquidity: typeof opp.liquidity === 'number',
+                    hasPair: Boolean(opp.pair),
+                    hasDexA: Boolean(opp.dexA),
+                    hasDexB: Boolean(opp.dexB),
+                    hasPriceA: typeof opp.priceA === 'number',
+                    hasPriceB: typeof opp.priceB === 'number',
+                    hasSpread: typeof opp.spread === 'number',
                     hasTimestamp: typeof opp.timestamp === 'number',
-                    hasBlockNumber: typeof opp.blockNumber === 'number',
+                    hasNetProfit: typeof opp.netProfit === 'number'
                   })),
                 },
                 null,
@@ -208,14 +180,14 @@ export class ArbitrageScanner {
             // Log each opportunity before saving
             opportunities.forEach((opp, index) => {
               logger.info(`Opportunity ${index + 1} data:`, {
-                tokenA: opp.tokenA,
-                tokenB: opp.tokenB,
-                exchange: opp.exchange,
-                price: opp.price,
-                liquidity: opp.liquidity,
-                timestamp: opp.timestamp,
-                blockNumber: opp.blockNumber,
+                pair: opp.pair,
+                dexA: opp.dexA,
+                dexB: opp.dexB,
+                priceA: opp.priceA,
+                priceB: opp.priceB,
                 spread: opp.spread,
+                timestamp: opp.timestamp,
+                netProfit: opp.netProfit
               });
             });
 
@@ -320,77 +292,64 @@ export class ArbitrageScanner {
 
   private async findArbitrageOpportunities(prices: PriceData[]): Promise<ArbitrageOpportunity[]> {
     const opportunities: ArbitrageOpportunity[] = [];
-    const minProfitThreshold = config.security.minProfitThreshold || 0.5;
 
-    for (let i = 0; i < prices.length; i++) {
-      for (let j = i + 1; j < prices.length; j++) {
-        const priceA = prices[i].price;
-        const priceB = prices[j].price;
-        const spread = Math.abs((priceA - priceB) / Math.min(priceA, priceB)) * 100;
+    for (const pair of this.tokenPairs) {
+      const pairPrices = prices.filter(p =>
+        p.tokenA === pair.tokenA && p.tokenB === pair.tokenB
+      );
 
-        if (spread >= minProfitThreshold) {
-          const buyDex = priceA < priceB ? prices[i] : prices[j];
-          const sellDex = priceA < priceB ? prices[j] : prices[i];
+      for (let i = 0; i < pairPrices.length; i++) {
+        for (let j = i + 1; j < pairPrices.length; j++) {
+          const buyDex = pairPrices[i];
+          const sellDex = pairPrices[j];
 
-          if (await this.validateOpportunity(buyDex, sellDex, spread)) {
-            try {
-              await this.tradeExecutor.executeArbitrage({
-                buyDex: buyDex.dex,
-                sellDex: sellDex.dex,
-                tokenA: buyDex.tokenA,
-                tokenB: buyDex.tokenB,
-                amount: ethers.parseEther('1'),
-                expectedProfit: spread,
-              });
+          try {
+            const spread = Math.abs(buyDex.price - sellDex.price);
+            const spreadPercentage = (spread / Math.min(buyDex.price, sellDex.price)) * 100;
 
-              opportunities.push({
-                exchange: buyDex.dex,
-                tokenA: buyDex.tokenA,
-                tokenB: buyDex.tokenB,
-                price: buyDex.price,
-                liquidity: buyDex.liquidity,
-                timestamp: new Date(buyDex.timestamp * 1000),
-                blockNumber: buyDex.blockNumber,
-                spread,
-              });
-            } catch (error) {
-              logger.error('Failed to execute arbitrage:', error);
+            if (spreadPercentage >= this.config.minProfitThreshold) {
+              const gasEstimate = await this.estimateArbitrageGas();
+              const netProfit = await this.calculateNetProfit(spread, gasEstimate);
+
+              if (netProfit > this.config.minNetProfit) {
+                opportunities.push({
+                  pair: `${pair.tokenA}/${pair.tokenB}`,
+                  dexA: buyDex.dex,
+                  dexB: sellDex.dex,
+                  priceA: buyDex.price,
+                  priceB: sellDex.price,
+                  spread: spreadPercentage,
+                  timestamp: Date.now(),
+                  netProfit
+                });
+              }
             }
+          } catch (error) {
+            console.error('Error calculating arbitrage opportunity:', error);
           }
         }
       }
     }
+
     return opportunities;
   }
 
-  private async validateOpportunity(
-    buyDex: PriceData,
-    sellDex: PriceData,
-    spread: number
-  ): Promise<boolean> {
-    // Add validation logic here
-    const minLiquidity = ethers.parseEther('1000'); // Minimum 1000 tokens liquidity
-
-    if (buyDex.liquidity < minLiquidity || sellDex.liquidity < minLiquidity) {
-      logger.info('Insufficient liquidity for arbitrage');
-      return false;
+  private async calculateNetProfit(spread: number, gasEstimate: bigint): Promise<number> {
+    try {
+      const feeData = await this.provider.getFeeData();
+      if (!feeData.gasPrice) {
+        throw new Error('Could not get gas price');
+      }
+      const gasCost = Number(ethers.formatEther(gasEstimate * feeData.gasPrice));
+      return spread - gasCost;
+    } catch (error) {
+      logger.error('Error calculating net profit:', error);
+      throw error;
     }
+  }
 
-    // Validate that the spread is still profitable after gas costs
-    const estimatedGasCost = await this.tradeExecutor.estimateGasCost(
-      buyDex.dex,
-      sellDex.dex,
-      buyDex.tokenA,
-      buyDex.tokenB
-    );
-
-    const profitAfterGas = spread - estimatedGasCost;
-    if (profitAfterGas <= 0) {
-      logger.info('Opportunity not profitable after gas costs');
-      return false;
-    }
-
-    return true;
+  private async estimateArbitrageGas(): Promise<bigint> {
+    return BigInt(this.config.gasLimit);
   }
 }
 

@@ -2,7 +2,10 @@ import { ethers } from 'ethers';
 import { config } from '../api/config';
 import { logger } from '../api/utils/logger';
 
-class GasOptimizer {
+export default class GasOptimizer {
+  private readonly MAX_GAS_PRICE = ethers.parseUnits('100', 'gwei'); // 100 gwei
+  private readonly MIN_GAS_PRICE = ethers.parseUnits('5', 'gwei');   // 5 gwei
+
   private provider: ethers.JsonRpcProvider;
   private gasPriceHistory: number[];
   private maxHistorySize: number;
@@ -125,6 +128,39 @@ class GasOptimizer {
       await new Promise(resolve => setTimeout(resolve, 15000));
     }
   }
-}
 
-export default GasOptimizer;
+  async calculateOptimalGas(provider: ethers.Provider): Promise<bigint> {
+    try {
+      const gasPrice = await provider.getGasPrice();
+
+      // If gas price is too high, wait for better conditions
+      if (gasPrice > this.MAX_GAS_PRICE) {
+        return BigInt(0);
+      }
+
+      // If gas price is very low, use minimum to ensure inclusion
+      if (gasPrice < this.MIN_GAS_PRICE) {
+        return this.MIN_GAS_PRICE;
+      }
+
+      // Add 10% to current gas price for faster inclusion
+      return gasPrice + (gasPrice * BigInt(10) / BigInt(100));
+    } catch (error) {
+      console.error('Error calculating optimal gas:', error);
+      return this.MAX_GAS_PRICE; // Use max gas price as fallback
+    }
+  }
+
+  async isGasPriceFavorable(provider: ethers.Provider): Promise<boolean> {
+    const gasPrice = await provider.getGasPrice();
+    return gasPrice <= this.MAX_GAS_PRICE;
+  }
+
+  getMaxGasPrice(): bigint {
+    return this.MAX_GAS_PRICE;
+  }
+
+  getMinGasPrice(): bigint {
+    return this.MIN_GAS_PRICE;
+  }
+}

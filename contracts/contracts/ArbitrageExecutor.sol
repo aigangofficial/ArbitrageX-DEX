@@ -45,17 +45,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "./interfaces/IArbitrageExecutor.sol";
 import "./SecurityAdmin.sol";
-
-error InvalidPath();
-error InsufficientBalance();
-error InvalidTokenAddresses();
-error InvalidAmount();
-error InvalidMinProfit();
-error UnprofitableTrade();
-error TransferFailed();
-error InvalidDexRouter();
-error InvalidTokenApproval();
-error InvalidParameter();
+import "./FlashLoanService.sol";
 
 contract ArbitrageExecutor is IArbitrageExecutor, Ownable, ReentrancyGuard, SecurityAdmin {
     uint256 private constant BPS = 10000;
@@ -66,62 +56,62 @@ contract ArbitrageExecutor is IArbitrageExecutor, Ownable, ReentrancyGuard, Secu
     mapping(address => bool) public whitelistedTokens;
     uint256 public minTradeAmount;
     uint256 public maxTradeAmount;
+    FlashLoanService public immutable flashLoanService;
 
     event ArbitrageExecuted(
-        address indexed tokenA,
-        address indexed tokenB,
-        uint256 amountIn,
-        uint256 profit
+        address indexed token,
+        uint256 amount,
+        uint256 profit,
+        uint256 timestamp
     );
+
+    event ArbitrageFailed(address indexed token, uint256 amount, string reason, uint256 timestamp);
+
     event MinProfitBpsUpdated(uint16 oldValue, uint16 newValue);
     event TokenWhitelisted(address indexed token);
     event TokenBlacklisted(address indexed token);
     event TokenApprovalUpdated(address indexed token, address indexed spender, uint256 amount);
 
-    constructor(address _dexRouterA, address _dexRouterB) SecurityAdmin() {
+    constructor(
+        address _dexRouterA,
+        address _dexRouterB,
+        address _flashLoanService
+    ) SecurityAdmin() {
         if (_dexRouterA == address(0) || _dexRouterB == address(0)) revert InvalidPath();
         dexRouterA = IUniswapV2Router02(_dexRouterA);
         dexRouterB = IUniswapV2Router02(_dexRouterB);
+        require(_flashLoanService != address(0), "Invalid flash loan service");
+        flashLoanService = FlashLoanService(_flashLoanService);
     }
 
     function executeArbitrage(
-        address tokenA,
-        address tokenB,
-        uint256 amount,
-        bool useFirstDexFirst
+        address loanToken,
+        uint256 loanAmount,
+        bytes calldata tradeData
     ) external override nonReentrant whenNotPaused returns (uint256) {
-        if (tokenA == address(0) || tokenB == address(0)) revert InvalidTokenAddresses();
-        if (amount == 0) revert InvalidAmount();
-        if (!whitelistedTokens[tokenA] || !whitelistedTokens[tokenB])
-            revert InvalidTokenAddresses();
-        if (amount < minTradeAmount || amount > maxTradeAmount) revert InvalidAmount();
+        require(loanToken != address(0), "Invalid token");
+        require(loanAmount > 0, "Invalid amount");
 
-        uint256 initialBalance = IERC20(tokenA).balanceOf(address(this));
-        if (initialBalance < amount) revert InsufficientBalance();
+        // Setup flash loan parameters
+        address[] memory assets = new address[](1);
+        assets[0] = loanToken;
 
-        // Approve routers to spend tokens
-        _approveToken(tokenA, address(dexRouterA), amount);
-        _approveToken(tokenA, address(dexRouterB), amount);
-        _approveToken(tokenB, address(dexRouterA), type(uint256).max);
-        _approveToken(tokenB, address(dexRouterB), type(uint256).max);
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = loanAmount;
 
-        // Execute the trades
-        uint256 amountReceived;
-        if (useFirstDexFirst) {
-            amountReceived = _executeTradeOnDexA(tokenA, tokenB, amount);
-            amountReceived = _executeTradeOnDexB(tokenB, tokenA, amountReceived);
-        } else {
-            amountReceived = _executeTradeOnDexB(tokenA, tokenB, amount);
-            amountReceived = _executeTradeOnDexA(tokenB, tokenA, amountReceived);
+        // Execute flash loan with trade data
+        try flashLoanService.executeFlashLoan(assets, amounts, tradeData) {
+            // Calculate and transfer profit
+            uint256 profit = IERC20(loanToken).balanceOf(address(this));
+            require(profit > 0, "No profit generated");
+
+            IERC20(loanToken).transfer(msg.sender, profit);
+            emit ArbitrageExecuted(loanToken, loanAmount, profit, block.timestamp);
+            return profit;
+        } catch Error(string memory reason) {
+            emit ArbitrageFailed(loanToken, loanAmount, reason, block.timestamp);
+            revert(reason);
         }
-
-        // Verify profit
-        uint256 profit = amountReceived > amount ? amountReceived - amount : 0;
-        uint256 minProfit = (amount * minProfitBps) / BPS;
-        if (profit < minProfit) revert UnprofitableTrade();
-
-        emit ArbitrageExecuted(tokenA, tokenB, amount, profit);
-        return amountReceived;
     }
 
     function _executeTradeOnDexA(
@@ -261,5 +251,27 @@ contract ArbitrageExecutor is IArbitrageExecutor, Ownable, ReentrancyGuard, Secu
         if (profit < minProfit) revert UnprofitableTrade();
 
         return amountReceived;
+    }
+
+    // Function to execute the actual DEX trades
+    function executeTrade(
+        address router,
+        address[] calldata path,
+        uint256 amountIn,
+        uint256 minAmountOut
+    ) external returns (uint256) {
+        require(msg.sender == address(flashLoanService), "Unauthorized");
+
+        IERC20(path[0]).approve(router, amountIn);
+
+        uint256[] memory amounts = IUniswapV2Router02(router).swapExactTokensForTokens(
+            amountIn,
+            minAmountOut,
+            path,
+            address(this),
+            block.timestamp
+        );
+
+        return amounts[amounts.length - 1];
     }
 }

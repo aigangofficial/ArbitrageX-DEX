@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@aave/core-v3/contracts/interfaces/IPool.sol";
 import "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import "@aave/core-v3/contracts/protocol/libraries/types/DataTypes.sol";
-import "../interfaces/IFlashLoanService.sol";
+import "../interfaces/IFlashLoanReceiver.sol";
 
 error InvalidAddress();
 error InvalidAmount();
@@ -16,18 +16,7 @@ error TransferFailed();
 error ApprovalFailed();
 error NotImplemented();
 
-// Simplified Flash Loan Receiver Interface
-interface IFlashLoanReceiver {
-    function executeOperation(
-        address asset,
-        uint256 amount,
-        uint256 premium,
-        address initiator,
-        bytes calldata params
-    ) external returns (bool);
-}
-
-contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
+contract MockPool is IPool, Ownable, ReentrancyGuard {
     address public immutable tokenA;
     address public immutable tokenB;
     address public immutable poolProvider;
@@ -87,7 +76,8 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
         // Calculate fee
         uint256 amount = amounts[0];
         uint256 fee = (amount * FLASH_LOAN_FEE_BPS) / BPS;
-        uint256 amountToRepay = amount + fee;
+        uint256[] memory premiums = new uint256[](1);
+        premiums[0] = fee;
 
         // Transfer tokens to receiver
         bool success = IERC20(assets[0]).transfer(receiverAddress, amount);
@@ -95,9 +85,9 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
 
         // Call executeOperation on receiver
         bool executed = IFlashLoanReceiver(receiverAddress).executeOperation(
-            assets[0],
-            amount,
-            fee,
+            assets,
+            amounts,
+            premiums,
             onBehalfOf,
             params
         );
@@ -105,9 +95,9 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
 
         // Verify final balance after receiver's repayment
         uint256 finalBalance = IERC20(assets[0]).balanceOf(address(this));
-        if (finalBalance < initialBalance + fee) {
-            revert InsufficientFundsForRepayment();
-        }
+        require(finalBalance >= initialBalance + fee, "Insufficient repayment");
+
+        emit FlashLoan(receiverAddress, assets[0], amount, fee, block.timestamp);
     }
 
     function supply(
@@ -174,14 +164,22 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
         // Calculate fee
         uint256 fee = (amount * FLASH_LOAN_FEE_BPS) / BPS;
 
+        // Create arrays for the flash loan
+        address[] memory assets = new address[](1);
+        assets[0] = asset;
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = amount;
+        uint256[] memory premiums = new uint256[](1);
+        premiums[0] = fee;
+
         // Transfer tokens to receiver
         balances[receiverAddress] += amount;
 
         // Execute operation
         IFlashLoanReceiver(receiverAddress).executeOperation(
-            asset,
-            amount,
-            fee,
+            assets,
+            amounts,
+            premiums,
             msg.sender,
             params
         );
@@ -189,6 +187,8 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
         // Verify repayment
         require(balances[receiverAddress] >= amount + fee, "Flash loan not repaid");
         balances[receiverAddress] -= (amount + fee);
+
+        emit FlashLoan(receiverAddress, asset, amount, fee, block.timestamp);
     }
 
     function setUserUseReserveAsCollateral(address asset, bool useAsCollateral) external override {
@@ -246,9 +246,13 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
         return (0, 0, 0, 0, 0, type(uint256).max);
     }
 
-    // Implement missing interface functions with placeholder returns
+    // Implement required IPool functions with minimal implementations
     function BRIDGE_PROTOCOL_FEE() external pure override returns (uint256) {
         return 0;
+    }
+
+    function FLASHLOAN_PREMIUM_TOTAL() external pure override returns (uint128) {
+        return uint128(FLASH_LOAN_FEE_BPS);
     }
 
     function FLASHLOAN_PREMIUM_TO_PROTOCOL() external pure override returns (uint128) {
@@ -256,11 +260,15 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
     }
 
     function MAX_NUMBER_RESERVES() external pure override returns (uint16) {
-        return 0;
+        return 128;
     }
 
     function MAX_STABLE_RATE_BORROW_SIZE_PERCENT() external pure override returns (uint256) {
-        return 0;
+        return 2500;
+    }
+
+    function POOL_REVISION() external pure returns (uint256) {
+        return 1;
     }
 
     function backUnbacked(
@@ -271,106 +279,28 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
         return 0;
     }
 
-    function deposit(
-        address asset,
-        uint256 amount,
-        address onBehalfOf,
-        uint16 referralCode
-    ) external override {}
-
-    function getReserveAddressById(uint16 id) external pure override returns (address) {
-        return address(0);
-    }
-
-    function mintUnbacked(
-        address asset,
-        uint256 amount,
-        address onBehalfOf,
-        uint16 referralCode
-    ) external override {}
-
-    function repayWithPermit(
-        address asset,
-        uint256 amount,
-        uint256 interestRateMode,
-        address onBehalfOf,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external override returns (uint256) {
-        return 0;
-    }
-
-    function supplyWithPermit(
-        address asset,
-        uint256 amount,
-        address onBehalfOf,
-        uint16 referralCode,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external override {}
-
-    // Function to add liquidity to the mock pool
-    function addLiquidity(address token, uint256 amount) external {
-        require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Transfer failed");
-    }
-
-    // Function to get the flash loan premium
-    function FLASHLOAN_PREMIUM_TOTAL() external pure returns (uint128) {
-        return uint128(FLASH_LOAN_FEE_BPS);
-    }
-
-    // Additional helper functions for testing
-    function setBalance(address user, uint256 amount) external onlyOwner {
-        balances[user] = amount;
-    }
-
-    function getBalance(address user) external view returns (uint256) {
-        return balances[user];
-    }
-
-    function repayWithATokens(
-        address asset,
-        uint256 amount,
-        uint256 interestRateMode
-    ) external override returns (uint256) {
-        return 0;
-    }
-
-    function swapBorrowRateMode(address asset, uint256 interestRateMode) external override {}
+    function mintToTreasury(address[] calldata assets) external override {}
 
     function rebalanceStableBorrowRate(address asset, address user) external override {}
 
-    function mintToTreasury(address[] calldata assets) external override {}
+    function setConfiguration(
+        address asset,
+        DataTypes.ReserveConfigurationMap calldata configuration
+    ) external override {}
 
-    function getConfiguration(
-        address asset
-    ) external view override returns (DataTypes.ReserveConfigurationMap memory) {
-        return DataTypes.ReserveConfigurationMap(0);
-    }
+    function setReserveInterestRateStrategyAddress(
+        address asset,
+        address rateStrategyAddress
+    ) external override {}
 
-    function getUserConfiguration(
-        address user
-    ) external view override returns (DataTypes.UserConfigurationMap memory) {
-        return DataTypes.UserConfigurationMap(0);
-    }
+    function swapBorrowRateMode(address asset, uint256 interestRateMode) external override {}
 
-    function getReserveNormalizedIncome(address asset) external view override returns (uint256) {
-        return 1e27;
-    }
+    function updateBridgeProtocolFee(uint256 protocolFee) external override {}
 
-    function getReserveNormalizedVariableDebt(
-        address asset
-    ) external view override returns (uint256) {
-        return 0;
-    }
-
-    function getReservesList() external view override returns (address[] memory) {
-        return new address[](0);
-    }
+    function updateFlashloanPremiums(
+        uint128 flashLoanPremiumTotal,
+        uint128 flashLoanPremiumToProtocol
+    ) external override {}
 
     function finalizeTransfer(
         address asset,
@@ -381,37 +311,11 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
         uint256 balanceToBefore
     ) external override {}
 
-    function initReserve(
-        address asset,
-        address aTokenAddress,
-        address stableDebtAddress,
-        address variableDebtAddress,
-        address interestRateStrategyAddress
-    ) external override {}
-
-    function dropReserve(address asset) external override {}
-
-    function setReserveInterestRateStrategyAddress(
-        address asset,
-        address rateStrategyAddress
-    ) external override {}
-
-    function setConfiguration(
-        address asset,
-        DataTypes.ReserveConfigurationMap calldata configuration
-    ) external override {}
-
-    function updateBridgeProtocolFee(uint256 protocolFee) external override {}
-
-    function updateFlashloanPremiums(
-        uint128 flashLoanPremiumTotal,
-        uint128 flashLoanPremiumToProtocol
-    ) external override {}
-
-    function configureEModeCategory(
-        uint8 id,
-        DataTypes.EModeCategory memory category
-    ) external override {}
+    function getConfiguration(
+        address asset
+    ) external view override returns (DataTypes.ReserveConfigurationMap memory) {
+        return DataTypes.ReserveConfigurationMap(0);
+    }
 
     function getEModeCategoryData(
         uint8 id
@@ -426,58 +330,155 @@ contract MockPool is IFlashLoanService, IPool, Ownable, ReentrancyGuard {
             });
     }
 
-    function setUserEMode(uint8 categoryId) external override {}
+    function getReserveAddressById(uint16 id) external view override returns (address) {
+        return address(0);
+    }
+
+    function getReserveNormalizedIncome(address asset) external view override returns (uint256) {
+        return 0;
+    }
+
+    function getReserveNormalizedVariableDebt(
+        address asset
+    ) external view override returns (uint256) {
+        return 0;
+    }
+
+    function getReservesList() external view override returns (address[] memory) {
+        return new address[](0);
+    }
+
+    function getUserConfiguration(
+        address user
+    ) external view override returns (DataTypes.UserConfigurationMap memory) {
+        return DataTypes.UserConfigurationMap(0);
+    }
 
     function getUserEMode(address user) external view override returns (uint256) {
         return 0;
     }
 
-    function resetIsolationModeTotalDebt(address asset) external override {}
+    function initReserve(
+        address asset,
+        address aTokenAddress,
+        address stableDebtAddress,
+        address variableDebtAddress,
+        address interestRateStrategyAddress
+    ) external override {}
 
-    function rescueTokens(address token, address to, uint256 amount) external override {}
+    function dropReserve(address asset) external override {}
 
-    function executeArbitrage(
-        address _tokenA,
-        address _tokenB,
-        uint256 amount,
-        bytes calldata data
-    ) external override {
-        // Mock implementation
+    function setPause(bool val) external {
+        // Not implemented for mock
     }
 
-    function executeOperation(
+    function paused() external view returns (bool) {
+        return false;
+    }
+
+    function setUserEMode(uint8 categoryId) external override {}
+
+    function supply(
         address asset,
         uint256 amount,
-        uint256 fee,
-        address initiator,
-        bytes calldata params
-    ) external override returns (bool) {
-        // Mock implementation
-        return true;
+        address onBehalfOf,
+        uint16 referralCode,
+        uint256 timestamp
+    ) external {
+        // Not implemented for mock
     }
 
-    function setArbitrageExecutor(address _arbitrageExecutor) external override onlyOwner {
-        if (_arbitrageExecutor == address(0)) revert InvalidAddress();
+    function setArbitrageExecutor(address _arbitrageExecutor) external onlyOwner {
+        require(_arbitrageExecutor != address(0), "Invalid address");
         arbitrageExecutor = _arbitrageExecutor;
     }
 
-    function setMinProfitBps(uint16 _minProfitBps) external override onlyOwner {
+    function setMinProfitBps(uint16 _minProfitBps) external onlyOwner {
+        require(_minProfitBps > 0, "Invalid min profit");
         minProfitBps = _minProfitBps;
     }
 
-    function withdrawToken(address token, uint256 amount) external override onlyOwner {
-        if (token == address(0)) revert InvalidAddress();
-        if (amount == 0) revert InvalidAmount();
-        if (!IERC20(token).transfer(msg.sender, amount)) revert TransferFailed();
+    function withdrawToken(address token, uint256 amount) external onlyOwner {
+        require(token != address(0), "Invalid token");
+        require(amount > 0, "Invalid amount");
+        require(IERC20(token).transfer(msg.sender, amount), "Transfer failed");
     }
 
     function approveTokens(
         address[] calldata tokens,
         address[] calldata spenders
-    ) external override onlyOwner {
-        if (tokens.length != spenders.length) revert InvalidAmount();
-        for (uint256 i = 0; i < tokens.length; i++) {
-            if (!IERC20(tokens[i]).approve(spenders[i], type(uint256).max)) revert ApprovalFailed();
+    ) external onlyOwner {
+        require(tokens.length == spenders.length, "Length mismatch");
+        for (uint i = 0; i < tokens.length; i++) {
+            require(tokens[i] != address(0) && spenders[i] != address(0), "Invalid address");
+            require(IERC20(tokens[i]).approve(spenders[i], type(uint256).max), "Approval failed");
         }
+    }
+
+    function configureEModeCategory(
+        uint8 id,
+        DataTypes.EModeCategory memory config
+    ) external override {
+        // Not implemented for mock
+    }
+
+    function deposit(
+        address asset,
+        uint256 amount,
+        address onBehalfOf,
+        uint16 referralCode
+    ) external override {
+        // Not implemented for mock
+    }
+
+    function mintUnbacked(
+        address asset,
+        uint256 amount,
+        address onBehalfOf,
+        uint16 referralCode
+    ) external override {
+        // Not implemented for mock
+    }
+
+    function repayWithATokens(
+        address asset,
+        uint256 amount,
+        uint256 interestRateMode
+    ) external override returns (uint256) {
+        return 0;
+    }
+
+    function repayWithPermit(
+        address asset,
+        uint256 amount,
+        uint256 interestRateMode,
+        address onBehalfOf,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external override returns (uint256) {
+        return 0;
+    }
+
+    function rescueTokens(address token, address to, uint256 amount) external override {
+        // Not implemented for mock
+    }
+
+    function resetIsolationModeTotalDebt(address asset) external override {
+        // Not implemented for mock
+    }
+
+    function supplyWithPermit(
+        address asset,
+        uint256 amount,
+        address onBehalfOf,
+        uint16 referralCode,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external override {
+        // Not implemented for mock
     }
 }

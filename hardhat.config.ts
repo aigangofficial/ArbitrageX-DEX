@@ -7,15 +7,15 @@ import { HardhatUserConfig } from 'hardhat/config';
 import { resolve } from 'path';
 import 'solidity-coverage';
 
-// Load environment variables from .env.contracts
-dotenv.config({ path: resolve(__dirname, './.env.contracts') });
+// Load environment variables from .env
+dotenv.config({ path: resolve(__dirname, '.env') });
 
 // Ensure required environment variables are set
-const REQUIRED_ENV_VARS = ['AMOY_RPC', 'DEPLOYER_PRIVATE_KEY', 'POLYGONSCAN_API_KEY'];
+const REQUIRED_ENV_VARS = ['SEPOLIA_RPC', 'DEPLOYER_PRIVATE_KEY'];
 
 for (const envVar of REQUIRED_ENV_VARS) {
   if (!process.env[envVar]) {
-    console.warn(`Warning: ${envVar} is not set in config/.env`);
+    console.warn(`Warning: ${envVar} is not set in .env`);
   }
 }
 
@@ -26,23 +26,26 @@ const config: HardhatUserConfig = {
       optimizer: {
         enabled: true,
         runs: 200,
+        details: {
+          yul: true,
+          yulDetails: {
+            stackAllocation: true,
+            optimizerSteps: "dhfoDgvulfnTUtnIf"
+          }
+        }
       },
       viaIR: true,
+      evmVersion: 'paris'
     },
   },
   networks: {
     hardhat: {
-      chainId: 80002,
-    },
-    amoy: {
-      url: process.env.AMOY_RPC || 'https://polygon-amoy.public.blastapi.io',
-      accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
-      chainId: 80002,
-      gasPrice: 'auto',
+      chainId: 11155111,
     },
     sepolia: {
       url: process.env.SEPOLIA_RPC || '',
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+      chainId: 11155111,
       gasPrice: 'auto',
     },
   },
@@ -51,7 +54,7 @@ const config: HardhatUserConfig = {
     currency: 'USD',
   },
   paths: {
-    sources: './contracts',
+    sources: './contracts/contracts',
     tests: './test',
     cache: './cache',
     artifacts: './artifacts',
