@@ -1,5 +1,6 @@
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-ethers';
+import '@nomicfoundation/hardhat-verify';
 import '@typechain/hardhat';
 import * as dotenv from 'dotenv';
 import 'hardhat-gas-reporter';
@@ -11,7 +12,7 @@ import 'solidity-coverage';
 dotenv.config({ path: resolve(__dirname, '.env') });
 
 // Ensure required environment variables are set
-const REQUIRED_ENV_VARS = ['SEPOLIA_RPC', 'DEPLOYER_PRIVATE_KEY'];
+const REQUIRED_ENV_VARS = ['SEPOLIA_RPC', 'DEPLOYER_PRIVATE_KEY', 'ETHERSCAN_API_KEY'];
 
 for (const envVar of REQUIRED_ENV_VARS) {
   if (!process.env[envVar]) {
@@ -35,7 +36,10 @@ const config: HardhatUserConfig = {
         }
       },
       viaIR: true,
-      evmVersion: 'paris'
+      evmVersion: 'paris',
+      metadata: {
+        bytecodeHash: "none"
+      }
     },
   },
   networks: {
@@ -62,6 +66,21 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: 'typechain-types',
     target: 'ethers-v6',
+  },
+  etherscan: {
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY || ''
+    },
+    customChains: [
+      {
+        network: "sepolia",
+        chainId: 11155111,
+        urls: {
+          apiURL: "https://api-sepolia.etherscan.io/api",
+          browserURL: "https://sepolia.etherscan.io"
+        }
+      }
+    ]
   },
 };
 

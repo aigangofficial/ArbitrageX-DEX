@@ -14,13 +14,14 @@
     "@circle-fin/developer-controlled-wallets": "^7.1.0",
     "@circle-fin/smart-contract-platform": "^7.1.0",
     "@circle-fin/user-controlled-wallets": "^7.1.0",
-    "axios": "^1.6.7",
+    "axios": "^1.7.9",
     "dotenv": "^16.4.1"
   },
   "devDependencies": {
     "@aave/core-v3": "^1.19.1",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.12",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/contracts": "^4.9.3",
     "@typechain/hardhat": "^9.0.0",
