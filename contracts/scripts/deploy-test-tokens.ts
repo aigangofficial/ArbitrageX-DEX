@@ -1,4 +1,3 @@
-import { writeFileSync } from 'fs';
 import { ethers } from 'hardhat';
 import { join } from 'path';
 
@@ -8,71 +7,57 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log('Deploying contracts with account:', deployer.address);
 
-  const gasLimit = 1000000; // Lower gas limit
-  const gasPrice = ethers.parseUnits('10', 'gwei'); // Lower gas price
-
-  console.log('Deploying mock tokens...');
-
-  // Deploy WMATIC
-  const MockWMATIC = await ethers.getContractFactory('contracts/mocks/MockWMATIC.sol:MockWMATIC');
-  const mockWMATIC = await MockWMATIC.deploy({
-    gasLimit,
-    gasPrice,
-  });
-  await mockWMATIC.waitForDeployment();
-  console.log('MockWMATIC deployed to:', await mockWMATIC.getAddress());
-
   // Deploy USDC
-  const MockUSDC = await ethers.getContractFactory('contracts/mocks/MockUSDC.sol:MockUSDC');
-  const mockUSDC = await MockUSDC.deploy({
-    gasLimit,
-    gasPrice,
-  });
+  console.log('\nDeploying MockUSDC...');
+  const MockUSDC = await ethers.getContractFactory('MockToken');
+  const mockUSDC = await MockUSDC.deploy('USD Coin', 'USDC', 6);
   await mockUSDC.waitForDeployment();
   console.log('MockUSDC deployed to:', await mockUSDC.getAddress());
 
   // Deploy USDT
-  const MockUSDT = await ethers.getContractFactory('contracts/mocks/MockUSDT.sol:MockUSDT');
-  const mockUSDT = await MockUSDT.deploy({
-    gasLimit,
-    gasPrice,
-  });
+  console.log('\nDeploying MockUSDT...');
+  const MockUSDT = await ethers.getContractFactory('MockToken');
+  const mockUSDT = await MockUSDT.deploy('Tether USD', 'USDT', 6);
   await mockUSDT.waitForDeployment();
   console.log('MockUSDT deployed to:', await mockUSDT.getAddress());
 
-  // Mint some tokens to deployer
-  const mintAmount = ethers.parseUnits('1000000', 18); // 1 million tokens
+  // Deploy DAI
+  console.log('\nDeploying MockDAI...');
+  const MockDAI = await ethers.getContractFactory('MockToken');
+  const mockDAI = await MockDAI.deploy('Dai Stablecoin', 'DAI', 18);
+  await mockDAI.waitForDeployment();
+  console.log('MockDAI deployed to:', await mockDAI.getAddress());
 
-  await mockWMATIC.mint(deployer.address, mintAmount, {
-    gasLimit: 100000,
-    gasPrice,
-  });
-  await mockUSDC.mint(deployer.address, mintAmount, {
-    gasLimit: 100000,
-    gasPrice,
-  });
-  await mockUSDT.mint(deployer.address, mintAmount, {
-    gasLimit: 100000,
-    gasPrice,
-  });
-
-  console.log('Minted 1 million tokens each to:', deployer.address);
-
-  // Save addresses to a JSON file
+  // Save addresses to config/.env
   const addresses = {
-    WMATIC: await mockWMATIC.getAddress(),
-    USDC: await mockUSDC.getAddress(),
-    USDT: await mockUSDT.getAddress(),
+    AMOY_USDC: await mockUSDC.getAddress(),
+    AMOY_USDT: await mockUSDT.getAddress(),
+    AMOY_DAI: await mockDAI.getAddress(),
   };
 
-  const addressesPath = join(__dirname, '../..', 'backend/config/testnet-addresses.json');
-  writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
-  console.log('Contract addresses saved to:', addressesPath);
+  // Update .env file
+  const envPath = join(__dirname, '../../config/.env');
+  const fs = require('fs');
+  let envContent = fs.readFileSync(envPath, 'utf8');
+
+  // Update each token address
+  Object.entries(addresses).forEach(([key, value]) => {
+    const regex = new RegExp(`${key}=.*`);
+    if (envContent.match(regex)) {
+      envContent = envContent.replace(regex, `${key}=${value}`);
+    } else {
+      envContent += `\n${key}=${value}`;
+    }
+  });
+
+  fs.writeFileSync(envPath, envContent);
+  console.log('\nToken addresses saved to config/.env');
+  console.log(addresses);
 }
 
 main()
   .then(() => process.exit(0))
   .catch(error => {
-    console.error(error);
+    console.error('Deployment failed:', error);
     process.exit(1);
   });

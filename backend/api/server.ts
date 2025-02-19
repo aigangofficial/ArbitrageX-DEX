@@ -36,7 +36,12 @@ const provider = new ethers.JsonRpcProvider(config.network.rpc);
 const wss = new WebSocketServer({ port: config.api.wsPort });
 
 // Initialize scanner
-const scanner = new ArbitrageScanner();
+const scanner = new ArbitrageScanner(
+  provider,
+  config.contracts.quickswapRouter,
+  config.contracts.sushiswapRouter,
+  config.contracts.aavePool
+);
 
 // Serve static files from the frontend build directory
 app.use(express.static(path.join(__dirname, '../../../frontend-new/build')));

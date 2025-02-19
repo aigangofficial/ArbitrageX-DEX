@@ -1,0 +1,22 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install Python and build dependencies
+RUN apk add --no-cache python3 make g++ gcc
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies including ts-node
+RUN npm install
+RUN npm install --save-dev ts-node typescript @types/node
+
+# Copy source code
+COPY . .
+
+# Expose Hardhat node port
+EXPOSE 8545
+
+# Start Hardhat node
+CMD ["npx", "hardhat", "node"]

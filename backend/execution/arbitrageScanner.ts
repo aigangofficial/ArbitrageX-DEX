@@ -2,6 +2,22 @@ import { ethers } from 'ethers';
 import { config } from '../api/config';
 import { logger } from '../api/utils/logger';
 import { MarketData } from '../database/models';
+import GasOptimizer from './gasOptimizer';
+import { TradeExecutor } from './tradeExecutor';
+
+// Router ABI for DEX interactions
+const ROUTER_ABI = [
+  'function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts)',
+  'function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) external returns (uint256[] memory amounts)',
+  'function factory() external view returns (address)',
+  'function WETH() external view returns (address)',
+];
+
+// Aave V3 Pool ABI for flash loans
+const AAVE_POOL_ABI = [
+  'function flashLoan(address receiverAddress, address[] calldata assets, uint256[] calldata amounts, uint256[] calldata modes, address onBehalfOf, bytes calldata params, uint16 referralCode) external returns (bool)',
+  'function FLASHLOAN_PREMIUM_TOTAL() view returns (uint256)',
+];
 
 interface PriceData {
   dex: string;
@@ -9,18 +25,110 @@ interface PriceData {
   tokenB: string;
   price: number;
   liquidity: number;
-  timestamp: Date;
+  timestamp: number;
+  blockNumber: number;
 }
 
-class ArbitrageScanner {
-  private provider: ethers.JsonRpcProvider;
-  private dexList: string[];
-  private isScanning: boolean;
+interface TokenPair {
+  tokenA: string;
+  tokenB: string;
+}
 
-  constructor() {
-    this.provider = new ethers.JsonRpcProvider(config.network.rpc);
-    this.dexList = ['QUICKSWAP', 'SUSHISWAP'];
+interface ArbitrageOpportunity {
+  exchange: string;
+  tokenA: string;
+  tokenB: string;
+  price: number;
+  liquidity: number;
+  timestamp: Date;
+  blockNumber: number;
+  spread: number;
+}
+
+interface IDEXRouter {
+  estimateGas: {
+    swapExactTokensForTokens(
+      amountIn: bigint,
+      amountOutMin: bigint,
+      path: string[],
+      to: string,
+      deadline: number
+    ): Promise<bigint>;
+  };
+  getAmountsOut(amountIn: bigint, path: string[]): Promise<bigint[]>;
+  address: string;
+}
+
+export class ArbitrageScanner {
+  private provider: ethers.Provider;
+  private quickswapRouter: IDEXRouter;
+  private sushiswapRouter: IDEXRouter;
+  private aavePool: any;
+  private tradeExecutor: TradeExecutor;
+  private gasOptimizer: GasOptimizer;
+  private isScanning: boolean;
+  private tokenPairs: TokenPair[];
+
+  constructor(
+    provider: ethers.Provider,
+    quickswapRouterAddress: string,
+    sushiswapRouterAddress: string,
+    aavePoolAddress: string
+  ) {
+    this.provider = provider;
+    this.gasOptimizer = new GasOptimizer();
+
+    // Initialize contracts with proper interface casting
+    this.quickswapRouter = new ethers.Contract(
+      quickswapRouterAddress,
+      [
+        'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
+      ],
+      provider
+    ) as unknown as IDEXRouter;
+
+    this.sushiswapRouter = new ethers.Contract(
+      sushiswapRouterAddress,
+      [
+        'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
+      ],
+      provider
+    ) as unknown as IDEXRouter;
+
+    this.aavePool = new ethers.Contract(
+      aavePoolAddress,
+      [
+        'function flashLoan(address receiverAddress, address[] calldata assets, uint256[] calldata amounts, uint256[] calldata modes, address onBehalfOf, bytes calldata params, uint16 referralCode)',
+      ],
+      provider
+    );
+
+    this.tradeExecutor = new TradeExecutor(
+      this.provider,
+      this.quickswapRouter,
+      this.sushiswapRouter,
+      this.aavePool
+    );
+
     this.isScanning = false;
+
+    // Initialize token pairs using config
+    const wmatic = process.env.AMOY_WMATIC || '';
+    const usdc = process.env.AMOY_USDC || '';
+    const usdt = process.env.AMOY_USDT || '';
+    const dai = process.env.AMOY_DAI || '';
+
+    this.tokenPairs = [
+      { tokenA: wmatic, tokenB: usdc },
+      { tokenA: wmatic, tokenB: usdt },
+      { tokenA: wmatic, tokenB: dai },
+      { tokenA: usdc, tokenB: usdt },
+      { tokenA: usdc, tokenB: dai },
+      { tokenA: usdt, tokenB: dai },
+    ].filter(pair => pair.tokenA && pair.tokenB);
+
+    logger.info(`Initialized ${this.tokenPairs.length} token pairs for scanning`);
+    logger.info('Token pairs:', this.tokenPairs);
   }
 
   public getIsScanning(): boolean {
@@ -53,13 +161,7 @@ class ArbitrageScanner {
   }
 
   private async scanMarkets() {
-    const tokenPairs = [
-      { tokenA: config.contracts.wmatic, tokenB: config.contracts.usdc },
-      { tokenA: config.contracts.wmatic, tokenB: config.contracts.usdt },
-      { tokenA: config.contracts.wmatic, tokenB: config.contracts.dai },
-    ];
-
-    for (const pair of tokenPairs) {
+    for (const pair of this.tokenPairs) {
       try {
         logger.info('Processing token pair:', {
           tokenA: pair.tokenA,
@@ -71,10 +173,10 @@ class ArbitrageScanner {
         });
 
         const prices: PriceData[] = await Promise.all(
-          this.dexList.map(dex => this.getPriceData(dex, pair.tokenA, pair.tokenB))
+          ['QUICKSWAP', 'SUSHISWAP'].map(dex => this.getPriceData(dex, pair.tokenA, pair.tokenB))
         );
 
-        const opportunities = this.findArbitrageOpportunities(prices);
+        const opportunities = await this.findArbitrageOpportunities(prices);
 
         if (opportunities.length > 0) {
           // Save each opportunity to the database
@@ -94,7 +196,7 @@ class ArbitrageScanner {
                     hasExchange: Boolean(opp.exchange),
                     hasPrice: typeof opp.price === 'number',
                     hasLiquidity: typeof opp.liquidity === 'number',
-                    hasTimestamp: opp.timestamp instanceof Date,
+                    hasTimestamp: typeof opp.timestamp === 'number',
                     hasBlockNumber: typeof opp.blockNumber === 'number',
                   })),
                 },
@@ -148,93 +250,147 @@ class ArbitrageScanner {
 
   private async getPriceData(dex: string, tokenA: string, tokenB: string): Promise<PriceData> {
     try {
-      // For demonstration, using mock data with proper structure
-      const mockPrice = Math.random() * 100;
-      const mockLiquidity = Math.random() * 1000000;
+      // Verify token contracts exist
+      const tokenACode = await this.provider.getCode(tokenA);
+      const tokenBCode = await this.provider.getCode(tokenB);
 
-      return {
-        dex: dex.toUpperCase() === 'QUICKSWAP' ? 'QUICKSWAP' : 'SUSHISWAP',
+      if (tokenACode === '0x' || tokenBCode === '0x') {
+        throw new Error(`Invalid token contract: ${tokenACode === '0x' ? tokenA : tokenB}`);
+      }
+
+      const routerAbi = [
+        'function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts)',
+        'function WETH() external pure returns (address)',
+      ];
+
+      const routerAddress =
+        dex === 'QUICKSWAP' ? config.contracts.quickswapRouter : config.contracts.sushiswapRouter;
+
+      // Verify router contract exists
+      const routerCode = await this.provider.getCode(routerAddress);
+      if (routerCode === '0x') {
+        throw new Error(`Invalid router contract for ${dex}: ${routerAddress}`);
+      }
+
+      const router = new ethers.Contract(routerAddress, routerAbi, this.provider);
+
+      const path = [tokenA, tokenB];
+      const amountIn = ethers.parseEther('1'); // 1 token as base amount
+
+      logger.info('Fetching price data:', {
+        dex,
+        router: routerAddress,
         tokenA,
         tokenB,
-        price: mockPrice,
-        liquidity: mockLiquidity,
-        timestamp: new Date(),
+        amountIn: amountIn.toString(),
+      });
+
+      const amounts = await router.getAmountsOut(amountIn, path);
+      const price = Number(ethers.formatEther(amounts[1]));
+
+      // Get current block for timestamp
+      const block = await this.provider.getBlock('latest');
+      if (!block) throw new Error('Could not get latest block');
+
+      return {
+        dex: dex.toUpperCase(),
+        tokenA,
+        tokenB,
+        price,
+        liquidity: amounts[1], // Using output amount as liquidity indicator
+        timestamp: block.timestamp,
+        blockNumber: block.number,
       };
     } catch (error) {
       logger.error('Error getting price data:', {
         dex,
         tokenA,
         tokenB,
-        error,
+        error:
+          error instanceof Error
+            ? {
+                message: error.message,
+                stack: error.stack,
+              }
+            : error,
       });
       throw error;
     }
   }
 
-  private findArbitrageOpportunities(prices: PriceData[]) {
-    const opportunities = [];
-    const minProfitThreshold = 0.5; // 0.5% minimum profit threshold
+  private async findArbitrageOpportunities(prices: PriceData[]): Promise<ArbitrageOpportunity[]> {
+    const opportunities: ArbitrageOpportunity[] = [];
+    const minProfitThreshold = config.security.minProfitThreshold || 0.5;
 
     for (let i = 0; i < prices.length; i++) {
       for (let j = i + 1; j < prices.length; j++) {
         const priceA = prices[i].price;
         const priceB = prices[j].price;
-        const spread = Math.abs((priceA - priceB) / priceA) * 100;
+        const spread = Math.abs((priceA - priceB) / Math.min(priceA, priceB)) * 100;
 
         if (spread >= minProfitThreshold) {
-          // Log the price data before creating opportunities
-          logger.info('Creating opportunity from prices:', {
-            price1: {
-              dex: prices[i].dex,
-              tokenA: prices[i].tokenA,
-              tokenB: prices[i].tokenB,
-              price: priceA,
-              liquidity: prices[i].liquidity,
-            },
-            price2: {
-              dex: prices[j].dex,
-              tokenA: prices[j].tokenA,
-              tokenB: prices[j].tokenB,
-              price: priceB,
-              liquidity: prices[j].liquidity,
-            },
-          });
+          const buyDex = priceA < priceB ? prices[i] : prices[j];
+          const sellDex = priceA < priceB ? prices[j] : prices[i];
 
-          // Format data according to MarketData schema
-          const opportunity1 = {
-            tokenA: prices[i].tokenA,
-            tokenB: prices[i].tokenB,
-            exchange: prices[i].dex.toUpperCase() === 'QUICKSWAP' ? 'QUICKSWAP' : 'SUSHISWAP',
-            price: priceA,
-            liquidity: prices[i].liquidity,
-            timestamp: new Date(),
-            blockNumber: 0, // This will be set by the blockchain
-            spread,
-          };
+          if (await this.validateOpportunity(buyDex, sellDex, spread)) {
+            try {
+              await this.tradeExecutor.executeArbitrage({
+                buyDex: buyDex.dex,
+                sellDex: sellDex.dex,
+                tokenA: buyDex.tokenA,
+                tokenB: buyDex.tokenB,
+                amount: ethers.parseEther('1'),
+                expectedProfit: spread,
+              });
 
-          const opportunity2 = {
-            tokenA: prices[j].tokenA,
-            tokenB: prices[j].tokenB,
-            exchange: prices[j].dex.toUpperCase() === 'QUICKSWAP' ? 'QUICKSWAP' : 'SUSHISWAP',
-            price: priceB,
-            liquidity: prices[j].liquidity,
-            timestamp: new Date(),
-            blockNumber: 0, // This will be set by the blockchain
-            spread,
-          };
-
-          // Log the created opportunities
-          logger.info('Created opportunities:', {
-            opportunity1,
-            opportunity2,
-          });
-
-          opportunities.push(opportunity1, opportunity2);
+              opportunities.push({
+                exchange: buyDex.dex,
+                tokenA: buyDex.tokenA,
+                tokenB: buyDex.tokenB,
+                price: buyDex.price,
+                liquidity: buyDex.liquidity,
+                timestamp: new Date(buyDex.timestamp * 1000),
+                blockNumber: buyDex.blockNumber,
+                spread,
+              });
+            } catch (error) {
+              logger.error('Failed to execute arbitrage:', error);
+            }
+          }
         }
       }
     }
-
     return opportunities;
+  }
+
+  private async validateOpportunity(
+    buyDex: PriceData,
+    sellDex: PriceData,
+    spread: number
+  ): Promise<boolean> {
+    // Add validation logic here
+    const minLiquidity = ethers.parseEther('1000'); // Minimum 1000 tokens liquidity
+
+    if (buyDex.liquidity < minLiquidity || sellDex.liquidity < minLiquidity) {
+      logger.info('Insufficient liquidity for arbitrage');
+      return false;
+    }
+
+    // Validate that the spread is still profitable after gas costs
+    const estimatedGasCost = await this.tradeExecutor.estimateGasCost(
+      buyDex.dex,
+      sellDex.dex,
+      buyDex.tokenA,
+      buyDex.tokenB
+    );
+
+    const profitAfterGas = spread - estimatedGasCost;
+    if (profitAfterGas <= 0) {
+      logger.info('Opportunity not profitable after gas costs');
+      return false;
+    }
+
+    return true;
   }
 }
 

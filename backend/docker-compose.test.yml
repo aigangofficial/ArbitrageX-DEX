@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=arbitragex
+    command: mongod --auth --bind_ip_all --logpath /var/log/mongodb/mongod.log --logappend
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - mongodb_logs:/var/log/mongodb
+
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+
+  hardhat-node:
+    build:
+      context: ../contracts
+      dockerfile: Dockerfile.test
+    ports:
+      - '8545:8545'
+
+  price-feed:
+    build:
+      context: .
+      dockerfile: Dockerfile.price-feed
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/arbitragex?authSource=admin
+      - REDIS_URI=redis://redis:6379
+      - NETWORK_RPC=http://hardhat-node:8545
+      - NETWORK_NAME=hardhat
+      - CHAIN_ID=31337
+      - MUMBAI_QUICKSWAP_ROUTER=0x0000000000000000000000000000000000000000
+      - MUMBAI_SUSHISWAP_ROUTER=0x0000000000000000000000000000000000000000
+      - MUMBAI_AAVE_POOL=0x0000000000000000000000000000000000000000
+      - MUMBAI_WMATIC=0x0000000000000000000000000000000000000000
+      - MUMBAI_USDC=0x0000000000000000000000000000000000000000
+    depends_on:
+      - mongodb
+      - redis
+      - hardhat-node
+
+volumes:
+  mongodb_data:
+  mongodb_logs:
+  redis_data:
+  hardhat_data:

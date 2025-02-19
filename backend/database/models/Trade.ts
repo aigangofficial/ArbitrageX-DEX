@@ -6,7 +6,14 @@ export interface ITrade extends Document {
   amountIn: string;
   amountOut?: string;
   route: 'UNIV2_TO_SUSHI' | 'SUSHI_TO_UNIV2';
-  status: 'pending' | 'executing' | 'completed' | 'failed';
+  status:
+    | 'pending'
+    | 'executing'
+    | 'completed'
+    | 'failed'
+    | 'simulated'
+    | 'simulated_valid'
+    | 'simulated_invalid';
   timestamp: Date;
   network: string;
   txHash?: string;
@@ -14,6 +21,8 @@ export interface ITrade extends Document {
   errorMessage?: string;
   profit?: string;
   priceImpact?: number;
+  flashLoanFee?: string;
+  slippage?: number;
 }
 
 interface TradeModel extends Model<ITrade> {
@@ -48,7 +57,15 @@ const TradeSchema = new Schema<ITrade>(
     },
     status: {
       type: String,
-      enum: ['pending', 'executing', 'completed', 'failed'],
+      enum: [
+        'pending',
+        'executing',
+        'completed',
+        'failed',
+        'simulated',
+        'simulated_valid',
+        'simulated_invalid',
+      ],
       required: true,
       default: 'pending',
       index: true,
@@ -78,6 +95,12 @@ const TradeSchema = new Schema<ITrade>(
       type: String,
     },
     priceImpact: {
+      type: Number,
+    },
+    flashLoanFee: {
+      type: String,
+    },
+    slippage: {
       type: Number,
     },
   },

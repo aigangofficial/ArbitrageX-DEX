@@ -18,6 +18,24 @@ services:
     volumes:
       - redis_data:/data
 
+  price-feed:
+    build:
+      context: .
+      dockerfile: Dockerfile.price-feed
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/arbitragex?authSource=admin
+      - REDIS_URI=redis://redis:6379
+      - NETWORK_RPC=https://polygon-amoy.public.blastapi.io
+      - NETWORK_NAME=amoy
+      - CHAIN_ID=80002
+      - AMOY_QUICKSWAP_ROUTER=0x4aEa2f3bB6A9d06A4FCA03fa02899a20432E5e3D
+      - AMOY_SUSHISWAP_ROUTER=0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506
+      - AMOY_WMATIC=0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889
+      - AMOY_USDC=0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7
+
 volumes:
   mongodb_data:
   redis_data:

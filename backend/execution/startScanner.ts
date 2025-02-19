@@ -1,9 +1,17 @@
+import { ethers } from 'ethers';
+import { config } from '../api/config';
 import { logger } from '../api/utils/logger';
 import ArbitrageScanner from './arbitrageScanner';
 
 async function main() {
   try {
-    const scanner = new ArbitrageScanner();
+    const provider = new ethers.JsonRpcProvider(config.network.rpc);
+    const scanner = new ArbitrageScanner(
+      provider,
+      config.contracts.quickswapRouter,
+      config.contracts.sushiswapRouter,
+      config.contracts.aavePool
+    );
     await scanner.start();
 
     // Handle graceful shutdown

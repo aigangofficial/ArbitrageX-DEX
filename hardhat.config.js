@@ -40,8 +40,8 @@ const dotenv = __importStar(require("dotenv"));
 require("hardhat-gas-reporter");
 const path_1 = require("path");
 require("solidity-coverage");
-// Load environment variables from config/.env
-dotenv.config({ path: (0, path_1.resolve)(__dirname, './config/.env') });
+// Load environment variables from .env.contracts
+dotenv.config({ path: (0, path_1.resolve)(__dirname, './.env.contracts') });
 // Ensure required environment variables are set
 const REQUIRED_ENV_VARS = ['AMOY_RPC', 'DEPLOYER_PRIVATE_KEY', 'POLYGONSCAN_API_KEY'];
 for (const envVar of REQUIRED_ENV_VARS) {
@@ -62,7 +62,7 @@ const config = {
     },
     networks: {
         hardhat: {
-            chainId: 31337,
+            chainId: 80002,
         },
         amoy: {
             url: process.env.AMOY_RPC || 'https://polygon-amoy.public.blastapi.io',

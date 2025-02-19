@@ -7,8 +7,8 @@ import { HardhatUserConfig } from 'hardhat/config';
 import { resolve } from 'path';
 import 'solidity-coverage';
 
-// Load environment variables from config/.env
-dotenv.config({ path: resolve(__dirname, './config/.env') });
+// Load environment variables from .env.contracts
+dotenv.config({ path: resolve(__dirname, './.env.contracts') });
 
 // Ensure required environment variables are set
 const REQUIRED_ENV_VARS = ['AMOY_RPC', 'DEPLOYER_PRIVATE_KEY', 'POLYGONSCAN_API_KEY'];
@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      chainId: 31337,
+      chainId: 80002,
     },
     amoy: {
       url: process.env.AMOY_RPC || 'https://polygon-amoy.public.blastapi.io',
