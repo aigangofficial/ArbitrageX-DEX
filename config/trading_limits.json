@@ -1,0 +1,131 @@
+{
+  "global": {
+    "maxDailyVolume": "1000000",
+    "maxTradeSize": "100000",
+    "minTradeSize": "1000",
+    "maxLeverage": "3",
+    "maxDrawdown": "5",
+    "emergencyStopLoss": "10"
+  },
+  "networks": {
+    "ethereum": {
+      "maxDailyVolume": "500000",
+      "maxTradeSize": "50000",
+      "minTradeSize": "5000",
+      "maxSlippage": "1.0",
+      "minProfitUSD": "100",
+      "riskLevel": "medium",
+      "tokens": {
+        "WETH": {
+          "maxExposure": "100",
+          "minLiquidity": "1000000"
+        },
+        "USDC": {
+          "maxExposure": "500000",
+          "minLiquidity": "5000000"
+        },
+        "USDT": {
+          "maxExposure": "500000",
+          "minLiquidity": "5000000"
+        }
+      }
+    },
+    "arbitrum": {
+      "maxDailyVolume": "300000",
+      "maxTradeSize": "30000",
+      "minTradeSize": "1000",
+      "maxSlippage": "1.5",
+      "minProfitUSD": "50",
+      "riskLevel": "high",
+      "tokens": {
+        "WETH": {
+          "maxExposure": "50",
+          "minLiquidity": "500000"
+        },
+        "USDC": {
+          "maxExposure": "300000",
+          "minLiquidity": "3000000"
+        },
+        "USDT": {
+          "maxExposure": "300000",
+          "minLiquidity": "3000000"
+        }
+      }
+    },
+    "base": {
+      "maxDailyVolume": "200000",
+      "maxTradeSize": "20000",
+      "minTradeSize": "500",
+      "maxSlippage": "2.0",
+      "minProfitUSD": "30",
+      "riskLevel": "high",
+      "tokens": {
+        "WETH": {
+          "maxExposure": "30",
+          "minLiquidity": "300000"
+        },
+        "USDC": {
+          "maxExposure": "200000",
+          "minLiquidity": "2000000"
+        },
+        "USDbC": {
+          "maxExposure": "200000",
+          "minLiquidity": "2000000"
+        }
+      }
+    },
+    "sepolia": {
+      "maxDailyVolume": "10000",
+      "maxTradeSize": "1000",
+      "minTradeSize": "100",
+      "maxSlippage": "3.0",
+      "minProfitUSD": "0",
+      "riskLevel": "test",
+      "tokens": {
+        "WETH": {
+          "maxExposure": "5",
+          "minLiquidity": "10000"
+        },
+        "USDC": {
+          "maxExposure": "10000",
+          "minLiquidity": "100000"
+        },
+        "DAI": {
+          "maxExposure": "10000",
+          "minLiquidity": "100000"
+        }
+      }
+    }
+  },
+  "riskLevels": {
+    "low": {
+      "maxDrawdown": "2",
+      "stopLoss": "1",
+      "leverageLimit": "1"
+    },
+    "medium": {
+      "maxDrawdown": "5",
+      "stopLoss": "3",
+      "leverageLimit": "2"
+    },
+    "high": {
+      "maxDrawdown": "10",
+      "stopLoss": "5",
+      "leverageLimit": "3"
+    },
+    "test": {
+      "maxDrawdown": "100",
+      "stopLoss": "50",
+      "leverageLimit": "5"
+    }
+  },
+  "timeouts": {
+    "orderExpiry": 30,
+    "blockConfirmations": {
+      "ethereum": 2,
+      "arbitrum": 1,
+      "base": 1,
+      "sepolia": 1
+    }
+  }
+}

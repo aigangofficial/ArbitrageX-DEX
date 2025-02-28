@@ -1,0 +1,66 @@
+{
+    "relay": {
+        "mainnet": "https://relay.flashbots.net",
+        "goerli": "https://relay-goerli.flashbots.net",
+        "timeout": 30000,
+        "maxRetries": 3,
+        "retryDelay": 1000
+    },
+    "bundle": {
+        "maxSize": 4,
+        "maxGasLimit": 1500000,
+        "minBribeMultiplier": 1.5,
+        "maxBribeMultiplier": 10,
+        "priorityFeeMultiplier": 2,
+        "maxWaitBlocks": 5
+    },
+    "protection": {
+        "commitDelay": 2,
+        "minFlashbotsFee": "0.001",
+        "maxBlocksToTry": 10,
+        "simulateBeforeSubmit": true,
+        "revertOnFailure": true
+    },
+    "monitoring": {
+        "knownSelectors": [
+            "0x6af479b2",
+            "0x3b663803",
+            "0x9f9a3a7a"
+        ],
+        "avgGasPrice": 15000000000,
+        "checkInterval": 5000,
+        "anomalyThreshold": 1.5
+    },
+    "decoy": {
+        "contracts": [
+            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+            "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+        ],
+        "minDecoys": 2,
+        "maxDecoys": 5,
+        "valueVariation": 0.2
+    },
+    "gas": {
+        "base": 30000,
+        "variance": 20000
+    },
+    "privacy": {
+        "useRelayShield": true,
+        "obfuscateCalldata": true,
+        "randomizeNonce": true,
+        "useDecoyTransactions": true
+    },
+    "optimization": {
+        "dynamicBundlePricing": true,
+        "adaptiveGasPrice": true,
+        "batchTransactions": true,
+        "reuseSignatures": false
+    },
+    "security": {
+        "maxValuePerBundle": "10",
+        "maxBundlesPerBlock": 2,
+        "blacklistedAddresses": [],
+        "whitelistedCallers": []
+    }
+} 

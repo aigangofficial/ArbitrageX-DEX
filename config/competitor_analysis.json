@@ -1,0 +1,72 @@
+{
+  "competitorTracking": {
+    "enabled": true,
+    "updateInterval": 60,
+    "storageRetentionDays": 30,
+    "minTransactionsForAnalysis": 100
+  },
+  "knownCompetitors": {
+    "0x1234...": {
+      "name": "FastArb",
+      "type": "flash_loan",
+      "patterns": {
+        "gasPrice": "aggressive",
+        "routePreference": "uniswap_first",
+        "tokenPairs": ["WETH/USDC", "WETH/USDT"],
+        "minProfitThreshold": "0.05"
+      }
+    }
+  },
+  "decoyStrategies": {
+    "gasWars": {
+      "enabled": true,
+      "maxGasMultiplier": 1.5,
+      "duration": 120,
+      "cooldown": 300
+    },
+    "liquidityTraps": {
+      "enabled": true,
+      "maxAmount": "10",
+      "targetPairs": ["WETH/USDC", "WETH/USDT"],
+      "duration": 60
+    },
+    "fakeArbitrage": {
+      "enabled": true,
+      "frequency": "medium",
+      "size": "small",
+      "pairs": ["WETH/USDC", "WETH/USDT"]
+    }
+  },
+  "mempoolMonitoring": {
+    "enabled": true,
+    "privateTransactions": true,
+    "flashbotsEnabled": true,
+    "backrunningEnabled": true
+  },
+  "profitOptimization": {
+    "stealOpportunities": true,
+    "frontrunThreshold": "0.5",
+    "backrunThreshold": "0.3",
+    "sandwichThreshold": "0.4"
+  },
+  "riskManagement": {
+    "maxLossPerTrade": "0.1",
+    "maxDailyLoss": "1.0",
+    "pauseThreshold": "2.0",
+    "recoveryMode": {
+      "enabled": true,
+      "threshold": "5.0",
+      "duration": 3600
+    }
+  },
+  "reporting": {
+    "competitorMetrics": true,
+    "profitAnalysis": true,
+    "strategyEffectiveness": true,
+    "alertThresholds": {
+      "profitDrop": "20",
+      "competitorChange": "50",
+      "gasSpike": "100"
+    }
+  }
+}

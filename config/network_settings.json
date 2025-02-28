@@ -1,0 +1,97 @@
+{
+  "networks": {
+    "ethereum": {
+      "name": "Ethereum Mainnet",
+      "chainId": 1,
+      "rpcUrl": "${ETH_RPC_URL}",
+      "wsUrl": "${ETH_WS_URL}",
+      "flashLoanProviders": [
+        "Aave",
+        "Balancer",
+        "dYdX"
+      ],
+      "dexes": [
+        "Uniswap",
+        "SushiSwap",
+        "Curve"
+      ],
+      "gasMultiplier": 1.1,
+      "maxGasPrice": "300",
+      "minProfitThreshold": "0.1"
+    },
+    "arbitrum": {
+      "name": "Arbitrum One",
+      "chainId": 42161,
+      "rpcUrl": "${ARB_RPC_URL}",
+      "wsUrl": "${ARB_WS_URL}",
+      "flashLoanProviders": [
+        "Aave",
+        "Balancer"
+      ],
+      "dexes": [
+        "Uniswap",
+        "SushiSwap",
+        "Camelot"
+      ],
+      "gasMultiplier": 1.2,
+      "maxGasPrice": "0.1",
+      "minProfitThreshold": "0.05"
+    },
+    "base": {
+      "name": "Base",
+      "chainId": 8453,
+      "rpcUrl": "${BASE_RPC_URL}",
+      "wsUrl": "${BASE_WS_URL}",
+      "flashLoanProviders": [
+        "Balancer"
+      ],
+      "dexes": [
+        "Uniswap",
+        "BaseSwap",
+        "Aerodrome"
+      ],
+      "gasMultiplier": 1.15,
+      "maxGasPrice": "0.05",
+      "minProfitThreshold": "0.08"
+    },
+    "sepolia": {
+      "name": "Sepolia Testnet",
+      "chainId": 11155111,
+      "rpcUrl": "${SEPOLIA_RPC_URL}",
+      "wsUrl": "${SEPOLIA_WS_URL}",
+      "flashLoanProviders": [
+        "Aave"
+      ],
+      "dexes": [
+        "Uniswap",
+        "SushiSwap"
+      ],
+      "gasMultiplier": 1.0,
+      "maxGasPrice": "0.01",
+      "minProfitThreshold": "0.0"
+    }
+  },
+  "global": {
+    "defaultNetwork": "sepolia",
+    "maxConcurrentTrades": 5,
+    "healthCheckInterval": 60,
+    "retryAttempts": 3,
+    "timeoutSeconds": 30,
+    "emergencyShutdownEnabled": true
+  },
+  "monitoring": {
+    "prometheusPort": 9090,
+    "grafanaPort": 3000,
+    "alertingEnabled": true,
+    "logLevel": "info",
+    "sentryDsn": "${SENTRY_DSN}"
+  },
+  "security": {
+    "privateKeyEncryption": true,
+    "rateLimiting": true,
+    "maxRequestsPerMinute": 100,
+    "ipWhitelist": [
+      "127.0.0.1"
+    ]
+  }
+}

@@ -36,19 +36,7 @@ ArbitrageX is a decentralized arbitrage trading system that leverages flash loan
 - Specifies callback interface
 - Documents fee calculations
 
-### 3. Mock Contracts (Testing)
-
-#### MockUniswapRouter.sol
-
-- Simulates Uniswap V2 Router behavior
-- Implements price impact calculations
-- Manages liquidity simulation
-
-#### MockPool.sol
-
-- Simulates Aave lending pool
-- Handles flash loan logic for testing
-- Manages token balances
+### 3. Core Contracts
 
 ## Security Measures
 

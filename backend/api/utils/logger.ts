@@ -70,4 +70,54 @@ const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// Configure Winston logger
+const winstonLogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
+
+// Add console transport in development
+if (process.env.NODE_ENV !== 'production') {
+  winstonLogger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}
+
+// Create a stream object for Morgan
+export const loggerStreamMorgan = {
+  write: (message: string) => {
+    winstonLogger.info(message.trim());
+  }
+};
+
+// Request logger middleware
+export const requestLoggerMorgan = (req: Request, res: Response, next: Function) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    winstonLogger.info({
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      duration: `${duration}ms`
+    });
+  });
+  next();
+};
+
+// Export logger interface
+export const loggerMorgan = {
+  error: (message: string, meta?: any) => winstonLogger.error(message, meta),
+  warn: (message: string, meta?: any) => winstonLogger.warn(message, meta),
+  info: (message: string, meta?: any) => winstonLogger.info(message, meta),
+  debug: (message: string, meta?: any) => winstonLogger.debug(message, meta)
+};
+
 export { logger, loggerStream, requestLogger };

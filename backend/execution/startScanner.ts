@@ -1,29 +1,35 @@
-import { ethers } from 'ethers';
-import { config } from '../api/config';
-import { logger } from '../api/utils/logger';
-import ArbitrageScanner from './arbitrageScanner';
+import { Provider } from '@ethersproject/abstract-provider';
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { getConfig } from '../api/config';
+import { ArbitrageScanner } from './arbitrageScanner';
+import { logger } from '../utils/logger';
 
-async function main() {
-  try {
-    const provider = new ethers.JsonRpcProvider(config.network.rpc);
-    const scanner = new ArbitrageScanner(
-      provider,
-      config.contracts.quickswapRouter,
-      config.contracts.sushiswapRouter,
-      config.contracts.aavePool
-    );
-    await scanner.start();
+const config = getConfig();
+const provider = new JsonRpcProvider(config.web3Provider) as unknown as Provider;
 
-    // Handle graceful shutdown
-    process.on('SIGINT', async () => {
-      logger.info('Stopping arbitrage scanner...');
-      scanner.stop();
-      process.exit(0);
-    });
-  } catch (error) {
-    logger.error('Error starting arbitrage scanner:', error);
-    process.exit(1);
-  }
-}
+const scanner = new ArbitrageScanner(
+    provider,
+    config.contracts.uniswapRouter,
+    config.contracts.sushiswapRouter,
+    {
+        minProfitThreshold: config.security.minProfitThreshold,
+        minNetProfit: 0.001, // 0.1% minimum net profit
+        gasLimit: 500000,    // 500k gas limit
+        scanInterval: 5000,  // 5 second interval
+        maxGasPrice: 100000000000n, // 100 gwei
+        gasMultiplier: 1.1   // 10% buffer
+    },
+    [
+        {
+            tokenA: config.contracts.weth,
+            tokenB: config.contracts.usdc
+        },
+        {
+            tokenA: config.contracts.weth,
+            tokenB: config.contracts.usdt
+        }
+    ],
+    logger
+);
 
-main();
+export { scanner };

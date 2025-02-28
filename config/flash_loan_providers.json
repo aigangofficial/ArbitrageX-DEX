@@ -1,0 +1,51 @@
+{
+  "aave_v3": {
+    "networks": {
+      "mainnet": {
+        "poolAddress": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+        "maxLoan": "1000000000000000000000",
+        "flashLoanFee": "0.0009"
+      },
+      "arbitrum": {
+        "poolAddress": "0x794a61358D6845594F94dc1DB02A252b5b4814aD",
+        "maxLoan": "500000000000000000000",
+        "flashLoanFee": "0.0009"
+      },
+      "base": {
+        "poolAddress": "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5",
+        "maxLoan": "200000000000000000000",
+        "flashLoanFee": "0.0009"
+      }
+    },
+    "supportedTokens": [
+      "WETH",
+      "USDC",
+      "USDT",
+      "DAI"
+    ]
+  },
+  "balancer": {
+    "networks": {
+      "mainnet": {
+        "vaultAddress": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        "flashLoanFee": "0.0003"
+      },
+      "arbitrum": {
+        "vaultAddress": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        "flashLoanFee": "0.0003"
+      }
+    },
+    "supportedTokens": [
+      "WETH",
+      "USDC",
+      "USDT",
+      "DAI"
+    ]
+  },
+  "security": {
+    "maxFlashLoanAmount": "1000000000000000000000",
+    "minProfitThreshold": "0.001",
+    "maxSlippage": "0.005",
+    "emergencyShutdownEnabled": true
+  }
+}

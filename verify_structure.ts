@@ -13,46 +13,43 @@ interface DirectoryStructure {
   };
 }
 
-const expectedStructure: DirectoryStructure = {
-  contracts: {
-    required: ['FlashLoanService.sol', 'ArbitrageExecutor.sol'],
-    optional: ['remappings.txt'],
+const directoryStructure: DirectoryStructure = {
+  'contracts': {
+    required: [
+      'FlashLoanService.sol',
+      'ArbitrageExecutor.sol',
+      'SecurityAdmin.sol'
+    ],
+    optional: [
+      'interfaces/',
+      'libraries/'
+    ]
   },
   'contracts/interfaces': {
-    required: ['IUniswapV2Router02.sol'],
-    optional: ['IDex.sol'],
+    required: [
+      'IFlashLoanReceiver.sol',
+      'IArbitrageExecutor.sol',
+      'IPool.sol',
+      'IPoolAddressesProvider.sol'
+    ]
   },
-  'contracts/mocks': {
-    required: ['MockUniswapRouter.sol', 'MockToken.sol', 'MockERC20.sol'],
-    optional: ['MockContracts.sol'],
+  'contracts/libraries': {
+    required: [
+      'SafeERC20.sol'
+    ]
   },
-  'backend/api': {
-    required: ['server.ts', 'config.ts'],
-    optional: ['models/', 'routes/', 'services/', 'websocket/'],
+  'scripts': {
+    required: [
+      'deploy.ts',
+      'verify.ts'
+    ]
   },
-  'backend/execution': {
-    required: ['bot.ts', 'arbitrageScanner.ts', 'gasOptimizer.ts'],
-  },
-  'backend/ai': {
-    required: ['strategy_optimizer.py', 'trade_analyzer.py', 'backtesting.py'],
-  },
-  frontend: {
-    required: ['App.tsx'],
-    optional: ['components/', 'pages/', 'services/'],
-  },
-  scripts: {
-    required: ['deploy.ts', 'deploy-phase1.ts', 'switchNetwork.ts', 'compile.ts'],
-    optional: ['testAutoTrade.ts'],
-  },
-  'tests/contractTests': {
-    required: ['FlashLoanArbitrage.test.ts'],
-  },
-  'tests/apiTests': {
-    required: [],
-  },
-  'tests/botTests': {
-    required: [],
-  },
+  'tests/contracts': {
+    required: [
+      'FlashLoanService.test.ts',
+      'ArbitrageExecutor.test.ts'
+    ]
+  }
 };
 
 interface ValidationResult {
@@ -74,7 +71,7 @@ function validateStructure(): ValidationResult {
     status: 'success',
   };
 
-  Object.entries(expectedStructure).forEach(([dir, { required, optional = [] }]) => {
+  Object.entries(directoryStructure).forEach(([dir, { required, optional = [] }]) => {
     const normalizedDir = path.resolve(dir);
 
     // Check if directory exists

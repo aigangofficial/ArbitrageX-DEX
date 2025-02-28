@@ -129,9 +129,14 @@ export default class GasOptimizer {
     }
   }
 
-  async calculateOptimalGas(provider: ethers.Provider): Promise<bigint> {
+  async calculateOptimalGas(provider: ethers.JsonRpcProvider): Promise<bigint> {
     try {
-      const gasPrice = await provider.getGasPrice();
+      const feeData = await provider.getFeeData();
+      const gasPrice = feeData.gasPrice;
+
+      if (!gasPrice) {
+        throw new Error('Failed to get gas price');
+      }
 
       // If gas price is too high, wait for better conditions
       if (gasPrice > this.MAX_GAS_PRICE) {
@@ -151,9 +156,10 @@ export default class GasOptimizer {
     }
   }
 
-  async isGasPriceFavorable(provider: ethers.Provider): Promise<boolean> {
-    const gasPrice = await provider.getGasPrice();
-    return gasPrice <= this.MAX_GAS_PRICE;
+  async isGasPriceFavorable(provider: ethers.JsonRpcProvider): Promise<boolean> {
+    const feeData = await provider.getFeeData();
+    const gasPrice = feeData.gasPrice;
+    return gasPrice ? gasPrice <= this.MAX_GAS_PRICE : false;
   }
 
   getMaxGasPrice(): bigint {

@@ -1,0 +1,72 @@
+{
+  "redis_url": "redis://localhost:6379/0",
+  "metrics_port": 9090,
+  "health_check_interval": 30,
+  "model_sync_interval": 300,
+  "regions": [
+    {
+      "id": "us-east",
+      "endpoint": "http://us-east.arbitragex.ai:8000",
+      "priority": 1,
+      "capacity": {
+        "max_models": 10,
+        "max_concurrent_predictions": 1000
+      }
+    },
+    {
+      "id": "us-west",
+      "endpoint": "http://us-west.arbitragex.ai:8000",
+      "priority": 2,
+      "capacity": {
+        "max_models": 10,
+        "max_concurrent_predictions": 1000
+      }
+    },
+    {
+      "id": "eu-central",
+      "endpoint": "http://eu-central.arbitragex.ai:8000",
+      "priority": 3,
+      "capacity": {
+        "max_models": 10,
+        "max_concurrent_predictions": 1000
+      }
+    }
+  ],
+  "failover": {
+    "max_retries": 3,
+    "retry_delay": 1,
+    "failover_threshold": 2,
+    "recovery_time": 300
+  },
+  "model_sync": {
+    "batch_size": 10,
+    "timeout": 30,
+    "retry_attempts": 3
+  },
+  "monitoring": {
+    "metrics_enabled": true,
+    "log_level": "INFO",
+    "alert_thresholds": {
+      "prediction_latency": 0.5,
+      "error_rate": 0.01,
+      "model_sync_delay": 600
+    }
+  },
+  "security": {
+    "encryption_enabled": true,
+    "auth_required": true,
+    "token_expiry": 3600,
+    "allowed_ips": [
+      "10.0.0.0/8",
+      "172.16.0.0/12",
+      "192.168.0.0/16"
+    ]
+  },
+  "performance": {
+    "cache_enabled": true,
+    "cache_ttl": 300,
+    "max_cache_size": 1000000,
+    "batch_predictions": true,
+    "max_batch_size": 100
+  }
+} 

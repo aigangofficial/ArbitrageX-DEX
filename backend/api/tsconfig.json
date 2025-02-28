@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["es2020", "esnext.asynciterable"],
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["./*"],
+      "@api/*": ["api/*"],
+      "@models/*": ["api/models/*"],
+      "@utils/*": ["api/utils/*"]
+    },
+    "rootDirs": [
+      ".",
+      "../execution",
+      "../price-feed",
+      "../ai"
+    ],
+    "types": ["node", "jest", "express"],
+    "typeRoots": ["./types", "./node_modules/@types"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.d.ts",
+    "../execution/**/*.ts",
+    "../price-feed/**/*.ts",
+    "../ai/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

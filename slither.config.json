@@ -1,4 +1,9 @@
 {
-  "filter_paths": "node_modules,test,mocks",
-  "detectors_to_exclude": ["unused-return", "low-level-calls"]
+  "filter_paths": "node_modules,test",
+  "solc_remaps": [
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "@aave/=node_modules/@aave/",
+    "@chainlink/=node_modules/@chainlink/",
+    "@uniswap/=node_modules/@uniswap/"
+  ]
 }

@@ -1,46 +1,111 @@
-# Getting Started with Create React App
+# ArbitrageX Frontend Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the frontend dashboard for the ArbitrageX project, an AI-driven arbitrage trading bot that leverages flash loans for high-speed, risk-free arbitrage across multiple blockchain networks.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Real-Time Metrics**: Monitor key performance indicators like total trades, success rate, and profit.
+- **AI Insights Panel**: View AI-predicted arbitrage opportunities with confidence scores and estimated profits.
+- **Trade History**: Track all executed trades with detailed information.
+- **Network Selector**: Switch between different blockchain networks (Ethereum, Arbitrum, Polygon, BSC).
+- **AI Strategy Insights**: Apply AI-recommended trading strategies based on market conditions.
+- **Manual Trade Execution**: Execute trades manually with custom parameters.
+- **Bot Status Monitoring**: Monitor the health and status of the trading bot.
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Prerequisites
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Node.js (v16 or higher)
+- npm or yarn
 
-### `npm test`
+### Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/arbitragex-new.git
+   cd arbitragex-new/frontend
+   ```
 
-### `npm run build`
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Create a `.env.local` file with the following variables:
+   ```
+   NEXT_PUBLIC_API_URL=http://localhost:3000/api
+   NEXT_PUBLIC_WS_URL=ws://localhost:3000/api/ws/arbitrage
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Running the Development Server
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-### `npm run eject`
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the dashboard.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Building for Production
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm run build
+# or
+yarn build
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Then start the production server:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```bash
+npm run start
+# or
+yarn start
+```
 
-## Learn More
+## Project Structure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- `components/`: UI components used throughout the application
+  - `AIInsightsPanel.tsx`: Displays AI-predicted arbitrage opportunities
+  - `AIStrategyInsights.tsx`: Shows AI-recommended trading strategies
+  - `ArbitrageExecutionForm.tsx`: Form for manual trade execution
+  - `BotStatusPanel.tsx`: Displays bot health and status
+  - `DashboardLayout.tsx`: Main layout for the dashboard
+  - `NetworkSelector.tsx`: Component for switching between networks
+  - `RealTimeMetrics.tsx`: Displays key performance metrics
+  - `ToastNotification.tsx`: Toast notification component
+  - `TradeHistoryTable.tsx`: Table for viewing trade history
+- `context/`: React context providers
+  - `ToastContext.tsx`: Context for managing toast notifications
+- `hooks/`: Custom React hooks
+  - `useArbitrageX.ts`: Hook for managing ArbitrageX data
+  - `useWebSocket.ts`: Hook for WebSocket connection
+- `pages/`: Next.js pages
+  - `dashboard.tsx`: Main dashboard page
+  - `index.tsx`: Landing page
+- `services/`: API and WebSocket services
+  - `api/`: API service for REST endpoints
+  - `websocket.ts`: WebSocket service for real-time updates
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Technologies Used
+
+- **Next.js**: React framework for server-rendered applications
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **WebSockets**: Real-time communication with the backend
+- **Context API**: State management
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

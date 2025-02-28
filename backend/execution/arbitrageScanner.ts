@@ -1,24 +1,29 @@
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
-import { config } from '../api/config';
-import { logger } from '../api/utils/logger';
-import { MarketData } from '../database/models';
-import GasOptimizer from './gasOptimizer';
-import { DEXRouterFactory, IDEXRouter } from './interfaces/IDEXRouter';
-import { TradeExecutor } from './tradeExecutor';
+import { Logger } from 'winston';
+import { IDEXRouter } from './interfaces/IDEXRouter';
+import { ArbitrageOpportunity } from '../ai/interfaces/simulation';
+import { Provider } from '@ethersproject/abstract-provider';
+import { Contract } from '@ethersproject/contracts';
 
 // Router ABI for DEX interactions
 const ROUTER_ABI = [
-  'function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts)',
-  'function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) external returns (uint256[] memory amounts)',
-  'function factory() external view returns (address)',
-  'function WETH() external view returns (address)',
+  'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
+  'function factory() external pure returns (address)',
+  'function WETH() external pure returns (address)',
+  'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
 ];
 
-// Aave V3 Pool ABI for flash loans
-const AAVE_POOL_ABI = [
-  'function flashLoan(address receiverAddress, address[] calldata assets, uint256[] calldata amounts, uint256[] calldata modes, address onBehalfOf, bytes calldata params, uint16 referralCode) external returns (bool)',
-  'function FLASHLOAN_PREMIUM_TOTAL() view returns (uint256)',
+// Factory ABI for getting pair info
+const FACTORY_ABI = [
+  'function getPair(address tokenA, address tokenB) external view returns (address pair)',
+];
+
+// Pair ABI for getting reserves
+const PAIR_ABI = [
+  'function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)',
+  'function token0() external view returns (address)',
+  'function token1() external view returns (address)',
 ];
 
 interface PriceData {
@@ -26,7 +31,7 @@ interface PriceData {
   tokenA: string;
   tokenB: string;
   price: number;
-  liquidity: number;
+  liquidity: string;
   timestamp: number;
   blockNumber: number;
 }
@@ -41,315 +46,224 @@ interface ScannerConfig {
   minNetProfit: number;
   gasLimit: number;
   scanInterval: number;
-}
-
-interface ArbitrageOpportunity {
-  pair: string;
-  dexA: string;
-  dexB: string;
-  priceA: number;
-  priceB: number;
-  spread: number;
-  timestamp: number;
-  netProfit?: number;
+  maxGasPrice: number;
+  gasMultiplier: number;
 }
 
 export class ArbitrageScanner extends EventEmitter {
-  private provider: ethers.JsonRpcProvider;
-  private quickswapRouter: IDEXRouter;
+  private uniswapRouter: IDEXRouter;
   private sushiswapRouter: IDEXRouter;
-  private aavePool: any;
-  private tradeExecutor: TradeExecutor;
-  private gasOptimizer: GasOptimizer;
-  private isScanning: boolean;
+  private isScanning: boolean = false;
+  private scanInterval: NodeJS.Timeout | null = null;
   private tokenPairs: TokenPair[];
   private config: ScannerConfig;
+  private lastGasPrice: bigint = 0n;
+  private logger: Logger;
 
   constructor(
-    provider: ethers.JsonRpcProvider,
-    quickswapRouterAddress: string,
-    sushiswapRouterAddress: string,
-    aavePoolAddress: string,
+    private readonly provider: Provider,
+    private readonly uniswapRouterAddress: string,
+    private readonly sushiswapRouterAddress: string,
     config: ScannerConfig,
-    tokenPairs: TokenPair[]
+    tokenPairs: TokenPair[],
+    logger: Logger
   ) {
     super();
-    this.provider = provider;
-    this.gasOptimizer = new GasOptimizer();
-
-    // Initialize contracts with proper interface casting
-    this.quickswapRouter = DEXRouterFactory.connect(quickswapRouterAddress, provider);
-    this.sushiswapRouter = DEXRouterFactory.connect(sushiswapRouterAddress, provider);
-
-    this.aavePool = new ethers.Contract(
-      aavePoolAddress,
-      [
-        'function flashLoan(address receiverAddress, address[] calldata assets, uint256[] calldata amounts, uint256[] calldata modes, address onBehalfOf, bytes calldata params, uint16 referralCode)',
-      ],
-      provider
-    );
-
-    this.tradeExecutor = new TradeExecutor(
-      this.provider,
-      this.quickswapRouter,
-      this.sushiswapRouter,
-      this.aavePool
-    );
-
-    this.isScanning = false;
-    this.config = config;
+    this.uniswapRouter = new Contract(uniswapRouterAddress, ROUTER_ABI, provider) as unknown as IDEXRouter;
+    this.sushiswapRouter = new Contract(sushiswapRouterAddress, ROUTER_ABI, provider) as unknown as IDEXRouter;
     this.tokenPairs = tokenPairs;
-
-    logger.info(`Initialized ${this.tokenPairs.length} token pairs for scanning`);
-    logger.info('Token pairs:', this.tokenPairs);
+    this.config = config;
+    this.logger = logger;
   }
 
-  public getIsScanning(): boolean {
-    return this.isScanning;
+  private async getAmountsOut(tokenIn: string, tokenOut: string, amount: bigint): Promise<bigint[]> {
+    try {
+      const router = this.uniswapRouter;
+      return await router.getAmountsOut(amount, [tokenIn, tokenOut]);
+    } catch (error) {
+      this.logger.error('Error getting amounts out:', error);
+      throw error;
+    }
   }
 
-  public async start() {
+  start(): void {
     if (this.isScanning) {
-      logger.warn('Arbitrage scanner is already running');
+      this.logger.warn('Scanner is already running');
       return;
     }
 
     this.isScanning = true;
-    logger.info('Starting arbitrage scanner');
-
-    while (this.isScanning) {
-      try {
-        await this.scanMarkets();
-        await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second interval
-      } catch (error) {
-        logger.error('Error in arbitrage scanner:', error);
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5s on error
-      }
-    }
+    this.scanInterval = setInterval(() => this.scanMarkets(), this.config.scanInterval);
+    this.logger.info('Started scanning for arbitrage opportunities');
   }
 
-  public stop() {
+  stop(): void {
+    if (!this.isScanning) {
+      this.logger.warn('Scanner is not running');
+      return;
+    }
+
+    if (this.scanInterval) {
+      clearInterval(this.scanInterval);
+      this.scanInterval = null;
+    }
+
     this.isScanning = false;
-    logger.info('Stopping arbitrage scanner');
+    this.logger.info('Stopped scanning for arbitrage opportunities');
   }
 
-  private async scanMarkets() {
-    for (const pair of this.tokenPairs) {
-      try {
-        logger.info('Processing token pair:', {
-          tokenA: pair.tokenA,
-          tokenB: pair.tokenB,
-          tokenAExists: Boolean(pair.tokenA),
-          tokenBExists: Boolean(pair.tokenB),
-          tokenALength: pair.tokenA?.length,
-          tokenBLength: pair.tokenB?.length,
-        });
+  private async scanMarkets(): Promise<void> {
+    try {
+      // Get current gas price
+      const gasPrice = await this.provider.getFeeData();
+      if (!gasPrice.gasPrice) {
+        this.logger.error('Failed to get gas price');
+        return;
+      }
 
-        const prices: PriceData[] = await Promise.all(
-          ['QUICKSWAP', 'SUSHISWAP'].map(dex => this.getPriceData(dex, pair.tokenA, pair.tokenB))
+      this.lastGasPrice = gasPrice.gasPrice;
+
+      // Scan each token pair
+      for (const pair of this.tokenPairs) {
+        await this.scanPair(pair.tokenA, pair.tokenB);
+      }
+    } catch (error) {
+      this.logger.error('Error scanning markets:', error);
+    }
+  }
+
+  private async scanPair(tokenA: string, tokenB: string): Promise<void> {
+    try {
+      // Get amounts out from both DEXes
+      const amount = ethers.parseEther('1');
+      const [uniswapAmounts, sushiswapAmounts] = await Promise.all([
+        this.uniswapRouter.getAmountsOut(amount, [tokenA, tokenB]),
+        this.sushiswapRouter.getAmountsOut(amount, [tokenA, tokenB]),
+      ]);
+
+      // Calculate price difference
+      const uniswapPrice = Number(ethers.formatEther(uniswapAmounts[1]));
+      const sushiswapPrice = Number(ethers.formatEther(sushiswapAmounts[1]));
+      const priceDiff = Math.abs(uniswapPrice - sushiswapPrice);
+
+      // Check if price difference is above threshold
+      if (priceDiff > this.config.minProfitThreshold) {
+        this.emit('arbitrageOpportunity', {
+          tokenA,
+          tokenB,
+          uniswapPrice,
+          sushiswapPrice,
+          priceDiff,
+          timestamp: Date.now(),
+        });
+      }
+    } catch (error) {
+      this.logger.error(`Error scanning pair ${tokenA}/${tokenB}:`, error);
+    }
+  }
+
+  async analyzePool(pool: { tokenA: string; tokenB: string; }): Promise<ArbitrageOpportunity | null> {
+    try {
+      const amount = await this.calculateOptimalAmount(pool);
+      const expectedProfit = await this.calculateExpectedProfit(pool, amount);
+      
+      if (expectedProfit > 0n) {
+        return this.createArbitrageOpportunity(
+          pool.tokenA,
+          pool.tokenB,
+          amount,
+          expectedProfit,
+          `${pool.tokenA},${pool.tokenB}`
         );
-
-        const opportunities = await this.findArbitrageOpportunities(prices);
-
-        if (opportunities.length > 0) {
-          // Save each opportunity to the database
-          try {
-            logger.info(
-              'Attempting to save opportunities:',
-              JSON.stringify(
-                {
-                  tokenPair: pair,
-                  prices,
-                  opportunities,
-                  opportunityValidation: opportunities.map(opp => ({
-                    hasPair: Boolean(opp.pair),
-                    hasDexA: Boolean(opp.dexA),
-                    hasDexB: Boolean(opp.dexB),
-                    hasPriceA: typeof opp.priceA === 'number',
-                    hasPriceB: typeof opp.priceB === 'number',
-                    hasSpread: typeof opp.spread === 'number',
-                    hasTimestamp: typeof opp.timestamp === 'number',
-                    hasNetProfit: typeof opp.netProfit === 'number'
-                  })),
-                },
-                null,
-                2
-              )
-            );
-
-            // Log each opportunity before saving
-            opportunities.forEach((opp, index) => {
-              logger.info(`Opportunity ${index + 1} data:`, {
-                pair: opp.pair,
-                dexA: opp.dexA,
-                dexB: opp.dexB,
-                priceA: opp.priceA,
-                priceB: opp.priceB,
-                spread: opp.spread,
-                timestamp: opp.timestamp,
-                netProfit: opp.netProfit
-              });
-            });
-
-            await MarketData.insertMany(opportunities).catch(error => {
-              if (error.name === 'ValidationError') {
-                logger.error('MongoDB validation error:', {
-                  error: error.message,
-                  errors: error.errors,
-                  validationErrors: Object.keys(error.errors).map(field => ({
-                    field,
-                    message: error.errors[field].message,
-                    value: error.errors[field].value,
-                    valueType: typeof error.errors[field].value,
-                  })),
-                });
-              }
-              throw error;
-            });
-          } catch (error) {
-            logger.error('Error saving arbitrage opportunities:', error);
-          }
-        }
-      } catch (error) {
-        logger.error('Error scanning pair:', {
-          tokenA: pair.tokenA,
-          tokenB: pair.tokenB,
-          error,
-        });
       }
-    }
-  }
-
-  private async getPriceData(dex: string, tokenA: string, tokenB: string): Promise<PriceData> {
-    try {
-      // Verify token contracts exist
-      const tokenACode = await this.provider.getCode(tokenA);
-      const tokenBCode = await this.provider.getCode(tokenB);
-
-      if (tokenACode === '0x' || tokenBCode === '0x') {
-        throw new Error(`Invalid token contract: ${tokenACode === '0x' ? tokenA : tokenB}`);
-      }
-
-      const routerAbi = [
-        'function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts)',
-        'function WETH() external pure returns (address)',
-      ];
-
-      const routerAddress =
-        dex === 'QUICKSWAP' ? config.contracts.quickswapRouter : config.contracts.sushiswapRouter;
-
-      // Verify router contract exists
-      const routerCode = await this.provider.getCode(routerAddress);
-      if (routerCode === '0x') {
-        throw new Error(`Invalid router contract for ${dex}: ${routerAddress}`);
-      }
-
-      const router = new ethers.Contract(routerAddress, routerAbi, this.provider);
-
-      const path = [tokenA, tokenB];
-      const amountIn = ethers.parseEther('1'); // 1 token as base amount
-
-      logger.info('Fetching price data:', {
-        dex,
-        router: routerAddress,
-        tokenA,
-        tokenB,
-        amountIn: amountIn.toString(),
-      });
-
-      const amounts = await router.getAmountsOut(amountIn, path);
-      const price = Number(ethers.formatEther(amounts[1]));
-
-      // Get current block for timestamp
-      const block = await this.provider.getBlock('latest');
-      if (!block) throw new Error('Could not get latest block');
-
-      return {
-        dex: dex.toUpperCase(),
-        tokenA,
-        tokenB,
-        price,
-        liquidity: amounts[1], // Using output amount as liquidity indicator
-        timestamp: block.timestamp,
-        blockNumber: block.number,
-      };
+      
+      return null;
     } catch (error) {
-      logger.error('Error getting price data:', {
-        dex,
-        tokenA,
-        tokenB,
-        error:
-          error instanceof Error
-            ? {
-                message: error.message,
-                stack: error.stack,
-              }
-            : error,
-      });
-      throw error;
+      this.logger.error('Failed to analyze pool:', error);
+      return null;
     }
   }
 
-  private async findArbitrageOpportunities(prices: PriceData[]): Promise<ArbitrageOpportunity[]> {
-    const opportunities: ArbitrageOpportunity[] = [];
-
-    for (const pair of this.tokenPairs) {
-      const pairPrices = prices.filter(p =>
-        p.tokenA === pair.tokenA && p.tokenB === pair.tokenB
-      );
-
-      for (let i = 0; i < pairPrices.length; i++) {
-        for (let j = i + 1; j < pairPrices.length; j++) {
-          const buyDex = pairPrices[i];
-          const sellDex = pairPrices[j];
-
-          try {
-            const spread = Math.abs(buyDex.price - sellDex.price);
-            const spreadPercentage = (spread / Math.min(buyDex.price, sellDex.price)) * 100;
-
-            if (spreadPercentage >= this.config.minProfitThreshold) {
-              const gasEstimate = await this.estimateArbitrageGas();
-              const netProfit = await this.calculateNetProfit(spread, gasEstimate);
-
-              if (netProfit > this.config.minNetProfit) {
-                opportunities.push({
-                  pair: `${pair.tokenA}/${pair.tokenB}`,
-                  dexA: buyDex.dex,
-                  dexB: sellDex.dex,
-                  priceA: buyDex.price,
-                  priceB: sellDex.price,
-                  spread: spreadPercentage,
-                  timestamp: Date.now(),
-                  netProfit
-                });
-              }
-            }
-          } catch (error) {
-            console.error('Error calculating arbitrage opportunity:', error);
-          }
-        }
-      }
-    }
-
-    return opportunities;
-  }
-
-  private async calculateNetProfit(spread: number, gasEstimate: bigint): Promise<number> {
+  async estimateTradeGas(opportunity: ArbitrageOpportunity): Promise<bigint> {
     try {
-      const feeData = await this.provider.getFeeData();
-      if (!feeData.gasPrice) {
-        throw new Error('Could not get gas price');
-      }
-      const gasCost = Number(ethers.formatEther(gasEstimate * feeData.gasPrice));
-      return spread - gasCost;
+      // Base gas cost for a typical DEX swap
+      const baseGas = 150000n;
+      
+      // Additional gas for complex routes
+      const routeComplexity = opportunity.route.split(',').length - 1;
+      const routeGas = BigInt(routeComplexity * 50000);
+      
+      // Total estimated gas
+      return baseGas + routeGas;
     } catch (error) {
-      logger.error('Error calculating net profit:', error);
-      throw error;
+      this.logger.error('Failed to estimate trade gas:', error);
+      return 250000n; // Default fallback gas estimate
     }
   }
 
-  private async estimateArbitrageGas(): Promise<bigint> {
-    return BigInt(this.config.gasLimit);
+  private createArbitrageOpportunity(
+    tokenA: string,
+    tokenB: string,
+    amount: bigint,
+    expectedProfit: bigint,
+    route: string
+  ): ArbitrageOpportunity {
+    return {
+      tokenA,
+      tokenB,
+      amount,
+      expectedProfit,
+      route,
+      timestamp: Date.now()
+    };
+  }
+
+  private async calculateOptimalAmount(pool: { tokenA: string; tokenB: string; }): Promise<bigint> {
+    try {
+      // Start with a base amount
+      const baseAmount = ethers.parseEther('1');
+      
+      // Get amounts out from both DEXes
+      const [uniswapAmounts, sushiswapAmounts] = await Promise.all([
+        this.uniswapRouter.getAmountsOut(baseAmount, [pool.tokenA, pool.tokenB]),
+        this.sushiswapRouter.getAmountsOut(baseAmount, [pool.tokenA, pool.tokenB])
+      ]);
+      
+      // Calculate optimal amount based on price difference
+      const priceDiff = Number(ethers.formatEther(uniswapAmounts[1])) - 
+                      Number(ethers.formatEther(sushiswapAmounts[1]));
+      
+      // Adjust amount based on price difference
+      const adjustmentFactor = Math.min(Math.abs(priceDiff) * 2, 5);
+      return baseAmount * BigInt(Math.floor(adjustmentFactor));
+      
+    } catch (error) {
+      this.logger.error('Failed to calculate optimal amount:', error);
+      return ethers.parseEther('1'); // Fallback to base amount
+    }
+  }
+
+  private async calculateExpectedProfit(
+    pool: { tokenA: string; tokenB: string; },
+    amount: bigint
+  ): Promise<bigint> {
+    try {
+      // Get amounts out from both DEXes
+      const [uniswapAmounts, sushiswapAmounts] = await Promise.all([
+        this.uniswapRouter.getAmountsOut(amount, [pool.tokenA, pool.tokenB]),
+        this.sushiswapRouter.getAmountsOut(amount, [pool.tokenA, pool.tokenB])
+      ]);
+      
+      // Calculate profit as the difference between the best output and input
+      const bestOutput = uniswapAmounts[1] > sushiswapAmounts[1] ? 
+                       uniswapAmounts[1] : sushiswapAmounts[1];
+      
+      return bestOutput - amount;
+      
+    } catch (error) {
+      this.logger.error('Failed to calculate expected profit:', error);
+      return 0n;
+    }
   }
 }
 

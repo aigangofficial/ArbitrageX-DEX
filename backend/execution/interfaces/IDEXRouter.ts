@@ -1,35 +1,27 @@
-import { ethers } from 'ethers';
+import { BaseContract, BigNumberish } from 'ethers';
 
-export interface IDEXRouter {
-  estimateGas: {
+export interface IDEXRouter extends BaseContract {
+    getAmountsOut(amountIn: BigNumberish, path: string[]): Promise<bigint[]>;
+    factory(): Promise<string>;
+    WETH(): Promise<string>;
     swapExactTokensForTokens(
-      amountIn: bigint,
-      amountOutMin: bigint,
-      path: string[],
-      to: string,
-      deadline: number
-    ): Promise<bigint>;
-  };
-  getAmountsOut(amountIn: bigint, path: string[]): Promise<bigint[]>;
-  swapExactTokensForTokens(
-    amountIn: bigint,
-    amountOutMin: bigint,
-    path: string[],
-    to: string,
-    deadline: number
-  ): Promise<bigint[]>;
-  factory(): Promise<string>;
-  address: string;
+        amountIn: BigNumberish,
+        amountOutMin: BigNumberish,
+        path: string[],
+        to: string,
+        deadline: BigNumberish
+    ): Promise<bigint[]>;
 }
 
-export class DEXRouterFactory {
-  static connect(address: string, provider: ethers.JsonRpcProvider): IDEXRouter {
-    const abi = [
-      'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
-      'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] memory path, address to, uint deadline) returns (uint[] memory amounts)',
-      'function estimateGas() view returns (uint256)'
-    ];
+export const ROUTER_ABI = [
+    'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
+    'function factory() external pure returns (address)',
+    'function WETH() external pure returns (address)',
+    'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)'
+];
 
-    return new ethers.Contract(address, abi, provider) as unknown as IDEXRouter;
-  }
+export class DEXRouterFactory {
+    static connect(address: string, provider: any): IDEXRouter {
+        return new BaseContract(address, ROUTER_ABI, provider) as IDEXRouter;
+    }
 }

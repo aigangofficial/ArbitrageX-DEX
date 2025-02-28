@@ -1,0 +1,194 @@
+{
+  "general": {
+    "bot_name": "ArbitrageX",
+    "version": "1.0.0",
+    "environment": "development",
+    "log_level": "info",
+    "max_concurrent_trades": 5,
+    "health_check_interval_seconds": 60,
+    "stats_save_interval_minutes": 15
+  },
+  "networks": {
+    "ethereum": {
+      "enabled": true,
+      "rpc_url": "${ETHEREUM_RPC_URL}",
+      "chain_id": 1,
+      "block_time_seconds": 12,
+      "priority": 1,
+      "gas_limit_multiplier": 1.2,
+      "min_confirmations": 1
+    },
+    "arbitrum": {
+      "enabled": true,
+      "rpc_url": "${ARBITRUM_RPC_URL}",
+      "chain_id": 42161,
+      "block_time_seconds": 0.25,
+      "priority": 2,
+      "gas_limit_multiplier": 1.3,
+      "min_confirmations": 1
+    },
+    "polygon": {
+      "enabled": true,
+      "rpc_url": "${POLYGON_RPC_URL}",
+      "chain_id": 137,
+      "block_time_seconds": 2,
+      "priority": 3,
+      "gas_limit_multiplier": 1.5,
+      "min_confirmations": 5
+    },
+    "optimism": {
+      "enabled": true,
+      "rpc_url": "${OPTIMISM_RPC_URL}",
+      "chain_id": 10,
+      "block_time_seconds": 2,
+      "priority": 4,
+      "gas_limit_multiplier": 1.2,
+      "min_confirmations": 1
+    },
+    "base": {
+      "enabled": true,
+      "rpc_url": "${BASE_RPC_URL}",
+      "chain_id": 8453,
+      "block_time_seconds": 2,
+      "priority": 5,
+      "gas_limit_multiplier": 1.2,
+      "min_confirmations": 1
+    }
+  },
+  "scanner": {
+    "scan_interval_seconds": 5,
+    "max_opportunities_per_scan": 20,
+    "min_profit_threshold_usd": 10,
+    "max_scan_time_seconds": 3,
+    "token_pairs": [
+      {
+        "token0": "WETH",
+        "token1": "USDC",
+        "priority": 1
+      },
+      {
+        "token0": "WETH",
+        "token1": "USDT",
+        "priority": 2
+      },
+      {
+        "token0": "WBTC",
+        "token1": "USDC",
+        "priority": 3
+      },
+      {
+        "token0": "WETH",
+        "token1": "DAI",
+        "priority": 4
+      }
+    ],
+    "dexes": [
+      {
+        "name": "Uniswap V3",
+        "enabled": true,
+        "priority": 1
+      },
+      {
+        "name": "Sushiswap",
+        "enabled": true,
+        "priority": 2
+      },
+      {
+        "name": "Curve",
+        "enabled": true,
+        "priority": 3
+      },
+      {
+        "name": "Balancer",
+        "enabled": true,
+        "priority": 4
+      }
+    ]
+  },
+  "executor": {
+    "max_execution_time_ms": 2000,
+    "retry_attempts": 3,
+    "retry_delay_ms": 500,
+    "max_slippage_percent": 1.0,
+    "min_success_rate": 0.8,
+    "flash_loan_enabled": true,
+    "flash_loan_providers": [
+      {
+        "name": "Aave",
+        "priority": 1
+      },
+      {
+        "name": "Balancer",
+        "priority": 2
+      },
+      {
+        "name": "dYdX",
+        "priority": 3
+      }
+    ]
+  },
+  "profit_analyzer": {
+    "min_profit_threshold_usd": 20,
+    "min_roi_percent": 0.5,
+    "max_risk_score": 0.7,
+    "historical_window_days": 7,
+    "profit_calculation_method": "conservative",
+    "include_gas_costs": true,
+    "include_flash_loan_fees": true
+  },
+  "gas_optimizer": {
+    "strategy": "dynamic",
+    "max_gas_price_gwei": {
+      "ethereum": 100,
+      "arbitrum": 1.5,
+      "polygon": 300,
+      "optimism": 1.5,
+      "base": 1.5
+    },
+    "priority_fee_gwei": {
+      "ethereum": 2,
+      "arbitrum": 0.1,
+      "polygon": 30,
+      "optimism": 0.1,
+      "base": 0.1
+    },
+    "gas_price_update_interval_seconds": 15,
+    "max_gas_cost_percent_of_profit": 30
+  },
+  "competitor_tracker": {
+    "enabled": true,
+    "track_interval_seconds": 30,
+    "max_competitors_to_track": 100,
+    "mempool_monitoring_enabled": true,
+    "decoy_strategy_enabled": true,
+    "max_decoys_per_hour": 5,
+    "competitor_data_save_interval_minutes": 60
+  },
+  "ai_integration": {
+    "enabled": true,
+    "confidence_threshold": 0.7,
+    "model_update_interval_hours": 24,
+    "feature_importance_threshold": 0.05,
+    "min_training_samples": 1000,
+    "prediction_timeout_ms": 500
+  },
+  "security": {
+    "circuit_breaker": {
+      "enabled": true,
+      "max_consecutive_failures": 3,
+      "max_loss_percent": 5,
+      "cooldown_minutes": 30
+    },
+    "private_tx_enabled": true,
+    "flashbots_enabled": true,
+    "max_daily_trade_volume_usd": 1000000,
+    "max_single_trade_usd": 100000
+  },
+  "monitoring": {
+    "prometheus_enabled": true,
+    "prometheus_port": 9090,
+    "alert_email": "${ALERT_EMAIL}",
+    "discord_webhook_url": "${DISCORD_WEBHOOK_URL}",
+    "performance_metrics_interval_minutes": 5
+  }
+}

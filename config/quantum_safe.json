@@ -1,0 +1,51 @@
+{
+    "validator": {
+        "lattice_params": {
+            "dimension": 1024,
+            "modulus": 12289,
+            "error_distribution": "discrete_gaussian",
+            "standard_deviation": 3.0
+        },
+        "merkle_tree": {
+            "height": 20,
+            "hash_function": "sha3_256",
+            "max_leaves": 1048576
+        },
+        "signature_timeout": 900,
+        "max_batch_size": 100
+    },
+    "security": {
+        "min_security_level": 256,
+        "quantum_security_margin": 128,
+        "allowed_hash_functions": [
+            "sha3_256",
+            "sha3_512",
+            "blake2b"
+        ],
+        "key_refresh_interval": 3600,
+        "max_signature_reuse": 1
+    },
+    "network": {
+        "rpc_timeout": 30,
+        "max_retries": 3,
+        "retry_delay": 1,
+        "gas_limit_multiplier": 1.5,
+        "priority_fee": "2 gwei"
+    },
+    "monitoring": {
+        "log_level": "INFO",
+        "metrics_enabled": true,
+        "alert_thresholds": {
+            "signature_generation_time": 1.0,
+            "validation_time": 0.5,
+            "failure_rate": 0.01
+        }
+    },
+    "optimization": {
+        "cache_enabled": true,
+        "cache_ttl": 300,
+        "precompute_merkle_trees": true,
+        "batch_verification": true,
+        "parallel_signature_generation": true
+    }
+} 

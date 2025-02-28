@@ -2,37 +2,10 @@ import dotenv from 'dotenv';
 import { ethers } from 'ethers';
 import Redis from 'ioredis';
 import { MongoClient } from 'mongodb';
-import path from 'path';
-import winston from 'winston';
+import { logger } from '../api/utils/logger';
 import { IDEXRouter } from '../execution/interfaces/IDEXRouter';
 
-// Configure logger
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-  transports: [
-    new winston.transports.File({ filename: 'logs/price-feed.log' }),
-    new winston.transports.Console(),
-  ],
-});
-
-// Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../../.env.root') });
-
-// Validate environment variables
-const requiredEnvVars = [
-  'NETWORK_RPC',
-  'AMOY_QUICKSWAP_ROUTER',
-  'AMOY_SUSHISWAP_ROUTER',
-  'AMOY_WMATIC',
-  'AMOY_USDC',
-];
-
-requiredEnvVars.forEach(envVar => {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-});
+dotenv.config();
 
 // Router ABI for DEX interactions
 const DEX_ROUTER_ABI = [
@@ -150,76 +123,52 @@ class RealPriceFeed {
     // Initialize token pairs to monitor
     this.tokenPairs = [
       {
-        tokenA: process.env.AMOY_WMATIC || '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
-        tokenB: process.env.AMOY_USDC || '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+        tokenA: process.env.AMOY_WETH!,
+        tokenB: process.env.AMOY_USDC!,
+      },
+      {
+        tokenA: process.env.AMOY_WETH!,
+        tokenB: process.env.AMOY_USDT!,
+      },
+      {
+        tokenA: process.env.AMOY_USDC!,
+        tokenB: process.env.AMOY_USDT!,
       },
     ];
-
-    logger.info(`Initialized token pairs: ${JSON.stringify(this.tokenPairs)}`);
   }
 
   private async validatePair(tokenA: string, tokenB: string, exchange: string): Promise<boolean> {
     try {
       // Get factory address based on exchange
       const factoryAddress = exchange === 'quickswap' ? QUICKSWAP_FACTORY : SUSHISWAP_FACTORY;
-      logger.info(
-        `Validating pair ${tokenA}-${tokenB} on ${exchange} (factory: ${factoryAddress})`
-      );
 
       // Create factory contract instance
       const factory = new ethers.Contract(factoryAddress, FACTORY_ABI, this.provider);
 
-      // First verify the factory contract is accessible
-      try {
-        const factoryCode = await this.provider.getCode(factoryAddress);
-        if (factoryCode === '0x' || factoryCode === '0x0') {
-          logger.error(`No contract code found at factory address ${factoryAddress}`);
-          return false;
-        }
-      } catch (error) {
-        logger.error(`Error verifying factory contract at ${factoryAddress}:`, error);
-        return false;
-      }
-
       // Get pair address
-      let pairAddress;
-      try {
-        pairAddress = await factory.getPair(tokenA, tokenB);
-        logger.info(`Pair address for ${tokenA}-${tokenB} on ${exchange}: ${pairAddress}`);
-      } catch (error) {
-        logger.error(`Error getting pair address from factory:`, error);
-        return false;
-      }
+      const pairAddress = await factory.getPair(tokenA, tokenB);
 
       // Check if pair exists
       if (pairAddress === ethers.ZeroAddress) {
-        logger.warn(`No pair exists for ${tokenA}-${tokenB} on ${exchange}`);
+        logger.warn(`No liquidity pair exists for ${tokenA}/${tokenB} on ${exchange}`);
         return false;
       }
 
-      // Verify the pair contract
-      try {
-        const pair = new ethers.Contract(pairAddress, PAIR_ABI, this.provider);
-        const [reserve0, reserve1] = await pair.getReserves();
+      // Create pair contract instance
+      const pair = new ethers.Contract(pairAddress, PAIR_ABI, this.provider);
 
-        // Check if pair has liquidity
-        if (reserve0.toString() === '0' || reserve1.toString() === '0') {
-          logger.warn(`Pair exists but has no liquidity for ${tokenA}-${tokenB} on ${exchange}`);
-          return false;
-        }
+      // Get reserves to validate liquidity
+      const [reserve0, reserve1] = await pair.getReserves();
 
-        logger.info(`Validated pair ${tokenA}-${tokenB} on ${exchange} with reserves:`, {
-          reserve0: reserve0.toString(),
-          reserve1: reserve1.toString(),
-        });
-
-        return true;
-      } catch (error) {
-        logger.error(`Error verifying pair contract:`, error);
+      // Check if pair has liquidity
+      if (reserve0 === 0n || reserve1 === 0n) {
+        logger.warn(`No liquidity for ${tokenA}/${tokenB} on ${exchange}`);
         return false;
       }
+
+      return true;
     } catch (error) {
-      logger.error(`Error validating pair ${tokenA}-${tokenB} on ${exchange}:`, error);
+      logger.error(`Error validating pair ${tokenA}/${tokenB} on ${exchange}:`, error);
       return false;
     }
   }
@@ -230,13 +179,6 @@ class RealPriceFeed {
     exchange: string
   ): Promise<PriceData | null> {
     try {
-      // Validate pair exists
-      const pairExists = await this.validatePair(tokenA, tokenB, exchange);
-      if (!pairExists) {
-        logger.warn(`No liquidity pair exists for ${tokenA}-${tokenB} on ${exchange}`);
-        return null;
-      }
-
       // Get factory address based on exchange
       const factoryAddress = exchange === 'quickswap' ? QUICKSWAP_FACTORY : SUSHISWAP_FACTORY;
 
@@ -259,12 +201,12 @@ class RealPriceFeed {
 
       // Get amounts out using router
       const router = this.dexRouters[exchange];
-      const amountIn = ethers.parseEther('1'); // Use 1 token as input
-      const amounts = await router.getAmountsOut(amountIn, [tokenA, tokenB]);
+      const path = [tokenA, tokenB];
+      const amounts = await router.getAmountsOut(ethers.parseEther('1'), path);
 
       // Calculate price and liquidity
       const price = Number(ethers.formatEther(amounts[1]));
-      const liquidity = Number(ethers.formatEther(BigInt(reserveA)));
+      const liquidity = Number(ethers.formatEther(reserveA));
 
       // Get current block
       const blockNumber = await this.provider.getBlockNumber();
@@ -279,41 +221,42 @@ class RealPriceFeed {
         blockNumber,
       };
     } catch (error) {
-      logger.error(`Error fetching price for ${tokenA}-${tokenB} on ${exchange}:`, error);
+      logger.error(`Error fetching price for ${tokenA}/${tokenB} on ${exchange}:`, error);
       return null;
     }
   }
 
   private async updatePrices() {
     try {
-      const prices: PriceData[] = [];
+      // Get current block number
+      const blockNumber = await this.provider.getBlockNumber();
 
-      // Fetch prices for each pair on each DEX
+      // Fetch prices for all token pairs on all exchanges
       for (const { tokenA, tokenB } of this.tokenPairs) {
-        for (const dex of Object.keys(this.dexRouters)) {
-          try {
-            const priceData = await this.fetchPrice(tokenA, tokenB, dex);
-            if (priceData) {
-              prices.push(priceData);
+        // Validate and fetch prices from QuickSwap
+        if (await this.validatePair(tokenA, tokenB, 'quickswap')) {
+          const quickswapPrice = await this.fetchPrice(tokenA, tokenB, 'quickswap');
+          if (quickswapPrice) {
+            await this.mongodb.db('arbitragex').collection('prices').insertOne(quickswapPrice);
+            await this.redis.set(
+              `price:${tokenA}:${tokenB}:quickswap`,
+              JSON.stringify(quickswapPrice)
+            );
+          }
+        }
 
-              // Store in Redis for quick access
-              const redisKey = `price:${dex}:${tokenA}-${tokenB}`;
-              await this.redis.set(redisKey, JSON.stringify(priceData), 'EX', 30);
-            }
-          } catch (error) {
-            logger.error(`Failed to fetch price for ${dex} ${tokenA}-${tokenB}:`, error);
-            continue;
+        // Validate and fetch prices from SushiSwap
+        if (await this.validatePair(tokenA, tokenB, 'sushiswap')) {
+          const sushiswapPrice = await this.fetchPrice(tokenA, tokenB, 'sushiswap');
+          if (sushiswapPrice) {
+            await this.mongodb.db('arbitragex').collection('prices').insertOne(sushiswapPrice);
+            await this.redis.set(
+              `price:${tokenA}:${tokenB}:sushiswap`,
+              JSON.stringify(sushiswapPrice)
+            );
           }
         }
       }
-
-      // Store in MongoDB for historical data
-      if (prices.length > 0) {
-        await this.mongodb.db('arbitragex').collection('marketdata').insertMany(prices);
-        logger.info(`Stored ${prices.length} price entries in MongoDB`);
-      }
-
-      logger.info(`Updated ${prices.length} price entries with real market data`);
     } catch (error) {
       logger.error('Error updating prices:', error);
     }
@@ -321,34 +264,35 @@ class RealPriceFeed {
 
   public async start() {
     try {
+      // Connect to MongoDB
       await this.mongodb.connect();
       logger.info('Connected to MongoDB');
 
-      this.redis.on('error', (err: Error) => {
-        logger.error('Redis error:', err);
-      });
-
-      this.redis.on('connect', () => {
-        logger.info('Connected to Redis');
-      });
-
-      // Start price updates
+      // Start price update interval
       setInterval(() => this.updatePrices(), this.updateInterval);
-      logger.info('Real price feed started');
+      logger.info('Price feed started');
 
-      // Initial update
+      // Initial price update
       await this.updatePrices();
     } catch (error) {
       logger.error('Error starting price feed:', error);
-      process.exit(1);
+      throw error;
     }
   }
 
   public async stop() {
-    await this.mongodb.close();
-    await this.redis.quit();
-    logger.info('Real price feed stopped');
+    try {
+      // Clear update interval
+      clearInterval(this.updateInterval);
+
+      // Close MongoDB connection
+      await this.mongodb.close();
+      logger.info('Price feed stopped');
+    } catch (error) {
+      logger.error('Error stopping price feed:', error);
+      throw error;
+    }
   }
 }
 
-export { RealPriceFeed };
+export default RealPriceFeed;

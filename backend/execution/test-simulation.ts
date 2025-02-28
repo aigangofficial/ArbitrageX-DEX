@@ -7,7 +7,6 @@ dotenv.config({ path: resolve(__dirname, '../../.env.root') });
 import { ethers } from 'ethers';
 import { config } from '../api/config';
 import { logger } from '../api/utils/logger';
-import { IDEXRouter } from './interfaces/IDEXRouter';
 import { TradeExecutor } from './tradeExecutor';
 
 // Router ABI - only methods we need
@@ -49,7 +48,7 @@ logger.info('Using configuration:', {
     chainId: config.network.chainId,
   },
   contracts: {
-    quickswapRouter: config.contracts.quickswapRouter,
+    uniswapRouter: config.contracts.uniswapRouter,
     sushiswapRouter: config.contracts.sushiswapRouter,
     wmatic: config.contracts.wmatic,
     usdt: config.contracts.usdt,
@@ -73,13 +72,27 @@ async function validateNetwork() {
   }
 }
 
+interface IDEXRouter {
+  estimateGas: {
+    swapExactTokensForTokens(
+      amountIn: bigint,
+      amountOutMin: bigint,
+      path: string[],
+      to: string,
+      deadline: number
+    ): Promise<bigint>;
+  };
+  getAmountsOut(amountIn: bigint, path: string[]): Promise<bigint[]>;
+  address: string;
+}
+
 async function validateContracts() {
   try {
     const provider = new ethers.JsonRpcProvider(config.network.rpc);
 
     // Initialize contracts
-    const quickswapRouter = new ethers.Contract(
-      config.contracts.quickswapRouter,
+    const uniswapRouter = new ethers.Contract(
+      config.contracts.uniswapRouter,
       ROUTER_ABI,
       provider
     ) as unknown as IDEXRouter;
@@ -93,22 +106,21 @@ async function validateContracts() {
     const aavePool = new ethers.Contract(config.contracts.aavePool, AAVE_POOL_ABI, provider);
 
     // Create trade executor
-    const executor = new TradeExecutor(provider, quickswapRouter, sushiswapRouter, aavePool);
+    const executor = new TradeExecutor(provider, uniswapRouter, sushiswapRouter, aavePool);
 
     // Test parameters
-    const tokenA = config.contracts.wmatic;
+    const tokenA = config.contracts.weth;
     const tokenB = config.contracts.usdc;
-    const amount = ethers.parseEther('1.0').toString();
+    const amountIn = ethers.parseUnits('1', '18'); // 1 ETH
 
-    // Simulate trade
-    const simulation = await executor.simulateArbitrage(
-      tokenA,
-      tokenB,
-      amount,
-      'QUICKSWAP_TO_SUSHI'
-    );
+    // Test getAmountsOut
+    const amountsUniswap = await uniswapRouter.getAmountsOut(amountIn, [tokenA, tokenB]);
+    const amountsSushiswap = await sushiswapRouter.getAmountsOut(amountIn, [tokenA, tokenB]);
 
-    logger.info('Trade simulation result:', simulation);
+    logger.info('Price comparison:', {
+      uniswap: amountsUniswap[1].toString(),
+      sushiswap: amountsSushiswap[1].toString(),
+    });
 
     return true;
   } catch (error) {
@@ -136,5 +148,4 @@ async function runTestSimulation() {
   }
 }
 
-// Run the test simulation
-runTestSimulation();
+runTestSimulation().catch(console.error);

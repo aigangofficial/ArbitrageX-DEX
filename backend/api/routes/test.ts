@@ -35,4 +35,9 @@ router.get('/test-rate-limit', (_req, res) => {
   res.json({ message: 'Rate limit test endpoint' });
 });
 
+// Basic test route
+router.get('/test', (_req, res) => {
+  res.json({ message: 'Test route working' });
+});
+
 export default router;

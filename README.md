@@ -1,642 +1,278 @@
-🚀 Updated README.md for ArbitrageX
+# 🔥 ArbitrageX – The Most Advanced AI-Powered Arbitrage Bot 
 
-# ArbitrageX
+ArbitrageX is a **beyond-human-intelligence** arbitrage bot that continuously evolves to outsmart every competitor in the DeFi space. It leverages **machine learning**, **multi-chain** execution, **flash loans**, **front-running defense**, and **decoy tactics** to deliver unstoppable profitability.
 
-A decentralized arbitrage trading system leveraging flash loans for cross-DEX arbitrage opportunities.
+## 🚀 Ultimate Project Vision
 
----
-
-## 🏗 **Project Structure**
-
-ArbitrageX/
-│── contracts/ # Smart Contracts (Solidity)
-│ ├── FlashLoanService.sol # Flash Loan logic
-│ ├── ArbitrageExecutor.sol # Executes arbitrage trades
-│ ├── SecurityAdmin.sol # Core security module
-│ ├── interfaces/ # External contract interfaces
-│ ├── mocks/ # Mock contracts for testing
-│
-│── backend/ # Backend API & Execution Engine
-│ ├── api/ # Express API Server
-│ ├── execution/ # Trade Execution Logic
-│ ├── ai/ # AI Learning Bot
-│ ├── services/ # Real-time Market Data Fetching
-│ ├── database/ # MongoDB Integration
-│
-│── frontend/ # Web Dashboard
-│ ├── components/ # UI Components
-│ ├── pages/ # Dashboard Pages
-│ ├── services/ # API & WebSocket Connection
-│
-│── scripts/ # Deployment & Automation Scripts
-│ ├── deploy.ts # Deploys Smart Contracts
-│ ├── switchNetwork.ts # Network switching utility
-│ ├── testAutoTrade.ts # Test trade execution
-│ ├── utils/ # Utility Scripts
-│ ├── config.ts # Configuration management
-│ ├── setup-env.ts # Environment setup
-│ ├── security-check.ts # Security validation
+1. **Train & Adapt** on **real data** with **mainnet forks**—completely risk-free while perfecting AI strategies.
+2. **Achieve Sub-Second Execution** to outbid or front-run competitor bots.
+3. **Exploit** competitor weaknesses by actively tracking and even predicting their behavior.
+4. **Dominate** multiple networks (Ethereum, Arbitrum, Optimism, Solana, Base, Polygon, etc.) for maximum profit.
+5. **Scale & Automate** to $1M+ daily profits with minimal human oversight.
 
 ---
 
-## 🔥 **Available Scripts**
+## 💡 Next-Level Innovations (Beyond Standard Approaches)
 
-### **Core Scripts**
+1. **Adaptive Neural Route-Optimizer**
+   - **Deep reinforcement learning** for instant route calculations across multiple DEXs.
+   - Real-time **order book embeddings** to optimize each trade hop in milliseconds.
 
-1️⃣ **deploy.ts** - Deploys and configures smart contracts
+2. **Competitor-Decoy Mechanisms**
+   - **Fake mempool signals** or partial trades to lure competitor bots into unprofitable positions.
+   - Forces them to burn gas or lock liquidity before ArbitrageX capitalizes on the real opportunity.
 
-````bash
-# Deploy to Sepolia testnet
-npx hardhat run scripts/deploy.ts --network sepolia
+3. **Generative Adversarial Market Simulation (GAMS)**
+   - **GAN-style** approach: one AI model simulates market actions; another AI model outsmarts it.
+   - Polishes ArbitrageX's strategy to near-flawless execution speed and accuracy.
 
-# Deploy to mainnet
-npx hardhat run scripts/deploy.ts --network mainnet
+4. **Quantum-Safe Block Submission (Experimental)**
+   - Future-proof cryptographic approach ensuring no competitor can intercept or decode trades, even if quantum computing becomes mainstream.
 
-2️⃣ switchNetwork.ts - Manages network switching between environments
+5. **Distributed AI Brain**
+   - Multiple regions/nodes handle different segments of the AI logic to ensure redundancy and near-zero latency.
+   - If one region is compromised or overloaded, the bot instantly relocates control to another.
 
-# Switch to Sepolia testnet
-npm run switch:testnet
+---
 
-# Switch to mainnet
-npm run switch:mainnet
+## 📦 Full Project Structure
 
-3️⃣ testAutoTrade.ts - Tests automated trading strategies
+arbitragex-new/
+│
+├── README.md                   # Project overview & best-of-breed ideas
+├── .env                        # Environment variables (RPC URLs, secrets)
+├── hardhat.config.ts           # Hardhat config for mainnet fork & live networks
+├── package.json                # Dependencies & scripts
+│
+├── contracts/                  # Smart Contracts
+│   ├── ArbitrageExecutor.sol   # Main arbitrage execution contract
+│   ├── FlashLoanService.sol    # Flash loan requests & repayment logic
+│   ├── AITradingBot.sol        # (Optional) On-chain AI interfacing
+│   ├── interfaces/             # External contract interfaces
+│   └── utils/                  # Utility libraries & helpers
+│
+├── scripts/                    # Deployment & automation scripts
+│   ├── deploy.ts               # Contract deployment
+│   ├── executeArbitrage.ts     # Initiates arbitrage trades
+│   ├── trainingMode.ts         # AI-based training on mainnet fork
+│   └── testBotPerformance.ts   # Speed, accuracy, & security tests
+│
+├── tests/                      # Automated tests
+│   ├── contracts/              # Unit & integration tests for smart contracts
+│   ├── ai/                     # ML and AI logic tests
+│   ├── performance/            # Benchmarks for throughput & gas usage
+│   └── security/               # Tests for front-running & exploit prevention
+│
+├── backend/                    # AI & advanced strategy backend
+│   ├── bot/                    # Core arbitrage bot logic
+│   │   ├── bot_core.py         # Main orchestrator for AI-driven trading
+│   │   ├── network_scanner.py  # Monitors multiple networks for arbitrage
+│   │   ├── trade_executor.py   # Executes trades with flash loans & real-time routing
+│   │   ├── profit_analyzer.py  # AI-based profit & risk calculations
+│   │   ├── gas_optimizer.py    # Dynamic gas fee & transaction bundling
+│   │   ├── competitor_tracker.py  # Analyzes competitor bots & their vulnerabilities
+│   │   └── bot_settings.json   # Config for trade limits, thresholds, etc.
+│   │
+│   ├── ai/                     # Machine Learning modules
+│   │   ├── historical_data_fetcher.py   # Fetches and stores historical DEX trades
+│   │   ├── strategy_optimizer.py        # Reinforcement learning & model tuning
+│   │   ├── neural_network.py            # Core deep learning models
+│   │   ├── orderbook_analyzer.py        # Predicts liquidity and order book shifts
+│   │   ├── competitor_ai_monitor.py     # Reverse-engineers known competitor strategies
+│   │   ├── ml_training_pipeline.py      # End-to-end pipeline for AI training
+│   │   ├── feature_extractor.py         # Extracts features from historical data
+│   │   ├── trade_analyzer.py            # Analyzes trade data in real-time
+│   │   ├── backtesting.py               # Tests strategies against historical data
+│   │   ├── network_adaptation.py        # AI logic for multi-chain trading
+│   │   └── model_training.py            # Trains ML models for arbitrage execution
+│   │
+│   ├── api/                    # API for frontend and external integrations
+│   ├── execution/              # Execution services for trade processing
+│   ├── price-feed/             # Real-time price data services
+│   ├── security/               # Security and anti-front-running measures
+│   ├── database/               # Database models and connections
+│   ├── relay/                  # Transaction relay and mempool services
+│   ├── monitoring/             # System monitoring and alerting
+│   ├── utils/                  # Utility functions and helpers
+│   ├── services/               # Shared services across components
+│   └── types/                  # TypeScript type definitions
+│
+├── frontend/ (Optional)        # Web Dashboard (React + Next.js)
+│   ├── components/             # UI Components
+│   ├── pages/                  # Dashboard pages
+│   ├── services/               # API Integration
+│   ├── utils/                  # Helper functions
+│   ├── assets/                 # Static assets & images
+│   └── hooks/                  # Custom React hooks
+│
+├── config/                     # Configuration & reference files
+│   ├── project-guidelines.md   # Best practices, coding guidelines
+│   ├── network_settings.json   # Network switching & RPC node details
+│   ├── gas_optimization.json   # AI-based gas predictions
+│   ├── flash_loan_providers.json  # Catalog of top-tier flash loan providers
+│   ├── competitor_analysis.json   # Data on known competitor bots
+│   └── trading_limits.json     # Safety & trade limitation thresholds
+│
+└── docs/                       # Documentation
+├── Workflow.md             # Detailed instructions & phases
+├── AI_Strategy.md          # ML logic, training approaches, advanced AI modules
+├── Security.md             # Front-running defense, risk mitigation details
+├── Training_Phase.md       # Explanation of mainnet fork training & evaluation
+├── Deployment.md           # Setup & deployment steps
+└── How_Bot_Thinks.md       # High-level explanation of AI logic & decisions
 
-# Run tests on Sepolia
-npm run test:auto-trade:testnet
+---
 
-# Run tests on mainnet fork
-npm run test:auto-trade:fork
+## 🛠️ Phases & Workflow
 
-Utility Scripts
+Use this multi-phase roadmap to track the bot's evolution from concept to complete market domination.
 
-✔ utils/config.ts - Manages configuration and environment settings
+### **Phase 1 – Conceptualization & Architecture**
+- **Objective**: Solidify the vision & architecture for an unstoppable arbitrage bot.
+- **Key Tasks**:
+  1. Map out the AI pipeline (ML, reinforcement learning, competitor analysis).
+  2. Initialize Hardhat, set up base project structure, confirm multi-chain goals.
+- **Milestones**:
+  - Project scaffolding in place.
+  - High-level ML strategy and competitor exploitation plan drafted.
 
-✔ utils/setup-env.ts - Sets up development environment
+---
 
-# Initialize development environment
-npm run setup:dev
+### **Phase 2 – Data Harvesting & Mainnet Fork Setup**
+- **Objective**: Gather real data for AI training & spin up a mainnet fork to simulate real conditions.
+- **Key Tasks**:
+  1. Use `historical_data_fetcher.py` to collect 6+ months of trade data from multiple chains.
+  2. Configure Hardhat to replicate Ethereum, Arbitrum, Base, etc.
+  3. Load data into `datasets/` for model prototyping.
+- **Milestones**:
+  - Full historical dataset ready for ML.
+  - Local environment mimics real block states (forked chain).
 
-# Initialize production environment
-npm run setup:prod
+---
 
-✔ utils/security-check.ts - Performs security validations
+### **Phase 3 – AI Training & Simulation**
+- **Objective**: Train the bot on the fork, refining strategies through reinforcement learning.
+- **Key Tasks**:
+  1. Run iterative simulations in `trainingMode.ts`.
+  2. Collect performance metrics (PnL, trade success rate, gas usage).
+  3. Integrate competitor behavior analysis from `competitor_tracker.py`.
+- **Milestones**:
+  - 80%+ profitable trades in simulated environments.
+  - Automated gas & slippage adjustments.
 
-# Run security checks
-npm run security:check
+---
 
-# Run security audit
-npm run security:audit
+### **Phase 4 – Mainnet Launch & Flash Loan Integration**
+- **Objective**: Deploy the AI to the real network for live arbitrage.
+- **Key Tasks**:
+  1. Deploy `ArbitrageExecutor.sol` & `FlashLoanService.sol` using `deploy.ts`.
+  2. Connect to flash loan providers (Aave, dYdX, Balancer) for large trades.
+  3. Implement private mempool or Flashbots integration to avoid front-running.
+- **Milestones**:
+  - First successful real-money trade on mainnet.
+  - Steady daily net profit that meets ROI targets.
 
-🚀 Development Phases
+---
 
-🛠 Phase 1: Core System & Smart Contract Development ✅
+### **Phase 5 – Multi-Chain Scaling & Competitor Decoys**
+- **Objective**: Expand to more networks and actively manipulate competitor bots.
+- **Key Tasks**:
+  1. Implement auto-switch logic for Ethereum, Base, Arbitrum, Solana, etc.
+  2. Use decoy trades or mempool illusions to lure competitors into unprofitable positions.
+  3. Evaluate advanced "ghost mempool" and quantum-safe submission strategies.
+- **Milestones**:
+  - Achieve $1M+ daily arbitrage profits.
+  - Competitors continually lag behind or get trapped.
 
-Features Implemented:
-✔ Flash Loan Smart Contract (Aave V3)
-✔ Arbitrage Execution Contract (Uniswap & SushiSwap)
-✔ Error Handling & Security Enhancements
+---
 
-Deployment Status:
-	•	FlashLoanService: 0x486C74E420B845c178B6636823827812546dF997
-	•	ArbitrageExecutor: 0x376a75b8b237aFF8B50e1b9F2a80110869993859
-	•	Network: Polygon Amoy Testnet
+### **Phase 6 – Full AI Autonomy & Evolution**
+- **Objective**: Make the bot completely self-maintaining, capable of updating its own logic.
+- **Key Tasks**:
+  1. Integrate code self-modification with a "self-coding AI."
+  2. Distribute AI logic across multiple cloud regions (Distributed AI Brain).
+  3. Ongoing training with adversarial simulations (GAN approach).
+- **Milestones**:
+  - Minimal to zero human oversight.
+  - Near-monopoly on profitable DeFi arbitrage.
 
-🛠 Phase 2: Backend API Development 🚧
+---
 
-Features to Implement:
-	•	Real-Time Arbitrage Scanner
-	•	WebSocket API for Live Updates
-	•	Database Integration (MongoDB)
-	•	Backend Trade Execution Logic
+## 🏁 Quick Start
 
-Testing Requirements:
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/arbitragex-new.git
+   cd arbitragex-new
 
-# Test WebSocket API
-wscat -c ws://localhost:3001/api/ws/arbitrage
-
-# Test Trade Execution
-curl -X POST http://localhost:3000/api/v1/trades/execute \
-  -H "Content-Type: application/json" \
-  -d '{"tokenA":"WMATIC","tokenB":"USDC","amount":"1.0"}'
-
-🛠 Phase 3: AI Learning Mode 🔄
-
-Features to Implement:
-✔ Machine Learning Model Integration
-✔ Risk Management System
-✔ Performance Analytics
-
-Key Components:
-	•	LSTM Model for Price Prediction
-	•	Adaptive Risk Manager
-	•	Strategy Optimizer
-	•	Backtesting Engine
-
-🛠 Phase 4: Web Dashboard Development 📊
-
-Features to Implement:
-✔ Real-Time Monitoring Dashboard
-✔ Trade Management Interface
-✔ Analytics & Reporting
-
-UI Components:
-✔ Trade Monitor
-✔ Market Scanner
-✔ Performance Analytics
-✔ Risk Dashboard
-
-🛠 Phase 5: Production Deployment & Optimization 🚀
-
-Final Steps:
-✔ Security Audit & Testing
-✔ Performance Optimization
-✔ Monitoring & Maintenance
-
-🔐 Security Features
-
-Core Security Module (SecurityAdmin.sol)
-
-✔ Emergency Protocol Control
-✔ Access Control & Multi-Step Approvals
-✔ Transaction Safety & Reentrancy Protection
-✔ Risk Management & Liquidity Validation
-
-✔ Security Best Practices:
-	•	24-hour timelock for critical parameter changes
-	•	Emergency withdrawal protection
-	•	Comprehensive event logging
-	•	Regular automated security checks
-
-📖 Getting Started
-
-1️⃣ Clone the repository
-
-git clone https://github.com/yourusername/arbitragex.git
-cd arbitragex
-
-2️⃣ Install dependencies
+	2.	Install Dependencies
 
 npm install
 cd backend && npm install
-cd frontend && npm install
 
-3️⃣ Configure environment
 
-cp config/.env.example config/.env
-# Edit .env with your settings
+	3.	Configure Environment
+	•	Create a .env file from .env.example, add keys, RPC URLs, etc.
+	•	Adjust hardhat.config.ts to match your fork or mainnet details.
+	4.	Run Training Mode
 
-4️⃣ Deploy contracts
+npm run training
+# or
+npx hardhat run scripts/trainingMode.ts --network hardhat
 
-npx hardhat run scripts/deploy.ts --network amoy
+	•	Spins up a mainnet fork and runs AI simulations using real historical data.
 
-5️⃣ Start services
+	5.	Deploy & Execute
 
-# Start backend
-cd backend && npm run start:dev
+npm run deploy
+npm run arb
+# or
+npx hardhat run scripts/deploy.ts --network mainnet
+npx hardhat run scripts/executeArbitrage.ts --network mainnet
 
-# Start frontend
-cd frontend && npm run dev
+	•	Once the AI proves itself in the fork, deploy to mainnet and unleash live arbitrage.
 
-🤝 Contributing
+🔐 Security & Risk Management
+	•	Private or Flashbots Mempool: Trades remain hidden from public mempool watchers.
+	•	Adaptive Gas & Slippage Controls: Prevent overpaying for block space or suffering from liquidity shocks.
+	•	Front-Running Defense: Mempool sniping + stealth transactions to avoid imitation or sandwich attacks.
+	•	Circuit Breakers: Auto-pause the bot upon detecting extreme volatility or suspicious conditions.
 
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+💰 Why ArbitrageX is Unbeatable
+	1.	Predictive ML: Learns from vast historical datasets, forecasting profitable opportunities before competitors.
+	2.	Flash Loan Mastery: Executes high-value trades with minimal capital, chaining multiple DEX routes in a single transaction.
+	3.	Multi-Chain Agility: Instantly jumps between networks for the best ROI, missing no opportunity.
+	4.	Competitor Exploitation: Actively lures competitor bots into gas wars or dead-end trades.
+	5.	Scalable & Self-Evolving: Ongoing training, distributed AI architecture, and potential self-coding modules future-proof the project.
 
-📜 License
+🔥 Final Statement
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+ArbitrageX is more than just an arbitrage bot—it's a constantly evolving, beyond-human AI entity with the potential to dominate DeFi. By following the phase-by-phase roadmap, integrating innovative features, and embracing the beyond-standard ideas, you'll build a system that outpaces and outsmarts any competitor now and in the future.
 
-## 🧠 AI Learning Mode
+Prepare to reshape the DeFi world with unprecedented speed, stealth, and AI-driven intelligence.
 
-The AI Learning Mode is a sophisticated component of ArbitrageX that enables intelligent trade execution and risk management through machine learning.
+📝 Project Guidelines & Rules:
 
-### 🔄 Core Components
+1. No Mock Contracts
+   - All tests must use real contract implementations
+   - No mock contracts or simulated behaviors allowed
+   - Tests should interact with actual mainnet contracts via forking
+   - Use mainnet state and real DEX interactions for testing
 
-1. **Strategy Optimizer (`backend/ai/strategy_optimizer.py`)**
-   - LSTM-based price prediction model
-   - Real-time market pattern recognition
-   - Dynamic strategy adjustment based on market conditions
+2. Security First
+   - All contracts must pass security audits
+   - Implement comprehensive error handling
+   - Use SafeERC20 for token transfers
+   - Include reentrancy protection
 
-   ```python
-   # Initialize strategy optimizer
-   python3 backend/ai/strategy_optimizer.py --mode train
-````
+3. Gas Optimization
+   - Optimize for gas efficiency
+   - Use unchecked blocks where safe
+   - Minimize storage operations
+   - Batch operations when possible
 
-2. **Risk Management System (`backend/ai/risk_manager.py`)**
-
-   - Dynamic position sizing
-   - Volatility-based risk adjustment
-   - Maximum drawdown protection
-
-   ```python
-   # Start risk management system
-   python3 backend/ai/risk_manager.py --risk-level moderate
-   ```
-
-3. **Backtesting Engine (`backend/ai/backtesting.py`)**
-
-   - Historical trade simulation
-   - Strategy performance analysis
-   - Risk metrics calculation
-
-   ```bash
-   # Run backtesting with historical data
-   npm run backtest -- --days 30 --pairs WMATIC/USDC
-   ```
-
-### 📊 Performance Metrics
-
-The AI system tracks and optimizes the following metrics:
-
-- **Trade Success Rate**: % of profitable trades
-- **Average Profit per Trade**: Mean profit across all trades
-- **Sharpe Ratio**: Risk-adjusted return metric
-- **Maximum Drawdown**: Largest peak-to-trough decline
-- **Gas Efficiency**: Optimization of gas costs
-
-### 🎯 Training Process
-
-1. **Data Collection**
-
-   ```bash
-   # Collect historical price data
-   npm run collect-data -- --start-date 2023-01-01
-   ```
-
-2. **Model Training**
-
-   ```bash
-   # Train the AI model
-   npm run train-model -- --epochs 100 --batch-size 32
-   ```
-
-3. **Validation**
-   ```bash
-   # Validate model performance
-   npm run validate-model -- --test-set latest
-   ```
-
-### 🚀 Production Deployment
-
-1. **Initialize AI Services**
-
-   ```bash
-   # Start AI services in production
-   docker-compose -f docker-compose.ai.yml up -d
-   ```
-
-2. **Monitor Performance**
-
-   ```bash
-   # View real-time metrics
-   npm run monitor-ai
-   ```
-
-3. **Update Models**
-   ```bash
-   # Update AI models with new data
-   npm run update-models -- --auto-deploy
-   ```
-
-### 📈 Performance Optimization
-
-The AI system continuously optimizes for:
-
-- **Gas Cost Reduction**: Smart timing of transactions
-- **Slippage Minimization**: Optimal trade sizing
-- **Profit Maximization**: Dynamic strategy selection
-- **Risk Management**: Adaptive position sizing
-
-### 🔍 Monitoring & Alerts
-
-1. **Real-time Monitoring**
-
-   - Trade execution metrics
-   - Model performance indicators
-   - Risk exposure levels
-
-2. **Alert System**
-
-   - Profit/loss thresholds
-   - Risk limit breaches
-   - Model drift detection
-
-3. **Performance Reports**
-   ```bash
-   # Generate performance report
-   npm run generate-report -- --timeframe weekly
-   ```
-
-### 🛠 Configuration
-
-Key configuration parameters in `config/ai-config.json`:
-
-```json
-{
-  "model": {
-    "type": "LSTM",
-    "layers": [64, 32, 16],
-    "dropout": 0.2
-  },
-  "training": {
-    "epochs": 100,
-    "batchSize": 32,
-    "validationSplit": 0.2
-  },
-  "risk": {
-    "maxDrawdown": 0.1,
-    "positionSizing": "dynamic",
-    "stopLoss": 0.02
-  }
-}
-```
-
-### 🔐 Security Measures
-
-1. **Model Security**
-
-   - Encrypted model weights
-   - Secure parameter updates
-   - Access control for model deployment
-
-2. **Data Security**
-
-   - Encrypted data storage
-   - Secure data pipelines
-   - Regular backup systems
-
-3. **Operational Security**
-   - Multi-factor authentication
-   - Audit logging
-   - Regular security reviews
-
-### 📝 Logging & Documentation
-
-Comprehensive logging system in `logs/ai/`:
-
-- `model_performance.log`: Model metrics
-- `trade_execution.log`: Trade details
-- `risk_events.log`: Risk-related events
-
-## 💻 Web Dashboard
-
-The ArbitrageX Web Dashboard provides a comprehensive interface for monitoring and managing arbitrage operations.
-
-### 🎯 Key Features
-
-1. **Real-Time Monitoring**
-
-   - Live price feeds from multiple DEXs
-   - Active trade visualization
-   - Profit/loss tracking
-   - Gas price monitoring
-
-2. **Trade Management**
-
-   - Manual trade execution
-   - Strategy configuration
-   - Position management
-   - Order history
-
-3. **Analytics Dashboard**
-   - Performance metrics
-   - Historical trade analysis
-   - Risk exposure visualization
-   - Gas cost analysis
-
-### 📊 Dashboard Components
-
-1. **Market Overview**
-
-   ```typescript
-   // Sample API endpoint
-   GET /api/v1/market/overview
-   {
-     "pairs": ["WMATIC/USDC", "WETH/USDC"],
-     "timeframe": "1h",
-     "exchanges": ["quickswap", "sushiswap"]
-   }
-   ```
-
-2. **Trade Monitor**
-
-   ```typescript
-   // WebSocket subscription
-   ws.subscribe('trades', {
-     status: 'active',
-     minProfit: '0.1%',
-   });
-   ```
-
-3. **Performance Analytics**
-   ```typescript
-   // Analytics API
-   GET /api/v1/analytics/performance
-   {
-     "period": "7d",
-     "metrics": ["profit", "gas", "success_rate"]
-   }
-   ```
-
-### 🎨 UI Components
-
-1. **Trade Cards**
-
-   - Real-time profit/loss
-   - Trade parameters
-   - Execution status
-   - Action buttons
-
-2. **Charts & Graphs**
-
-   - Price charts
-   - Profit trends
-   - Gas price trends
-   - Volume analysis
-
-3. **Control Panel**
-   - Strategy settings
-   - Risk parameters
-   - Network selection
-   - Emergency controls
-
-## 🚀 Production Deployment
-
-Comprehensive guide for deploying ArbitrageX in a production environment.
-
-### 📋 Prerequisites
-
-1. **Infrastructure Requirements**
-
-   - Dedicated server (min 4 CPU, 8GB RAM)
-   - Fast internet connection
-   - Stable RPC endpoints
-   - SSL certificates
-
-2. **Network Requirements**
-
-   - Multiple RPC providers
-   - Websocket endpoints
-   - Archive nodes access
-   - Load balancers
-
-3. **Security Requirements**
-   - Firewall configuration
-   - DDoS protection
-   - Key management system
-   - Backup solutions
-
-### 🔄 Deployment Process
-
-1. **Environment Setup**
-
-   ```bash
-   # Clone repository
-   git clone https://github.com/yourusername/arbitragex.git
-   cd arbitragex
-
-   # Install dependencies
-   npm install
-
-   # Configure environment
-   cp .env.example .env
-   nano .env
-   ```
-
-2. **Smart Contract Deployment**
-
-   ```bash
-   # Deploy to mainnet
-   npx hardhat run scripts/deploy.ts --network mainnet
-
-   # Verify contracts
-   npx hardhat verify --network mainnet <CONTRACT_ADDRESS>
-   ```
-
-3. **Backend Services**
-
-   ```bash
-   # Build and start services
-   docker-compose up -d --build
-
-   # Monitor logs
-   docker-compose logs -f
-   ```
-
-4. **Frontend Deployment**
-
-   ```bash
-   # Build frontend
-   cd frontend
-   npm run build
-
-   # Deploy to production server
-   npm run deploy:prod
-   ```
-
-### 🔍 Monitoring & Maintenance
-
-1. **Service Monitoring**
-
-   ```bash
-   # Check service health
-   curl http://localhost:3000/health
-
-   # Monitor resource usage
-   docker stats
-   ```
-
-2. **Backup Procedures**
-
-   ```bash
-   # Backup database
-   ./scripts/backup-db.sh
-
-   # Backup configuration
-   ./scripts/backup-config.sh
-   ```
-
-3. **Update Procedures**
-
-   ```bash
-   # Update services
-   git pull
-   docker-compose up -d --build
-
-   # Migrate database
-   npm run migrate:up
-   ```
-
-### 🚨 Emergency Procedures
-
-1. **Emergency Shutdown**
-
-   ```bash
-   # Stop all services
-   docker-compose down
-
-   # Pause smart contracts
-   npm run pause-contracts
-   ```
-
-2. **Recovery Process**
-
-   ```bash
-   # Restore from backup
-   ./scripts/restore-backup.sh
-
-   # Verify system integrity
-   npm run system-check
-   ```
-
-3. **Incident Response**
-   - Contact team leads
-   - Execute recovery plan
-   - Document incident
-   - Implement fixes
-
-### 📈 Scaling Considerations
-
-1. **Horizontal Scaling**
-
-   - Load balancer configuration
-   - Database sharding
-   - Cache layer optimization
-   - Microservices architecture
-
-2. **Performance Optimization**
-
-   - Database indexing
-   - Cache strategies
-   - Query optimization
-   - Network optimization
-
-3. **Resource Management**
-   - Auto-scaling rules
-   - Resource monitoring
-   - Cost optimization
-   - Capacity planning
-
----
-
-## 📞 Support & Contact
-
-For support and inquiries:
-
-- 📧 Email: support@arbitragex.io
-- 💬 Discord: [ArbitrageX Community](https://discord.gg/arbitragex)
-- 🐦 Twitter: [@ArbitrageX](https://twitter.com/arbitragex)
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-```
-
-```
+4. Testing Requirements
+   - All tests must use mainnet forking
+   - Real contract interactions only
+   - Full coverage required
+   - Test all error conditions

@@ -1,11 +1,18 @@
-import { RealPriceFeed } from './index';
+import { logger } from '../api/utils/logger';
+import RealPriceFeed from './index';
 
 // Start the real price feed
-const priceFeed = new RealPriceFeed();
-priceFeed.start().catch((error: Error) => {
-  console.error('Failed to start price feed:', error);
-  process.exit(1);
-});
+async function main() {
+  try {
+    const priceFeed = new RealPriceFeed();
+    await priceFeed.start();
+  } catch (error) {
+    logger.error('Error starting price feed:', error);
+    process.exit(1);
+  }
+}
+
+main();
 
 // Handle graceful shutdown
 process.on('SIGINT', async () => {

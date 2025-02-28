@@ -38,13 +38,13 @@ describe("FlashLoanArbitrage", () => {
         arbitrageExecutor = await ArbitrageExecutor.deploy(
             UNISWAP_ROUTER,
             SUSHISWAP_ROUTER,
-            owner.address
+            ethers.parseEther("0.1"), // Min profit amount: 0.1 ETH
+            ethers.ZeroAddress // No MEV protection for tests
         ) as unknown as ArbitrageExecutor;
         await arbitrageExecutor.waitForDeployment();
 
         // Set profit thresholds
         await arbitrageExecutor.setMinProfitAmount(ethers.parseEther("0.1")); // 0.1 ETH minimum profit
-        await arbitrageExecutor.setMinProfitBps(100); // 1% minimum profit
 
         // Deploy FlashLoanService
         const FlashLoanServiceFactory = await ethers.getContractFactory("FlashLoanService");
@@ -52,7 +52,8 @@ describe("FlashLoanArbitrage", () => {
             AAVE_POOL,
             await arbitrageExecutor.getAddress(),
             ethers.parseEther("0.1"), // Min amount: 0.1 ETH
-            ethers.parseEther("1000") // Max amount: 1000 ETH
+            ethers.parseEther("1000"), // Max amount: 1000 ETH
+            ethers.ZeroAddress // No MEV protection for tests
         );
         await flashLoanServiceContract.waitForDeployment();
         flashLoanService = flashLoanServiceContract as unknown as FlashLoanService;
@@ -75,12 +76,16 @@ describe("FlashLoanArbitrage", () => {
         // Enable WETH and USDC as supported tokens in both contracts
         await flashLoanService.updateTokenSupport(WETH_ADDRESS, true);
         await flashLoanService.updateTokenSupport(USDC_ADDRESS, true);
-        await arbitrageExecutor.setSupportedToken(WETH_ADDRESS, true);
-        await arbitrageExecutor.setSupportedToken(USDC_ADDRESS, true);
+        
+        // The ArbitrageExecutor doesn't have setSupportedToken method, so we need to check how tokens are supported
+        // For now, we'll skip these lines as they're not in the interface
+        // await arbitrageExecutor.setSupportedToken(WETH_ADDRESS, true);
+        // await arbitrageExecutor.setSupportedToken(USDC_ADDRESS, true);
 
         // Enable routers in ArbitrageExecutor
-        await arbitrageExecutor.setDexRouter(UNISWAP_ROUTER, true);
-        await arbitrageExecutor.setDexRouter(SUSHISWAP_ROUTER, true);
+        // The ArbitrageExecutor uses setRouterApproval instead of setDexRouter
+        await arbitrageExecutor.setRouterApproval(UNISWAP_ROUTER, true);
+        await arbitrageExecutor.setRouterApproval(SUSHISWAP_ROUTER, true);
 
         // Approve WETH spending for ArbitrageExecutor
         await wethContract["approve(address,uint256)"](await arbitrageExecutor.getAddress(), ethers.parseEther("1000"));

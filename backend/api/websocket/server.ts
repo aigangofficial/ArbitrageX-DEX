@@ -1,170 +1,109 @@
+import { EventEmitter } from 'events';
 import { Server } from 'http';
 import WebSocket from 'ws';
-import { logger } from '../utils/logger';
-import { validatePort, WS_CONFIG } from './config';
 
 interface Client extends WebSocket {
-  isAlive: boolean;
-  subscriptions: Set<string>;
+    id: string;
+    subscriptions: Set<string>;
 }
 
-export class WebSocketServer {
-  private wss!: WebSocket.Server;
-  private clients: Set<Client> = new Set();
-  private heartbeatInterval!: NodeJS.Timeout;
+export class WebSocketServer extends EventEmitter {
+    private wss: WebSocket.Server;
+    private clients: Map<string, Client>;
 
-  constructor(server: Server) {
-    this.initializeServer(server);
-  }
-
-  private async initializeServer(server: Server) {
-    try {
-      // Validate port before starting
-      await validatePort();
-
-      this.wss = new WebSocket.Server({
-        server,
-        maxPayload: 1024 * 1024, // 1MB max payload
-      });
-
-      this.setupServerHandlers();
-      this.startHeartbeat();
-
-      logger.info(`WebSocket server initialized on port ${WS_CONFIG.port}`);
-    } catch (error) {
-      logger.error('Failed to initialize WebSocket server:', error);
-      throw error;
+    constructor(server: Server) {
+        super();
+        this.clients = new Map();
+        this.wss = new WebSocket.Server({ server });
+        this.initialize();
     }
-  }
 
-  private setupServerHandlers() {
-    this.wss.on('connection', (ws: WebSocket) => {
-      const client = ws as Client;
-      client.isAlive = true;
-      client.subscriptions = new Set();
+    private initialize(): void {
+        this.wss.on('connection', (ws: WebSocket) => {
+            const client = this.setupClient(ws);
 
-      this.clients.add(client);
-      logger.info(`New WebSocket client connected. Total clients: ${this.clients.size}`);
+            // Send connection confirmation
+            this.sendToClient(client, {
+                type: 'connection',
+                message: 'Connected to ArbitrageX WebSocket Server'
+            });
 
-      this.setupClientHandlers(client);
-      this.sendWelcomeMessage(client);
-    });
-  }
+            // Handle incoming messages
+            client.on('message', (data: WebSocket.Data) => {
+                try {
+                    const message = JSON.parse(data.toString());
+                    this.handleMessage(client, message);
+                } catch (error) {
+                    console.error('Error parsing message:', error);
+                }
+            });
 
-  private setupClientHandlers(client: Client) {
-    client.on('pong', () => {
-      client.isAlive = true;
-    });
+            // Handle client disconnect
+            client.on('close', () => {
+                this.clients.delete(client.id);
+                console.log(`Client ${client.id} disconnected`);
+            });
+        });
+    }
 
-    client.on('message', (data: WebSocket.RawData) => {
-      try {
-        const message = JSON.parse(data.toString());
-        this.handleClientMessage(client, message);
-      } catch (error) {
-        logger.error('Error handling client message:', error);
-        this.sendError(client, 'Invalid message format');
-      }
-    });
+    private setupClient(ws: WebSocket): Client {
+        const client = ws as Client;
+        client.id = Math.random().toString(36).substring(7);
+        client.subscriptions = new Set();
+        this.clients.set(client.id, client);
+        console.log(`New client connected: ${client.id}`);
+        return client;
+    }
 
-    client.on('close', () => {
-      this.clients.delete(client);
-      logger.info(`Client disconnected. Remaining clients: ${this.clients.size}`);
-    });
+    private handleMessage(client: Client, message: any): void {
+        switch (message.type) {
+            case 'subscribe':
+                if (message.channel) {
+                    client.subscriptions.add(message.channel);
+                    this.sendToClient(client, {
+                        type: 'subscribed',
+                        channel: message.channel
+                    });
+                }
+                break;
 
-    client.on('error', error => {
-      logger.error('WebSocket client error:', error);
-      this.clients.delete(client);
-    });
-  }
+            case 'unsubscribe':
+                if (message.channel) {
+                    client.subscriptions.delete(message.channel);
+                    this.sendToClient(client, {
+                        type: 'unsubscribed',
+                        channel: message.channel
+                    });
+                }
+                break;
 
-  private startHeartbeat() {
-    this.heartbeatInterval = setInterval(() => {
-      this.clients.forEach(client => {
-        if (!client.isAlive) {
-          client.terminate();
-          this.clients.delete(client);
-          return;
+            default:
+                this.emit('message', {
+                    clientId: client.id,
+                    message: message
+                });
         }
-
-        client.isAlive = false;
-        client.ping();
-      });
-    }, WS_CONFIG.heartbeat.interval);
-  }
-
-  private handleClientMessage(client: Client, message: any) {
-    switch (message.type) {
-      case 'subscribe':
-        this.handleSubscription(client, message.channels);
-        break;
-      case 'unsubscribe':
-        this.handleUnsubscription(client, message.channels);
-        break;
-      default:
-        this.sendError(client, 'Unknown message type');
     }
-  }
 
-  private handleSubscription(client: Client, channels: string[]) {
-    channels.forEach(channel => {
-      client.subscriptions.add(channel);
-    });
-    this.sendSuccess(client, 'Subscribed to channels', { channels });
-  }
-
-  private handleUnsubscription(client: Client, channels: string[]) {
-    channels.forEach(channel => {
-      client.subscriptions.delete(channel);
-    });
-    this.sendSuccess(client, 'Unsubscribed from channels', { channels });
-  }
-
-  public broadcast(channel: string, data: any) {
-    const message = JSON.stringify({ channel, data });
-    this.clients.forEach(client => {
-      if (client.subscriptions.has(channel) && client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
-    });
-  }
-
-  private sendWelcomeMessage(client: Client) {
-    this.sendSuccess(client, 'Connected to ArbitrageX WebSocket Server', {
-      availableChannels: ['tradeUpdates', 'gasPrice', 'opportunityAlerts'],
-    });
-  }
-
-  private sendSuccess(client: Client, message: string, data: any = {}) {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(
-        JSON.stringify({
-          type: 'success',
-          message,
-          data,
-          timestamp: new Date().toISOString(),
-        })
-      );
+    public broadcast(channel: string, data: any): void {
+        this.clients.forEach(client => {
+            if (client.subscriptions.has(channel)) {
+                this.sendToClient(client, {
+                    type: 'broadcast',
+                    channel: channel,
+                    data: data
+                });
+            }
+        });
     }
-  }
 
-  private sendError(client: Client, message: string) {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(
-        JSON.stringify({
-          type: 'error',
-          message,
-          timestamp: new Date().toISOString(),
-        })
-      );
+    private sendToClient(client: Client, data: any): void {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
     }
-  }
 
-  public cleanup() {
-    clearInterval(this.heartbeatInterval);
-    this.clients.forEach(client => {
-      client.terminate();
-    });
-    this.clients.clear();
-    this.wss.close();
-  }
+    public getConnectedClients(): number {
+        return this.clients.size;
+    }
 }

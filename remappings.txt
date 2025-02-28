@@ -1,6 +1,13 @@
-@openzeppelin/=node_modules/@openzeppelin/
-@aave/=node_modules/@aave/
-@uniswap/=node_modules/@uniswap/
-hardhat/=node_modules/hardhat/
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/
+@aave/core-v3/=node_modules/@aave/core-v3/
+@chainlink/contracts/=node_modules/@chainlink/contracts/src/
+@uniswap/v3-core/=node_modules/@uniswap/v3-core/contracts/
+@uniswap/v2-core/=node_modules/@uniswap/v2-core/contracts/
+@uniswap/v2-periphery/=node_modules/@uniswap/v2-periphery/contracts/
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
+@aave/=node_modules/@aave/
+chainlink/=node_modules/@chainlink/
+@aave/core-v3/contracts/dependencies/chainlink/=node_modules/@aave/core-v3/contracts/dependencies/chainlink/
+hardhat/=node_modules/hardhat/
