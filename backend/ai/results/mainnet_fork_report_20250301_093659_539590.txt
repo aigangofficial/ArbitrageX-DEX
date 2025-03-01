@@ -1,0 +1,87 @@
+================================================================================
+ARBITRAGEX MAINNET FORK TEST
+================================================================================
+
+Test started at: 2025-03-01 09:31:55
+Networks tested: arbitrum, polygon
+Batch size: 5
+Gas strategy: dynamic
+
+SUMMARY
+----------------------------------------
+Total predictions: 90
+Profitable predictions: 21 (23.33%)
+Total expected profit: $-2094.57
+Average confidence score: 0.4860
+
+PERFORMANCE
+----------------------------------------
+Average execution time: 114.06 ms
+Min execution time: 80.41 ms
+Max execution time: 148.97 ms
+
+NETWORK DISTRIBUTION
+----------------------------------------
+ethereum: 20 (22.22%)
+arbitrum: 25 (27.78%)
+bsc: 21 (23.33%)
+polygon: 24 (26.67%)
+
+NETWORK PROFITABILITY COMPARISON
+----------------------------------------
+ethereum:
+  - Expected profit: $-372.37
+  - Average gas cost: $10.00
+  - Success rate: 70.00%
+  - Net profit after gas: $-382.37
+arbitrum:
+  - Expected profit: $-698.19
+  - Average gas cost: $3.00
+  - Success rate: 85.00%
+  - Net profit after gas: $-701.19
+bsc:
+  - Expected profit: $-488.73
+  - Average gas cost: $5.00
+  - Success rate: 75.00%
+  - Net profit after gas: $-493.73
+polygon:
+  - Expected profit: $-726.12
+  - Average gas cost: $1.00
+  - Success rate: 90.00%
+  - Net profit after gas: $-727.12
+
+Best performing network: ethereum
+
+TOKEN PAIR DISTRIBUTION
+----------------------------------------
+WETH-USDC: 30 (33.33%)
+WBTC-USDC: 30 (33.33%)
+WETH-DAI: 30 (33.33%)
+
+DEX DISTRIBUTION
+----------------------------------------
+curve: 16 (17.78%)
+balancer: 23 (25.56%)
+1inch: 17 (18.89%)
+uniswap_v3: 18 (20.00%)
+sushiswap: 16 (17.78%)
+
+CONCLUSION
+----------------------------------------
+Network-specific recommendations:
+- ethereum: UNPROFITABLE ($-382.37 net loss)
+  High gas costs make most trades unprofitable. Consider L2 networks instead.
+- arbitrum: UNPROFITABLE ($-701.19 net loss)
+  Investigate trade selection criteria and slippage settings.
+- bsc: UNPROFITABLE ($-493.73 net loss)
+- polygon: UNPROFITABLE ($-727.12 net loss)
+  Investigate trade selection criteria and slippage settings.
+
+Overall assessment:
+The AI system performed POORLY in the mainnet fork test.
+It identified few profitable arbitrage opportunities. Further optimization is needed.
+Consider focusing on Arbitrum and Polygon networks for better profitability.
+
+================================================================================
+END OF REPORT
+================================================================================

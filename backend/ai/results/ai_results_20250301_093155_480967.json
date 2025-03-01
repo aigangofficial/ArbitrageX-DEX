@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-03-01 09:36:59",
+  "mode": "MAINNET FORK",
+  "modules": [
+    "strategy_optimizer",
+    "backtesting",
+    "trade_analyzer",
+    "network_adaptation",
+    "integration"
+  ],
+  "results": {
+    "strategy_optimizer": {
+      "success": false,
+      "execution_time": 0.3054800033569336
+    },
+    "backtesting": {
+      "success": false,
+      "execution_time": 0.883864164352417
+    },
+    "trade_analyzer": {
+      "success": false,
+      "execution_time": 0.036218881607055664
+    },
+    "network_adaptation": {
+      "success": false,
+      "execution_time": 0.0763709545135498
+    },
+    "integration": {
+      "success": true,
+      "execution_time": 302.6144859790802
+    }
+  },
+  "total_execution_time": 303.91641998291016,
+  "success_rate": 0.2,
+  "fork_config": {
+    "mode": "mainnet_fork",
+    "networks": [
+      "arbitrum",
+      "polygon"
+    ],
+    "network_configs": {
+      "ethereum": {
+        "fork_url": "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+        "gas_price_multiplier": 1.1
+      },
+      "arbitrum": {
+        "fork_url": "https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+        "gas_price_multiplier": 0.8
+      },
+      "polygon": {
+        "fork_url": "https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+        "gas_price_multiplier": 0.7
+      }
+    },
+    "tokens": {
+      "ethereum": [
+        "WETH",
+        "USDC",
+        "DAI",
+        "USDT",
+        "WBTC",
+        "LINK"
+      ],
+      "arbitrum": [
+        "WETH",
+        "USDC",
+        "DAI",
+        "USDT",
+        "WBTC",
+        "LINK"
+      ],
+      "polygon": [
+        "WMATIC",
+        "WETH",
+        "USDC",
+        "DAI",
+        "USDT",
+        "WBTC"
+      ]
+    },
+    "dexes": {
+      "ethereum": [
+        "uniswap_v3",
+        "sushiswap",
+        "curve",
+        "balancer"
+      ],
+      "arbitrum": [
+        "uniswap_v3",
+        "sushiswap",
+        "balancer",
+        "camelot"
+      ],
+      "polygon": [
+        "uniswap_v3",
+        "sushiswap",
+        "quickswap",
+        "balancer"
+      ]
+    },
+    "fork_block_number": "latest",
+    "slippage_tolerance": 0.005,
+    "execution_timeout_ms": 5000,
+    "simulation_only": true,
+    "log_level": "INFO",
+    "batch_trades": true,
+    "dynamic_gas_adjustment": true,
+    "batch_size": 5,
+    "gas_strategy": "dynamic"
+  }
+}

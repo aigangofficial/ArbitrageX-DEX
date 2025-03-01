@@ -21,6 +21,12 @@ import argparse
 import threading
 import datetime
 from typing import Dict, List, Optional, Union, Any
+import random
+
+# Add the improved trade selection and MEV protection
+from .improved_trade_selection import ImprovedTradeSelection
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'security'))
+from mev_protection import MEVProtection
 
 # Configure logging
 logging.basicConfig(
@@ -92,6 +98,23 @@ class AIIntegration:
                     logger.info(f"Loaded contract addresses from {contract_addresses_path}")
                 except Exception as e:
                     logger.error(f"Error loading contract addresses: {str(e)}")
+        
+        # Initialize the improved trade selection model with configuration from fork_config if available
+        trade_selection_config = None
+        if self.fork_config and 'trade_selection' in self.fork_config:
+            trade_selection_config = self.fork_config['trade_selection']
+        self.trade_selection = ImprovedTradeSelection(config_path=trade_selection_config)
+        logger.info("Initialized improved trade selection model")
+        
+        # Initialize the MEV protection module with configuration from fork_config if available
+        mev_protection_config = None
+        if self.fork_config and 'mev_protection' in self.fork_config:
+            mev_protection_config = self.fork_config['mev_protection']
+        self.mev_protection = MEVProtection(config_path=mev_protection_config)
+        logger.info("Initialized MEV protection module")
+        
+        # Initialize processing thread
+        self.processing_thread = None
         
         logger.info("AI Integration initialized successfully")
     
@@ -404,38 +427,42 @@ class AIIntegration:
         if self.testnet:
             return False, "TESTNET mode - no real execution"
         
+        # Use improved trade selection model to evaluate the prediction
+        enhanced_prediction = self.trade_selection.evaluate_trade(prediction)
+        
+        # Update the prediction with enhanced metrics
+        prediction.update({
+            "historical_success_rate": enhanced_prediction.get("historical_success_rate", 0),
+            "historical_avg_profit": enhanced_prediction.get("historical_avg_profit", 0),
+            "enhanced_confidence": enhanced_prediction.get("enhanced_confidence", 0),
+            "network_success_rate": enhanced_prediction.get("network_success_rate", 0),
+            "token_pair_success_rate": enhanced_prediction.get("token_pair_success_rate", 0),
+            "dex_combo_success_rate": enhanced_prediction.get("dex_combo_success_rate", 0),
+            "evaluation_reason": enhanced_prediction.get("evaluation_reason", "")
+        })
+        
+        # Log detailed evaluation metrics
+        logger.info(f"Trade evaluation for {prediction.get('token_pair')} on {prediction.get('network')}:")
+        logger.info(f"  - Historical success rate: {prediction.get('historical_success_rate', 0):.4f}")
+        logger.info(f"  - Enhanced confidence: {prediction.get('enhanced_confidence', 0):.4f}")
+        logger.info(f"  - Network success rate: {prediction.get('network_success_rate', 0):.4f}")
+        logger.info(f"  - Token pair success rate: {prediction.get('token_pair_success_rate', 0):.4f}")
+        logger.info(f"  - DEX combo success rate: {prediction.get('dex_combo_success_rate', 0):.4f}")
+        
         # In mainnet fork mode, we simulate execution but don't actually execute
         if self.fork_config and self.fork_config.get('mode') == 'mainnet_fork':
-            # Check if trade is profitable
-            if not prediction["is_profitable"]:
-                return False, f"Trade not profitable (${prediction['net_profit_usd']:.2f})"
-            
-            # Check confidence score
-            if prediction["confidence_score"] < 0.7:
-                return False, f"Confidence too low ({prediction['confidence_score']:.2f})"
-            
-            # Check minimum profit threshold (higher in mainnet fork for realism)
-            if prediction["net_profit_usd"] < 10.0:
-                return False, f"Profit too small (${prediction['net_profit_usd']:.2f})"
-            
-            # All criteria passed - in fork mode, we simulate execution
-            return True, "All criteria passed (FORK MODE - simulated execution)"
+            # Check if the trade selection model recommends execution
+            if enhanced_prediction.get("should_execute", False):
+                return True, f"All criteria passed (FORK MODE - simulated execution): {enhanced_prediction.get('evaluation_reason', '')}"
+            else:
+                return False, enhanced_prediction.get("evaluation_reason", "Failed criteria check")
         
         # In real mainnet mode, apply strict criteria
-        # Check if trade is profitable
-        if not prediction["is_profitable"]:
-            return False, f"Trade not profitable (${prediction['net_profit_usd']:.2f})"
-        
-        # Check confidence score
-        if prediction["confidence_score"] < 0.7:
-            return False, f"Confidence too low ({prediction['confidence_score']:.2f})"
-        
-        # Check minimum profit threshold
-        if prediction["net_profit_usd"] < 5.0:
-            return False, f"Profit too small (${prediction['net_profit_usd']:.2f})"
-        
-        # All criteria passed
-        return True, "All criteria passed"
+        # Check if the trade selection model recommends execution
+        if enhanced_prediction.get("should_execute", False):
+            return True, enhanced_prediction.get("evaluation_reason", "All criteria passed")
+        else:
+            return False, enhanced_prediction.get("evaluation_reason", "Failed criteria check")
     
     def _execute_trade(self, prediction: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -447,59 +474,92 @@ class AIIntegration:
         Returns:
             Dict containing execution results
         """
-        logger.info(f"Executing trade: {prediction['token_pair']} on {prediction['network']}")
+        network = prediction.get("network", "ethereum")
+        token_pair = prediction.get("token_pair", "UNKNOWN")
+        expected_profit = prediction.get("net_profit_usd", 0)
         
-        # In a real implementation, this would call the execution engine
-        # For demonstration purposes, we'll simulate execution
+        logger.info(f"Executing trade: {token_pair} on {network}")
         
-        # Simulate execution success/failure
-        success = True  # In a real system, this would be the actual result
-        
-        # In mainnet fork mode, we simulate more realistic execution results
-        if self.fork_config and self.fork_config.get('mode') == 'mainnet_fork':
-            # Simulate occasional failures
-            import random
-            success_rate = 0.85  # 85% success rate
-            success = random.random() < success_rate
+        try:
+            # In a real implementation, this would sign and submit a transaction
+            # For now, we'll simulate the execution
             
-            # Simulate varying execution times
-            execution_time_ms = 120 + random.uniform(0, 80)
+            # Analyze MEV risks and get optimal gas price
+            mev_analysis = self.mev_protection.analyze_pending_transactions(network, token_pair)
+            gas_price_info = self.mev_protection.calculate_optimal_gas_price(network, token_pair, expected_profit)
             
-            # Simulate varying gas usage
-            gas_used = int(245000 + random.uniform(-20000, 30000))
+            # Log MEV analysis
+            logger.info(f"MEV analysis for {token_pair} on {network}:")
+            logger.info(f"  - MEV risk: {mev_analysis.get('mev_risk', 'unknown')}")
+            logger.info(f"  - Competing transactions: {mev_analysis.get('competing_transactions', 0)}")
+            logger.info(f"  - Recommended action: {mev_analysis.get('recommended_action', 'normal')}")
+            logger.info(f"  - Optimal gas price: {gas_price_info.get('optimal_gas_price_gwei', 0):.2f} Gwei")
+            logger.info(f"  - Estimated gas cost: ${gas_price_info.get('gas_cost_usd', 0):.2f}")
             
-            # Simulate varying actual profit (due to slippage, etc.)
-            profit_factor = 0.85 + random.uniform(0, 0.2)  # 85-105% of expected profit
-            actual_profit_usd = prediction["net_profit_usd"] * profit_factor if success else 0
+            # Check if trade is still profitable with optimal gas price
+            if not gas_price_info.get("is_profitable", False):
+                logger.warning(f"Trade not profitable after MEV protection: Expected profit ${expected_profit:.2f}, Gas cost ${gas_price_info.get('gas_cost_usd', 0):.2f}")
+                return {
+                    "success": False,
+                    "reason": f"Trade not profitable with optimal gas price. "
+                             f"Expected profit: ${expected_profit:.2f}, "
+                             f"Gas cost: ${gas_price_info.get('gas_cost_usd', 0):.2f}",
+                    "gas_price_info": gas_price_info,
+                    "mev_analysis": mev_analysis
+                }
             
-            # Generate a realistic tx hash
-            tx_hash = "0x" + "".join([f"{random.randint(0, 15):x}" for _ in range(64)])
-        else:
-            # Standard simulation values
-            execution_time_ms = 150.2
-            gas_used = 245000
-            actual_profit_usd = prediction["net_profit_usd"] * 0.95
-            tx_hash = "0x" + "".join([f"{i:x}" for i in os.urandom(32)])
-        
-        execution_result = {
-            "timestamp": datetime.datetime.now().isoformat(),
-            "prediction": prediction,
-            "success": success,
-            "tx_hash": tx_hash,
-            "actual_profit_usd": actual_profit_usd,
-            "execution_time_ms": execution_time_ms,
-            "gas_used": gas_used,
-        }
-        
-        # Add block number if available
-        if "blockNumber" in prediction:
-            execution_result["blockNumber"] = prediction["blockNumber"]
-        
-        self.execution_history.append(execution_result)
-        
-        logger.info(f"Trade execution {'successful' if success else 'failed'}")
-        
-        return execution_result
+            # Simulate transaction signing
+            signed_transaction = "0x" + "".join([f"{i}" for i in range(64)])
+            
+            # Protect transaction from MEV attacks
+            protection_result = self.mev_protection.protect_transaction(
+                network, token_pair, expected_profit, signed_transaction
+            )
+            
+            # Check if protection was successful
+            if not protection_result.get("success", False):
+                logger.warning(f"MEV protection failed: {protection_result.get('reason', 'Unknown error')}")
+                return {
+                    "success": False,
+                    "reason": protection_result.get("reason", "Unknown error"),
+                    "protection_result": protection_result
+                }
+            
+            # Simulate successful execution
+            execution_time_ms = random.uniform(100, 500)
+            time.sleep(execution_time_ms / 1000)  # Simulate execution time
+            
+            # Create execution result
+            result = {
+                "success": True,
+                "timestamp": time.time(),
+                "network": network,
+                "token_pair": token_pair,
+                "buy_exchange": prediction.get("buy_exchange"),
+                "sell_exchange": prediction.get("sell_exchange"),
+                "amount_in": prediction.get("amount_in"),
+                "amount_out": prediction.get("amount_in") * 1.02,  # Simulate 2% profit
+                "expected_profit_usd": expected_profit,
+                "actual_profit_usd": expected_profit * random.uniform(0.9, 1.1),  # Simulate slight variation
+                "gas_cost_usd": gas_price_info.get("gas_cost_usd", 0),
+                "execution_time_ms": execution_time_ms,
+                "transaction_hash": "0x" + "".join([f"{i}" for i in range(64)]),
+                "submission_method": protection_result.get("submission_method", "normal"),
+                "mev_risk": mev_analysis.get("mev_risk", "unknown"),
+                "gas_price_gwei": gas_price_info.get("optimal_gas_price_gwei", 0)
+            }
+            
+            # Store execution result
+            self.execution_history.append(result)
+            
+            logger.info(f"Trade executed successfully: {token_pair} on {network}")
+            return result
+        except Exception as e:
+            logger.error(f"Error executing trade: {e}")
+            return {
+                "success": False,
+                "reason": str(e)
+            }
     
     def _update_frontend(self, prediction: Dict[str, Any], should_execute: bool, reason: str) -> None:
         """

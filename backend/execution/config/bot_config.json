@@ -1,0 +1,12 @@
+{
+  "monitoring": {
+    "success_rate_threshold": 80,
+    "profit_tracking_window_hours": 24,
+    "auto_adjust_thresholds": true,
+    "alert_on_success_rate_drop": true
+  },
+  "active_networks": [
+    "polygon",
+    "arbitrum"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-03-01",
+  "description": "Optimal ArbitrageX strategy configuration based on mainnet fork testing",
+  "execution": {
+    "networks": ["polygon", "arbitrum"],
+    "tokens": ["WETH", "USDC", "DAI"],
+    "dexes": ["uniswap_v3", "balancer", "curve"],
+    "batch_size": 10,
+    "gas_strategy": "dynamic"
+  },
+  "priority_pairs": [
+    {"network": "polygon", "pair": "WETH-DAI", "dex": "uniswap_v3", "weight": 1.0},
+    {"network": "arbitrum", "pair": "WETH-DAI", "dex": "curve", "weight": 0.9},
+    {"network": "polygon", "pair": "WETH-USDC", "dex": "balancer", "weight": 0.85}
+  ],
+  "network_specific": {
+    "polygon": {
+      "gas_multiplier": 1.1,
+      "min_profit_threshold": 15,
+      "max_slippage": 0.5,
+      "execution_timeout_ms": 120
+    },
+    "arbitrum": {
+      "gas_multiplier": 1.3,
+      "min_profit_threshold": 25,
+      "max_slippage": 0.7,
+      "execution_timeout_ms": 150
+    }
+  },
+  "mev_protection": {
+    "polygon": {
+      "protection_level": "medium",
+      "use_flashbots": false,
+      "priority_fee_strategy": "dynamic"
+    },
+    "arbitrum": {
+      "protection_level": "high",
+      "use_flashbots": true,
+      "priority_fee_strategy": "aggressive_for_high_value"
+    }
+  },
+  "profit_optimization": {
+    "min_profit_usd": 20,
+    "min_profit_after_gas_percentage": 70,
+    "dynamic_thresholds": {
+      "high_congestion": {
+        "min_profit_usd": 35,
+        "min_profit_after_gas_percentage": 80
+      },
+      "low_congestion": {
+        "min_profit_usd": 15,
+        "min_profit_after_gas_percentage": 60
+      }
+    }
+  },
+  "monitoring": {
+    "success_rate_threshold": 80,
+    "profit_tracking_window_hours": 24,
+    "auto_adjust_thresholds": true,
+    "alert_on_success_rate_drop": true
+  }
+} 

@@ -1,0 +1,103 @@
+{
+  "min_historical_trades": 5,
+  "min_success_rate": 0.4,
+  "min_expected_profit": 2.0,
+  "confidence_weight": 0.3,
+  "success_rate_weight": 0.5,
+  "profit_weight": 0.2,
+  "gas_cost_threshold": {
+    "ethereum": 20.0,
+    "arbitrum": 1.5,
+    "polygon": 0.5,
+    "optimism": 1.0,
+    "bsc": 0.8
+  },
+  "network_preferences": {
+    "arbitrum": 1.2,
+    "polygon": 1.3,
+    "ethereum": 0.8,
+    "bsc": 0.9,
+    "optimism": 1.0
+  },
+  "token_pair_preferences": {
+    "WETH-USDC": 1.3,
+    "WETH-DAI": 1.1,
+    "WBTC-USDC": 1.0,
+    "WMATIC-USDC": 1.2,
+    "LINK-WETH": 0.9
+  },
+  "dex_preferences": {
+    "uniswap_v3": 1.2,
+    "sushiswap": 1.0,
+    "curve": 1.1,
+    "balancer": 0.9,
+    "quickswap": 1.1
+  },
+  "batch_size_by_network": {
+    "ethereum": 8,
+    "arbitrum": 5,
+    "polygon": 4,
+    "optimism": 5,
+    "bsc": 6
+  },
+  "gas_strategy_by_network": {
+    "ethereum": "conservative",
+    "arbitrum": "aggressive",
+    "polygon": "aggressive",
+    "optimism": "dynamic",
+    "bsc": "dynamic"
+  },
+  "historical_data_path": "data/trade_history.json",
+  "mongodb_enabled": false,
+  "mongodb_uri": "mongodb://localhost:27017/",
+  "mongodb_db": "arbitragex",
+  "mongodb_collection": "trade_history",
+  "networks": [
+    "polygon",
+    "arbitrum"
+  ],
+  "tokens": [
+    "WETH",
+    "USDC",
+    "DAI"
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "balancer",
+    "curve"
+  ],
+  "thresholds": {
+    "min_profit_usd": 20,
+    "min_profit_after_gas_percentage": 70,
+    "dynamic": {
+      "high_congestion": {
+        "min_profit_usd": 35,
+        "min_profit_after_gas_percentage": 80
+      },
+      "low_congestion": {
+        "min_profit_usd": 15,
+        "min_profit_after_gas_percentage": 60
+      }
+    }
+  },
+  "priority_pairs": [
+    {
+      "network": "polygon",
+      "pair": "WETH-DAI",
+      "dex": "uniswap_v3",
+      "weight": 1.0
+    },
+    {
+      "network": "arbitrum",
+      "pair": "WETH-DAI",
+      "dex": "curve",
+      "weight": 0.9
+    },
+    {
+      "network": "polygon",
+      "pair": "WETH-USDC",
+      "dex": "balancer",
+      "weight": 0.85
+    }
+  ]
+}

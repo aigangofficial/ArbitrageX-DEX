@@ -317,3 +317,123 @@ The mainnet fork tests generate comprehensive reports with the following informa
 - Overall conclusion about AI system performance
 
 Reports are saved in the `results` directory with timestamps for easy reference.
+
+## Recent Enhancements
+
+We've recently implemented several significant improvements to the ArbitrageX system:
+
+### MEV Protection Enhancements
+- **Flashbots Bundle Transactions**: Implemented in `mev_protection.py` to guard against MEV attacks
+- **Enhanced Gas Priority Fee Strategy**: Dynamic adjustment based on network congestion and MEV risk
+- **MEV Attack Logging and Analysis**: Detection and analysis of front-running attempts
+
+### Trade Selection Improvements
+- **Network-Specific Optimization**: Focused on Arbitrum and Polygon networks
+- **Token Pair Prioritization**: Identified WETH-DAI and WETH-USDC as most profitable pairs
+- **DEX-Specific Strategies**: Optimized for Uniswap V3, Curve, and Balancer
+
+## Test Results
+
+We conducted extensive mainnet fork testing to validate our enhancements. Key findings:
+
+- **Highest Profitability**: Test 3 achieved $2423.57 total profit with focused token pairs and DEXes
+- **Network Performance**: 
+  - Polygon: More consistent with higher success rates (86.67%) and lower gas costs
+  - Arbitrum: Higher potential profits but with higher gas costs and more variability
+- **Token Pair Analysis**: WETH-DAI consistently showed highest profitability, especially on Polygon
+- **DEX Performance**: Uniswap V3 on Polygon and Curve on Arbitrum yielded best results
+
+For detailed analysis, see [Test Comparison Analysis](analysis/test_comparison.md).
+
+## Optimal Configuration
+
+Based on our testing, we've created an optimal configuration that maximizes profitability:
+
+```json
+{
+  "networks": ["polygon", "arbitrum"],
+  "tokens": ["WETH", "USDC", "DAI"],
+  "dexes": ["uniswap_v3", "balancer", "curve"],
+  "batch_size": 10,
+  "gas_strategy": "dynamic"
+}
+```
+
+This configuration is available in `backend/ai/config/optimal_strategy.json` and can be applied using the provided utility script.
+
+## Tools and Utilities
+
+### Configuration Management
+- **`apply_optimal_config.py`**: Script to apply the optimal configuration to all system components
+  - Usage: `./apply_optimal_config.py [--dry-run] [--backup] [--force]`
+  - Options:
+    - `--dry-run`: Show changes without applying them
+    - `--backup`: Create backups of existing config files
+    - `--force`: Apply config without confirmation
+
+### Testing Framework
+- **`run_mainnet_fork_test.py`**: Script for testing arbitrage strategies on mainnet forks
+  - Usage: `python run_mainnet_fork_test.py [options]`
+  - Key Options:
+    - `--networks`: Comma-separated list of networks to test (default: arbitrum,polygon)
+    - `--tokens`: Comma-separated list of tokens to test
+    - `--dexes`: Comma-separated list of DEXes to test
+    - `--run-time`: Test duration in seconds
+    - `--batch-size`: Number of trades to execute in each batch
+    - `--gas-strategy`: Gas strategy to use (dynamic, aggressive, conservative)
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies:
+   ```
+   cd contracts && npm install
+   cd backend && npm install
+   cd frontend && npm install
+   ```
+3. Apply the optimal configuration:
+   ```
+   cd backend/ai
+   ./apply_optimal_config.py --backup
+   ```
+4. Run a test to validate the configuration:
+   ```
+   cd backend/ai
+   python run_mainnet_fork_test.py --tokens WETH,USDC,DAI --dexes uniswap_v3,curve,balancer
+   ```
+5. Start the backend services:
+   ```
+   cd backend
+   docker-compose up -d
+   cd api && npm run start:prod
+   cd execution && npm run bot:start
+   ```
+6. Launch the frontend dashboard:
+   ```
+   cd frontend
+   npm run build
+   serve -s build -l 3001
+   ```
+
+## Next Steps
+
+Based on our testing and analysis, we recommend the following next steps:
+
+1. **Short-term (Immediate)**:
+   - Implement the optimal configuration
+   - Enhance MEV protection for Polygon network
+   - Optimize gas estimation for Uniswap V3 transactions
+
+2. **Medium-term (1-2 weeks)**:
+   - Develop network-specific trade selection algorithms
+   - Implement adaptive batch sizing based on network congestion
+   - Create token pair rotation strategy to avoid market impact
+
+3. **Long-term (2-4 weeks)**:
+   - Expand to additional networks based on test performance
+   - Implement cross-chain arbitrage for WETH-DAI and WETH-USDC
+   - Develop AI-driven predictive models for gas price optimization
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

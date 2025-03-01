@@ -1,0 +1,81 @@
+{
+  "flashbots_enabled": true,
+  "private_tx_enabled": true,
+  "pending_tx_analysis_enabled": true,
+  "flashbots_relay_url": "https://relay.flashbots.net",
+  "flashbots_auth_key": "${FLASHBOTS_AUTH_KEY}",
+  "private_tx_providers": {
+    "ethereum": "https://api.blocknative.com/v1",
+    "arbitrum": "https://arbitrum-api.blocknative.com/v1",
+    "polygon": "https://polygon-api.blocknative.com/v1"
+  },
+  "private_tx_api_keys": {
+    "blocknative": "${BLOCKNATIVE_API_KEY}"
+  },
+  "gas_price_multipliers": {
+    "normal": 1.0,
+    "fast": 1.3,
+    "urgent": 1.8
+  },
+  "max_gas_price_gwei": {
+    "ethereum": 250,
+    "arbitrum": 1.2,
+    "polygon": 400,
+    "optimism": 1.5,
+    "bsc": 10
+  },
+  "mev_risk_thresholds": {
+    "low": {
+      "competing_txs": 0,
+      "gas_multiplier": 1.0
+    },
+    "medium": {
+      "competing_txs": 3,
+      "gas_multiplier": 1.3
+    },
+    "high": {
+      "competing_txs": 5,
+      "gas_multiplier": 1.8
+    }
+  },
+  "network_specific_settings": {
+    "ethereum": {
+      "use_flashbots": true,
+      "min_profit_threshold_multiplier": 1.5
+    },
+    "arbitrum": {
+      "use_flashbots": false,
+      "min_profit_threshold_multiplier": 1.2
+    },
+    "polygon": {
+      "use_flashbots": false,
+      "min_profit_threshold_multiplier": 1.1
+    }
+  },
+  "token_pair_risk_factors": {
+    "WETH-USDC": 1.5,
+    "WETH-DAI": 1.3,
+    "WBTC-USDC": 1.2,
+    "WMATIC-USDC": 1.0,
+    "LINK-WETH": 1.1
+  },
+  "rpc_urls": {
+    "ethereum": "${ETHEREUM_RPC_URL}",
+    "arbitrum": "${ARBITRUM_RPC_URL}",
+    "polygon": "${POLYGON_RPC_URL}",
+    "optimism": "${OPTIMISM_RPC_URL}",
+    "bsc": "${BSC_RPC_URL}"
+  },
+  "network_settings": {
+    "polygon": {
+      "protection_level": "medium",
+      "use_flashbots": false,
+      "priority_fee_strategy": "dynamic"
+    },
+    "arbitrum": {
+      "protection_level": "high",
+      "use_flashbots": true,
+      "priority_fee_strategy": "aggressive_for_high_value"
+    }
+  }
+}
