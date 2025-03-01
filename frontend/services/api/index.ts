@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { Trade, BotStatus } from '../websocket';
+import { ExecutionMode } from '../../components/NetworkSelector';
 
 export class APIService {
   private api: AxiosInstance;
@@ -73,6 +74,25 @@ export class APIService {
   }> {
     const response = await this.api.get('/status/health');
     return response.data;
+  }
+
+  // Execution Mode endpoints
+  public async getExecutionMode(): Promise<{
+    mode: ExecutionMode;
+    lastUpdated: string;
+    updatedBy: string;
+  }> {
+    const response = await this.api.get('/execution-mode');
+    return response.data.data;
+  }
+
+  public async setExecutionMode(mode: ExecutionMode, updatedBy: string = 'user'): Promise<{
+    mode: ExecutionMode;
+    lastUpdated: string;
+    updatedBy: string;
+  }> {
+    const response = await this.api.post('/execution-mode', { mode, updatedBy });
+    return response.data.data;
   }
 
   // Admin endpoints

@@ -16,6 +16,12 @@ interface Networks {
   mainnet: NetworkConfig;
 }
 
+// Execution Mode enum
+enum ExecutionMode {
+  MAINNET = 'mainnet',
+  FORK = 'fork'
+}
+
 const networks: Networks = {
   mainnet: {
     name: 'mainnet',
@@ -29,10 +35,10 @@ const networks: Networks = {
   }
 };
 
-async function switchNetwork(network: keyof Networks) {
+async function switchNetwork(network: keyof Networks, executionMode: ExecutionMode = ExecutionMode.MAINNET) {
   if (!networks[network]) {
     console.log('Invalid network specified');
-    console.log('Usage: npm run switch-network [mainnet]');
+    console.log('Usage: npm run switch-network [mainnet] [--fork]');
     process.exit(1);
   }
 
@@ -42,6 +48,7 @@ NETWORK_RPC=${networkConfig.rpc}
 CHAIN_ID=${networkConfig.chainId}
 DEPLOY_NETWORK=${network}
 DEPLOY_CONFIRMATIONS=2
+EXECUTION_MODE=${executionMode}
 
 # Contract Addresses
 UNISWAP_ROUTER_ADDRESS=${networkConfig.contracts.dex1Router}
@@ -50,13 +57,34 @@ WETH_ADDRESS=${networkConfig.contracts.weth}
 `;
 
   fs.writeFileSync(path.join(__dirname, '../.env'), envContent);
-  console.log(`Switched to ${network} network`);
+  console.log(`Switched to ${network} network with execution mode: ${executionMode}`);
+  
+  // Update execution mode config file
+  const executionModeConfig = {
+    mode: executionMode,
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'script'
+  };
+  
+  const configDir = path.join(__dirname, '../backend/config');
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+  
+  fs.writeFileSync(
+    path.join(configDir, 'execution-mode.json'),
+    JSON.stringify(executionModeConfig, null, 2)
+  );
 }
 
+// Parse command line arguments
 const network = process.argv[2] as keyof Networks;
+const executionModeArg = process.argv.includes('--fork') ? ExecutionMode.FORK : ExecutionMode.MAINNET;
+
 if (!network) {
-  console.log('Usage: npm run switch-network [mainnet]');
+  console.log('Usage: npm run switch-network [mainnet] [--fork]');
+  console.log('  --fork: Use forked execution mode (default is mainnet execution mode)');
   process.exit(1);
 }
 
-switchNetwork(network).catch(console.error);
+switchNetwork(network, executionModeArg).catch(console.error);

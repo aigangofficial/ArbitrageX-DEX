@@ -11,8 +11,10 @@ import { createTradeRouter } from './routes/trades';
 import { createStatusRouter } from './routes/status';
 import { createBypassTokenMiddleware } from './middleware/bypassTokenMiddleware';
 import { createAdminRouter } from './routes/admin';
-import { aiRouter } from './routes/ai';
+import aiRouter from './routes/ai';
 import { createMarketRouter } from './routes/market';
+import { createNetworkExecutionRouter } from './routes/networkExecutionRoutes';
+import executionModeRouter from './routes/execution-mode';
 import { BypassTokenManager } from './utils/bypassToken';
 import { logger } from './utils/logger';
 import { marketDataLimiter, volatilityLimiter, opportunitiesLimiter } from './middleware/rateLimit';
@@ -70,6 +72,11 @@ export async function createServer(config: ServerConfig): Promise<Express> {
   app.use('/api/v1/ai', aiRouter);
   app.use('/api/v1/market', createMarketRouter());
   app.use('/api/admin', createAdminRouter(bypassTokenManager));
+  
+  // Add network execution mode routes
+  app.use('/api/v1/network-execution', createNetworkExecutionRouter(wsService));
+  // Add direct execution mode routes
+  app.use('/api/v1/execution-mode', executionModeRouter);
 
   // Global error handler
   app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

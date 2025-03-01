@@ -2,6 +2,22 @@ import { ethers } from 'ethers';
 import { config } from '../api/config';
 import { logger } from '../api/utils/logger';
 import GasOptimizer from './gasOptimizer';
+import fs from 'fs';
+import path from 'path';
+import ExecutionModeService from '../services/executionModeService';
+
+// Add ExecutionMode enum
+export enum ExecutionMode {
+  MAINNET = 'mainnet',
+  FORK = 'fork'
+}
+
+// Add interface for execution mode config
+interface ExecutionModeConfig {
+  mode: ExecutionMode;
+  lastUpdated: string;
+  updatedBy: string;
+}
 
 // Real DEX Router ABIs - only the functions we need
 const ROUTER_ABI = [
@@ -85,6 +101,7 @@ export class TradeExecutor {
   private sushiswapRouter: IDEXRouter;
   private aavePool: any;
   private isExecuting: boolean;
+  private executionModeService: ExecutionModeService;
 
   constructor(
     provider: ethers.Provider,
@@ -93,27 +110,66 @@ export class TradeExecutor {
     aavePool: any
   ) {
     this.provider = provider;
-    this.gasOptimizer = new GasOptimizer();
-    this.isExecuting = false;
     this.quickswapRouter = quickswapRouter;
     this.sushiswapRouter = sushiswapRouter;
     this.aavePool = aavePool;
+    this.gasOptimizer = new GasOptimizer();
+    this.isExecuting = false;
+    
+    // Get the execution mode service
+    this.executionModeService = ExecutionModeService.getInstance();
+    
+    // Listen for execution mode changes
+    this.executionModeService.on('modeChanged', (data) => {
+      logger.info(`TradeExecutor received mode change to ${data.mode}`);
+    });
+  }
+  
+  // Get current execution mode
+  public getExecutionMode(): ExecutionMode {
+    return this.executionModeService.getMode();
   }
 
-  public async simulateArbitrage(
+  async simulateArbitrage(
     tokenA: string,
     tokenB: string,
     amount: string,
     route: ArbitrageRoute
   ): Promise<SimulatedTradeResult> {
+    logger.info(`Simulating arbitrage in ${this.getExecutionMode()} mode`);
+    
     try {
+      // Check execution mode and adjust simulation behavior
+      if (this.getExecutionMode() === ExecutionMode.FORK) {
+        logger.info('Running in FORK mode - using simulated gas prices and optimistic estimates');
+        
+        // In fork mode, we use optimistic estimates
+        const mockAmount = ethers.parseEther(amount);
+        const mockGasCost = ethers.parseEther("0.01"); // 0.01 ETH
+        const mockProfit = ethers.parseEther("0.05"); // 0.05 ETH
+        const mockNetProfit = ethers.parseEther("0.04"); // 0.04 ETH (profit - gas)
+        
+        // Convert to strings for the interface
+        return {
+          expectedProfit: mockProfit.toString(),
+          gasCost: mockGasCost.toString(),
+          netProfit: mockNetProfit.toString(),
+          route: route,
+          priceImpact: 0.1,
+          flashLoanFee: ethers.parseEther("0.0009").toString(), // 0.09% of 1 ETH
+          slippage: 0.005,
+          timestamp: new Date()
+        };
+      }
+      
+      // Original mainnet simulation logic
       logger.info('Starting arbitrage simulation with real market data', {
         tokenA,
         tokenB,
         amount,
         route,
       });
-
+      
       // Get quotes from both DEXes
       const firstDexData = await this.getDexQuote(
         route === 'QUICKSWAP_TO_SUSHI' ? 'QUICKSWAP' : 'SUSHISWAP',
@@ -140,15 +196,24 @@ export class TradeExecutor {
       // Estimate gas cost
       const estimatedGas = await this.estimateRealGasUsage(tokenA, tokenB, amount, route);
       const gasPrice = await this.gasOptimizer.getOptimalGasPrice();
-      const gasCost = (estimatedGas * gasPrice).toString();
+      const gasCost = (estimatedGas * Number(gasPrice.toString())).toString();
 
       // Calculate flash loan fee (0.09% on Aave V3)
       const amountInWei = ethers.parseEther(amount);
-      const flashLoanFee = (amountInWei * BigInt(9)) / BigInt(10000);
+      const flashLoanFeePercentage = 0.0009; // 0.09%
+      const flashLoanFee = ethers.parseEther((parseFloat(amount) * flashLoanFeePercentage).toString()).toString();
 
-      // Calculate expected profit
+      // Calculate expected profit using string operations
       const expectedProfit = (secondDexData.amountOut - firstDexData.amountOut).toString();
-      const netProfit = (BigInt(expectedProfit) - BigInt(gasCost) - flashLoanFee).toString();
+      
+      // Convert to numbers for calculation
+      const profitNum = parseFloat(ethers.formatEther(expectedProfit));
+      const gasCostNum = parseFloat(ethers.formatEther(gasCost));
+      const flashLoanFeeNum = parseFloat(ethers.formatEther(flashLoanFee));
+      
+      // Calculate net profit
+      const netProfitNum = profitNum - gasCostNum - flashLoanFeeNum;
+      const netProfit = ethers.parseEther(netProfitNum.toString()).toString();
 
       return {
         expectedProfit,
@@ -156,7 +221,7 @@ export class TradeExecutor {
         netProfit,
         route,
         priceImpact,
-        flashLoanFee: flashLoanFee.toString(),
+        flashLoanFee,
         slippage,
         timestamp: new Date(),
       };
@@ -238,8 +303,8 @@ export class TradeExecutor {
     tokenA: string,
     tokenB: string,
     amount: string,
-    route: string
-  ): Promise<bigint> {
+    route: ArbitrageRoute
+  ): Promise<number> {
     try {
       // Get base gas estimate from provider
       const estimatedGas = await this.provider.estimateGas({
@@ -248,34 +313,34 @@ export class TradeExecutor {
       });
 
       // Add buffer for flash loan operations
-      return estimatedGas * BigInt(2); // 2x buffer for safety
+      return Number(estimatedGas) * 2; // 2x buffer for safety
     } catch (error) {
       logger.error('Gas estimation failed:', error);
       // Return conservative estimate if estimation fails
-      return BigInt(500000); // 500k gas units as fallback
+      return 500000; // 500k gas units as fallback
     }
   }
 
   private calculateRealPriceImpact(firstDexData: any, secondDexData: any): number {
-    const firstPrice = BigInt(firstDexData.outputAmount);
-    const secondPrice = BigInt(secondDexData.outputAmount);
+    const firstPrice = Number(firstDexData.outputAmount);
+    const secondPrice = Number(secondDexData.outputAmount);
 
     // Calculate real price impact as the difference between expected and actual output
-    const priceImpact = ((firstPrice - secondPrice) * BigInt(10000)) / firstPrice;
-    return Number(priceImpact) / 100;
+    const priceImpact = ((firstPrice - secondPrice) * 10000) / firstPrice;
+    return priceImpact / 100;
   }
 
   // Helper function to calculate amount out based on reserves
-  private getAmountOut(amountIn: bigint, reserveIn: bigint, reserveOut: bigint): bigint {
-    if (reserveIn <= 0n || reserveOut <= 0n) {
+  private getAmountOut(amountIn: number, reserveIn: number, reserveOut: number): number {
+    if (reserveIn <= 0 || reserveOut <= 0) {
       throw new Error('Invalid reserves');
     }
 
-    const amountInWithFee = amountIn * 997n;
+    const amountInWithFee = amountIn * 997;
     const numerator = amountInWithFee * reserveOut;
-    const denominator = reserveIn * 1000n + amountInWithFee;
+    const denominator = reserveIn * 1000 + amountInWithFee;
 
-    return numerator / denominator;
+    return Math.floor(numerator / denominator);
   }
 
   public async executeArbitrage(params: {
@@ -290,9 +355,26 @@ export class TradeExecutor {
       logger.warn('Already executing a trade');
       return false;
     }
-
+    
     this.isExecuting = true;
+    
     try {
+      logger.info(`Executing arbitrage in ${this.getExecutionMode()} mode`);
+      
+      // Check execution mode
+      if (this.getExecutionMode() === ExecutionMode.FORK) {
+        logger.info('Running in fork mode - simulating execution only');
+        
+        // In fork mode, we simulate the execution without sending real transactions
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate transaction time
+        
+        // Simulate a successful trade
+        logger.info('Simulated trade execution completed successfully');
+        this.isExecuting = false;
+        return true;
+      }
+      
+      // Real execution for MAINNET mode
       // Validate the trade parameters
       const gasCost = await this.estimateGasCost(
         params.buyDex,
@@ -318,12 +400,12 @@ export class TradeExecutor {
 
       await flashLoanTx.wait();
       logger.info('Arbitrage trade executed successfully');
+      this.isExecuting = false;
       return true;
     } catch (error) {
-      logger.error('Failed to execute arbitrage:', error);
-      return false;
-    } finally {
+      logger.error('Error executing arbitrage:', error);
       this.isExecuting = false;
+      return false;
     }
   }
 

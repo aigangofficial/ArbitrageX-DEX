@@ -5,11 +5,13 @@ import { TradeHistoryTable } from '../components/TradeHistoryTable';
 import { ArbitrageExecutionForm } from '../components/ArbitrageExecutionForm';
 import { AIInsightsPanel, AIOpportunity } from '../components/AIInsightsPanel';
 import { RealTimeMetrics } from '../components/RealTimeMetrics';
-import { NetworkSelector, Network } from '../components/NetworkSelector';
+import { NetworkSelector, Network, ExecutionMode } from '../components/NetworkSelector';
 import { AIStrategyInsights, AIStrategy } from '../components/AIStrategyInsights';
+import ExecutionModeSelector from '../components/ExecutionModeSelector';
 import { useToast } from '../context/ToastContext';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { Trade, BotStatus } from '../services/websocket';
+import { APIService } from '../services/api';
 
 // Define interface for metrics
 interface Metrics {
@@ -19,6 +21,11 @@ interface Metrics {
   avgExecutionTime: number;
   activeOpportunities: number;
   gasUsed: string;
+}
+
+// Extended Trade interface to include network
+interface ExtendedTrade extends Trade {
+  network?: string;
 }
 
 // Mock networks data
@@ -98,294 +105,334 @@ const MOCK_OPPORTUNITIES: AIOpportunity[] = [
     confidence: 0.86,
     estimatedProfit: '$38.02',
     executionTime: 122,
-    gasCost: '$9.00',
-    netProfit: '$29.02',
+    gasCost: '$5.23',
+    netProfit: '$32.79',
     timestamp: new Date(),
     network: 'Ethereum',
     isRecommended: true
   },
   {
     id: 'opp-2',
-    tokenPair: 'WETH-DAI',
-    confidence: 0.42,
-    estimatedProfit: '$5.18',
-    executionTime: 128,
-    gasCost: '$8.28',
-    netProfit: '-$3.10',
-    timestamp: new Date(Date.now() - 120000),
+    tokenPair: 'WBTC-USDT',
+    confidence: 0.79,
+    estimatedProfit: '$42.15',
+    executionTime: 145,
+    gasCost: '$3.15',
+    netProfit: '$39.00',
+    timestamp: new Date(),
     network: 'Arbitrum',
-    isRecommended: false
+    isRecommended: true
+  },
+  {
+    id: 'opp-3',
+    tokenPair: 'MATIC-USDC',
+    confidence: 0.92,
+    estimatedProfit: '$21.87',
+    executionTime: 98,
+    gasCost: '$1.25',
+    netProfit: '$20.62',
+    timestamp: new Date(),
+    network: 'Polygon',
+    isRecommended: true
   }
 ];
 
-// Mock metrics data
-const MOCK_METRICS: Metrics = {
-  totalTrades: 128,
-  successRate: 86,
-  totalProfit: '$2,841.75',
-  avgExecutionTime: 118,
-  activeOpportunities: 3,
-  gasUsed: '0.58 ETH'
-};
-
-// Mock trades data
-const MOCK_TRADES: Trade[] = Array.from({ length: 20 }).map((_, i) => ({
-  tokenIn: i % 2 === 0 ? '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' : '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-  tokenOut: i % 2 === 0 ? '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' : '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  amountIn: (Math.random() * 10 + 1).toString(),
-  amountOut: (Math.random() * 20000 + 1000).toString(),
-  profit: i % 3 === 0 ? `-${(Math.random() * 10).toFixed(2)}` : (Math.random() * 100).toFixed(2),
-  gasUsed: Math.floor(Math.random() * 200000 + 50000),
-  gasPrice: (Math.random() * 100 + 20).toString(),
-  txHash: `0x${Math.random().toString(16).substring(2, 42)}`,
-  blockNumber: 17000000 + i,
-  timestamp: new Date(Date.now() - i * 1000 * 60 * 10),
-  router: i % 2 === 0 ? '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' : '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
-  status: i % 5 === 0 ? 'failed' : 'completed'
-}));
-
-// Mock bot status data
-const MOCK_BOT_STATUS: BotStatus = {
-  isActive: true,
-  lastHeartbeat: new Date(),
-  totalTrades: 128,
-  successfulTrades: 110,
-  failedTrades: 18,
-  totalProfit: '$2,841.75',
-  averageGasUsed: 150000,
-  memoryUsage: {
-    heapUsed: 512 * 1024 * 1024,
-    heapTotal: 1024 * 1024 * 1024,
-    external: 50 * 1024 * 1024
-  },
-  cpuUsage: 23,
-  pendingTransactions: 2,
-  network: 'ethereum',
-  version: '1.2.3',
-  uptime: 302400, // 3.5 days in seconds
-  isHealthy: true
-};
-
 const Dashboard: React.FC = () => {
   const { showToast } = useToast();
-  const { connectionStatus, sendMessage } = useWebSocket();
+  const apiService = new APIService();
+  
+  // State for network selection
   const [selectedNetwork, setSelectedNetwork] = useState('ethereum');
-  const [strategies, setStrategies] = useState<AIStrategy[]>(MOCK_STRATEGIES);
+  
+  // State for execution mode
+  const [executionMode, setExecutionMode] = useState<ExecutionMode>(ExecutionMode.FORK);
+  const [isLoadingMode, setIsLoadingMode] = useState(false);
+  
+  // State for trades and metrics
+  const [trades, setTrades] = useState<ExtendedTrade[]>([]);
+  const [isLoadingTrades, setIsLoadingTrades] = useState(false);
+  const [metrics, setMetrics] = useState<Metrics>({
+    totalTrades: 0,
+    successRate: 0,
+    totalProfit: '$0.00',
+    avgExecutionTime: 0,
+    activeOpportunities: 0,
+    gasUsed: '0 ETH'
+  });
+  
+  // State for bot status
+  const [botStatus, setBotStatus] = useState({
+    isActive: true,
+    status: 'idle',
+    lastUpdated: new Date().toISOString(),
+    activeStrategies: 0,
+    pendingTransactions: 0,
+    connectedNodes: 0,
+    cpuUsage: 0,
+    memoryUsage: { heapUsed: 0, heapTotal: 0, external: 0 },
+    uptime: 0,
+    network: 'Ethereum',
+    successfulTrades: 0,
+    totalTrades: 0,
+    totalProfit: '0'
+  });
+  
+  // State for AI opportunities and strategies
   const [opportunities, setOpportunities] = useState<AIOpportunity[]>(MOCK_OPPORTUNITIES);
-  const [trades, setTrades] = useState<Trade[]>(MOCK_TRADES);
-  const [metrics, setMetrics] = useState<Metrics>(MOCK_METRICS);
-  const [botStatus, setBotStatus] = useState<BotStatus>(MOCK_BOT_STATUS);
-  const [isLoading, setIsLoading] = useState(false);
+  const [strategies, setStrategies] = useState<AIStrategy[]>(MOCK_STRATEGIES);
+  const [isLoadingStrategies, setIsLoadingStrategies] = useState(false);
+  const [isLoadingOpportunities, setIsLoadingOpportunities] = useState(false);
+  const [isLoadingMetrics, setIsLoadingMetrics] = useState(false);
+  const [isLoadingBotStatus, setIsLoadingBotStatus] = useState(false);
+  
+  // State for arbitrage execution
+  const [isExecutingTrade, setIsExecutingTrade] = useState(false);
 
+  // WebSocket connection for real-time updates
+  const { lastMessage, connectionStatus } = useWebSocket('ws://localhost:3001');
+
+  // Load execution mode on component mount
+  useEffect(() => {
+    const fetchExecutionMode = async () => {
+      try {
+        const modeData = await apiService.getExecutionMode();
+        setExecutionMode(modeData.mode as ExecutionMode);
+      } catch (error) {
+        console.error('Failed to fetch execution mode:', error);
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to fetch execution mode'
+        });
+      }
+    };
+    
+    fetchExecutionMode();
+  }, []);
+
+  // Handle network change
   const handleNetworkChange = useCallback((networkId: string) => {
     setSelectedNetwork(networkId);
+    
+    // Refresh data for the new network
+    fetchTradesForNetwork(networkId);
+    
     showToast({
       type: 'info',
       title: 'Network Changed',
       message: `Switched to ${NETWORKS.find(n => n.id === networkId)?.name || networkId} network`
     });
-    
-    // Simulate loading new data for the selected network
-    setIsLoading(true);
-    setTimeout(() => {
-      // Update data based on selected network
-      setIsLoading(false);
-    }, 1000);
-  }, [showToast]);
+  }, []);
 
-  const handleExecuteTrade = useCallback(async (params: any) => {
+  // Handle execution mode change
+  const handleExecutionModeChange = useCallback(async (mode: ExecutionMode) => {
     try {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      setIsLoadingMode(true);
+      
+      // Call API to update execution mode
+      await apiService.setExecutionMode(mode);
+      
+      setExecutionMode(mode);
+      
+      showToast({
+        type: mode === ExecutionMode.MAINNET ? 'warning' : 'success',
+        title: 'Execution Mode Changed',
+        message: `Switched to ${mode === ExecutionMode.MAINNET ? 'Mainnet' : 'Fork'} execution mode`
+      });
+    } catch (error) {
+      console.error('Failed to change execution mode:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to change execution mode'
+      });
+    } finally {
+      setIsLoadingMode(false);
+    }
+  }, []);
+
+  // Fetch trades for the selected network
+  const fetchTradesForNetwork = useCallback(async (networkId: string) => {
+    try {
+      setIsLoadingTrades(true);
+      const tradesData = await apiService.getTrades(10) as ExtendedTrade[];
+      
+      // Filter trades by network if needed
+      const filteredTrades = tradesData.filter(trade => 
+        trade.network?.toLowerCase() === networkId.toLowerCase()
+      );
+      
+      setTrades(filteredTrades);
+    } catch (error) {
+      console.error('Failed to fetch trades:', error);
+    } finally {
+      setIsLoadingTrades(false);
+    }
+  }, []);
+
+  // Handle trade execution
+  const handleExecuteTrade = useCallback(async (params: {
+    tokenIn: string;
+    tokenOut: string;
+    amount: string;
+    router: string;
+  }) => {
+    try {
+      setIsExecutingTrade(true);
+      
+      // Show warning if in mainnet mode
+      if (executionMode === ExecutionMode.MAINNET) {
+        showToast({
+          type: 'warning',
+          title: 'Live Execution',
+          message: 'Executing trade on MAINNET with real assets'
+        });
+      }
+      
+      const result = await apiService.executeArbitrage(params);
       
       showToast({
         type: 'success',
         title: 'Trade Executed',
-        message: `Successfully executed trade for ${params.amount} on ${selectedNetwork}`
+        message: `Trade executed successfully with ID: ${result.tradeId}`
       });
       
-      // Update trades with new trade
-      const newTrade: Trade = {
-        tokenIn: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // WETH
-        tokenOut: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
-        amountIn: params.amount,
-        amountOut: (parseFloat(params.amount) * 1800).toString(), // Mock conversion
-        profit: '42.18',
-        gasUsed: 150000,
-        gasPrice: '50',
-        txHash: `0x${Math.random().toString(16).substring(2, 42)}`,
-        blockNumber: 17000000,
-        timestamp: new Date(),
-        router: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', // Uniswap V2
-        status: 'completed'
-      };
-      
-      setTrades(prev => [newTrade, ...prev]);
+      // Refresh trades after execution
+      fetchTradesForNetwork(selectedNetwork);
     } catch (error) {
+      console.error('Trade execution failed:', error);
       showToast({
         type: 'error',
         title: 'Execution Failed',
-        message: error instanceof Error ? error.message : 'Failed to execute trade'
+        message: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     } finally {
-      setIsLoading(false);
+      setIsExecutingTrade(false);
     }
-  }, [selectedNetwork, showToast]);
+  }, [selectedNetwork, executionMode]);
 
-  const handleExecuteOpportunity = useCallback((opportunity: AIOpportunity) => {
+  // Handle strategy application
+  const handleApplyStrategy = useCallback((strategy: AIStrategy) => {
     showToast({
       type: 'info',
-      title: 'Executing Opportunity',
-      message: `Executing ${opportunity.tokenPair} arbitrage on ${opportunity.network}`
+      title: 'Strategy Applied',
+      message: `Applied strategy: ${strategy.name}`
     });
-    
-    // Simulate execution
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      // Add to trade history
-      const [tokenIn, tokenOut] = opportunity.tokenPair.split('-');
-      const newTrade: Trade = {
-        tokenIn: tokenIn === 'WETH' ? '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' : '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        tokenOut: tokenOut === 'USDC' ? '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' : '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        amountIn: '2.5',
-        amountOut: '4500',
-        profit: opportunity.netProfit.replace('$', ''),
-        gasUsed: 150000,
-        gasPrice: '50',
-        txHash: `0x${Math.random().toString(16).substring(2, 42)}`,
-        blockNumber: 17000000,
-        timestamp: new Date(),
-        router: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-        status: 'completed'
-      };
-      
-      setTrades(prev => [newTrade, ...prev]);
-      
-      showToast({
-        type: 'success',
-        title: 'Opportunity Executed',
-        message: `Successfully executed ${opportunity.tokenPair} arbitrage`
-      });
-    }, 3000);
-  }, [showToast]);
+  }, []);
 
+  // Handle opportunity simulation
   const handleSimulateOpportunity = useCallback((opportunity: AIOpportunity) => {
     showToast({
       type: 'info',
       title: 'Simulating Opportunity',
-      message: `Simulating ${opportunity.tokenPair} arbitrage on ${opportunity.network}`
+      message: `Simulating ${opportunity.tokenPair} opportunity`
     });
-    
-    // Simulate execution
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      showToast({
-        type: 'success',
-        title: 'Simulation Complete',
-        message: `Expected profit: ${opportunity.netProfit} (${opportunity.confidence * 100}% confidence)`
-      });
-    }, 2000);
-  }, [showToast]);
+  }, []);
 
-  const handleApplyStrategy = useCallback((strategy: AIStrategy) => {
+  // Handle opportunity execution
+  const handleExecuteOpportunity = useCallback((opportunity: AIOpportunity) => {
     showToast({
       type: 'info',
-      title: 'Applying Strategy',
-      message: `Applying "${strategy.name}" strategy`
+      title: 'Executing Opportunity',
+      message: `Executing ${opportunity.tokenPair} opportunity`
     });
-    
-    // Simulate applying strategy
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      showToast({
-        type: 'success',
-        title: 'Strategy Applied',
-        message: `Successfully applied "${strategy.name}" strategy`
-      });
-    }, 2000);
-  }, [showToast]);
+  }, []);
 
-  // Simulate receiving new opportunities periodically
+  // Process WebSocket messages
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        const newOpportunity: AIOpportunity = {
-          id: `opp-${Date.now()}`,
-          tokenPair: Math.random() > 0.5 ? 'WBTC-WETH' : 'WETH-USDC',
-          confidence: 0.5 + Math.random() * 0.5,
-          estimatedProfit: `$${(Math.random() * 50 + 5).toFixed(2)}`,
-          executionTime: Math.floor(Math.random() * 50 + 100),
-          gasCost: `$${(Math.random() * 5 + 5).toFixed(2)}`,
-          netProfit: `$${(Math.random() * 40).toFixed(2)}`,
-          timestamp: new Date(),
-          network: NETWORKS[Math.floor(Math.random() * NETWORKS.length)].name,
-          isRecommended: Math.random() > 0.3
-        };
+    if (lastMessage) {
+      try {
+        const data = JSON.parse(lastMessage.data);
         
-        setOpportunities(prev => [newOpportunity, ...prev].slice(0, 5));
-        
-        if (newOpportunity.isRecommended) {
+        if (data.type === 'trade') {
+          // Update trades if a new trade is received
+          setTrades(prevTrades => [data.trade, ...prevTrades.slice(0, 9)]);
+        } else if (data.type === 'botStatus') {
+          // Update bot status
+          setBotStatus(data.status);
+        } else if (data.type === 'metrics') {
+          // Update metrics
+          setMetrics(data.metrics);
+        } else if (data.type === 'opportunity') {
+          // Update opportunities
+          setOpportunities(prevOpps => [data.opportunity, ...prevOpps.slice(0, 2)]);
+        } else if (data.type === 'executionModeChanged') {
+          // Update execution mode if changed from another client
+          setExecutionMode(data.mode);
+          
           showToast({
-            type: 'info',
-            title: 'New Opportunity',
-            message: `AI detected a profitable ${newOpportunity.tokenPair} arbitrage opportunity`
+            type: data.mode === ExecutionMode.MAINNET ? 'warning' : 'success',
+            title: 'Execution Mode Changed',
+            message: `Execution mode changed to ${data.mode === ExecutionMode.MAINNET ? 'Mainnet' : 'Fork'}`
           });
         }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
       }
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, [showToast]);
+    }
+  }, [lastMessage]);
 
   return (
     <DashboardLayout title="ArbitrageX Dashboard">
-      <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">Real-Time Arbitrage Dashboard</h2>
-        <NetworkSelector 
-          networks={NETWORKS} 
-          selectedNetwork={selectedNetwork} 
-          onNetworkChange={handleNetworkChange} 
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
-          <RealTimeMetrics metrics={metrics} isLoading={isLoading} />
-        </div>
-        <div>
-          <BotStatusPanel status={botStatus} isLoading={isLoading} />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
-          <AIInsightsPanel 
-            opportunities={opportunities} 
-            isLoading={isLoading} 
-            onSimulateTrade={handleSimulateOpportunity}
-            onExecuteTrade={handleExecuteOpportunity}
+      <div className="dashboard-grid">
+        {/* Top row */}
+        <div className="top-row">
+          <BotStatusPanel status={botStatus} isLoading={isLoadingBotStatus} />
+          <RealTimeMetrics metrics={metrics} isLoading={isLoadingMetrics} />
+          <NetworkSelector
+            networks={NETWORKS}
+            selectedNetwork={selectedNetwork}
+            onNetworkChange={handleNetworkChange}
+            executionMode={executionMode}
+            onExecutionModeChange={handleExecutionModeChange}
           />
+          <ExecutionModeSelector />
         </div>
-        <div>
-          <ArbitrageExecutionForm onExecute={handleExecuteTrade} isLoading={isLoading} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold mb-4">Execute Arbitrage Trade</h2>
+            <ArbitrageExecutionForm
+              onExecute={handleExecuteTrade}
+              isLoading={isExecutingTrade}
+            />
+            {executionMode === ExecutionMode.MAINNET && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600 flex items-center">
+                  <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clipRule="evenodd" />
+                  </svg>
+                  Warning: You are in MAINNET execution mode. Trades will use real assets.
+                </p>
+              </div>
+            )}
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold mb-4">AI-Detected Opportunities</h2>
+            <AIInsightsPanel 
+              opportunities={opportunities} 
+              isLoading={isLoadingOpportunities}
+              onSimulateTrade={handleSimulateOpportunity}
+              onExecuteTrade={handleExecuteOpportunity}
+            />
+          </div>
         </div>
-      </div>
-      
-      <div className="grid grid-cols-1 gap-6 mb-6">
-        <AIStrategyInsights 
-          strategies={strategies} 
-          isLoading={isLoading} 
-          onApplyStrategy={handleApplyStrategy} 
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 gap-6">
-        <TradeHistoryTable trades={trades} isLoading={isLoading} />
+
+        <div className="grid grid-cols-1 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold mb-4">AI Strategy Insights</h2>
+            <AIStrategyInsights
+              strategies={strategies}
+              isLoading={isLoadingStrategies}
+              onApplyStrategy={handleApplyStrategy}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold mb-4">Trade History</h2>
+          <TradeHistoryTable trades={trades} isLoading={isLoadingTrades} />
+        </div>
       </div>
     </DashboardLayout>
   );

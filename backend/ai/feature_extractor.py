@@ -33,7 +33,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("backend/ai/logs/feature_extractor.log"),
+        logging.FileHandler("logs/feature_extractor.log"),
         logging.StreamHandler()
     ]
 )

@@ -1,0 +1,17 @@
+{
+  "mode": "mainnet_fork",
+  "fork_url": "http://localhost:8545",
+  "fork_block_number": "18000000",
+  "networks": ["ethereum"],
+  "tokens": {
+    "ethereum": ["WETH", "USDC", "DAI", "USDT", "WBTC", "LINK"]
+  },
+  "dexes": {
+    "ethereum": ["uniswap_v3", "sushiswap", "curve", "balancer"]
+  },
+  "gas_price_multiplier": 1.1,
+  "slippage_tolerance": 0.005,
+  "execution_timeout_ms": 5000,
+  "simulation_only": true,
+  "log_level": "INFO"
+}

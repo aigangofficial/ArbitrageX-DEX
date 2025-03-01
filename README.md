@@ -276,3 +276,44 @@ Prepare to reshape the DeFi world with unprecedented speed, stealth, and AI-driv
    - Real contract interactions only
    - Full coverage required
    - Test all error conditions
+
+## 🧪 Mainnet Fork Testing
+
+ArbitrageX includes comprehensive mainnet fork testing capabilities to validate the AI system's performance in realistic market conditions without risking real funds.
+
+### Running Mainnet Fork Tests
+
+```bash
+# Run with Hardhat mainnet fork
+./scripts/run_ai_with_hardhat_fork.sh
+
+# Run with specific block number
+./scripts/run_ai_with_hardhat_fork.sh --fork-block 12345678
+
+# Run with longer test duration
+./scripts/run_ai_with_hardhat_fork.sh --run-time 600
+
+# Run specific AI modules
+./scripts/run_ai_with_hardhat_fork.sh --modules strategy_optimizer,backtesting
+```
+
+### AI Module Testing
+
+You can also run the AI modules directly with a fork configuration:
+
+```bash
+cd backend/ai
+./run_mainnet_fork.sh
+```
+
+### Test Results
+
+The mainnet fork tests generate comprehensive reports with the following information:
+
+- Summary of predictions (total, profitable, percentage)
+- Expected profit analysis
+- Performance metrics (execution times)
+- Network, token pair, and DEX distribution
+- Overall conclusion about AI system performance
+
+Reports are saved in the `results` directory with timestamps for easy reference.

@@ -40,9 +40,13 @@ error CommitmentNotReady();
 error CommitmentExpired();
 error InvalidCommitment();
 error FlashbotsRelayerRequired();
+error InvalidExecutionMode();
 
 contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
     using SafeERC20 for IERC20;
+
+    // Execution Mode enum (must match ArbitrageExecutor's enum)
+    enum ExecutionMode { MAINNET, FORK }
 
     uint256 private constant BPS = 10000;
     uint256 private constant MIN_PROFIT_BPS = 50; // 0.5% minimum profit
@@ -78,7 +82,9 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
     mapping(bytes32 => uint256) public commitmentTimestamps; // Timestamp when commitment was made
     mapping(bytes32 => uint256) public commitmentNonces; // Nonce used in the commitment
 
-    // Test mode flag
+    // Execution Mode
+    ExecutionMode public executionMode = ExecutionMode.MAINNET;
+    // Test mode flag (will be aligned with FORK execution mode)
     bool public testMode = false;
 
     event FlashLoanExecuted(
@@ -98,6 +104,7 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
     event FlashLoanProviderRemoved(address indexed provider);
     event ArbitrageExecutorUpdated(address indexed executor);
     event TokenSupportUpdated(address indexed token, bool supported);
+    event ExecutionModeChanged(ExecutionMode mode);
     event EmergencyWithdrawal(
         address indexed token,
         uint256 amount,
@@ -628,8 +635,8 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         if (amount < minTradeAmount) revert InvalidAmount(amount, minTradeAmount);
         if (maxTradeAmount > 0 && amount > maxTradeAmount) revert InvalidAmount(amount, maxTradeAmount);
         
-        // Skip actual flash loan execution in test mode
-        if (testMode) {
+        // Skip actual flash loan execution in FORK mode
+        if (executionMode == ExecutionMode.FORK) {
             emit FlashLoanExecuted(tokenAddress, amount, 0, msg.sender);
             return;
         }
@@ -643,6 +650,27 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
             params,
             REFERRAL_CODE
         );
+    }
+
+    /**
+     * @dev Set the execution mode (MAINNET or FORK)
+     * @param _mode The execution mode to set
+     */
+    function setExecutionMode(ExecutionMode _mode) external onlyOwner {
+        executionMode = _mode;
+        
+        // Align testMode with FORK execution mode
+        testMode = (_mode == ExecutionMode.FORK);
+        
+        emit ExecutionModeChanged(_mode);
+    }
+    
+    /**
+     * @dev Get the current execution mode
+     * @return The current execution mode
+     */
+    function getExecutionMode() external view returns (ExecutionMode) {
+        return executionMode;
     }
 
     receive() external payable {}

@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-03-01 08:58:48",
+  "mode": "MAINNET FORK",
+  "modules": [
+    "strategy_optimizer"
+  ],
+  "results": {
+    "strategy_optimizer": {
+      "success": false,
+      "execution_time": 0.059957027435302734
+    }
+  },
+  "total_execution_time": 0.059957027435302734,
+  "success_rate": 0.0,
+  "fork_config": {
+    "mode": "mainnet_fork",
+    "fork_url": "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    "fork_block_number": "18000000",
+    "networks": [
+      "ethereum"
+    ],
+    "tokens": {
+      "ethereum": [
+        "AAVE",
+        "WETH"
+      ]
+    },
+    "dexes": {
+      "ethereum": [
+        "uniswap_v3",
+        "sushiswap",
+        "curve",
+        "balancer",
+        "1inch"
+      ]
+    },
+    "token_pair": "AAVE-WETH",
+    "gas_price_multiplier": 1.1,
+    "slippage_tolerance": 0.005,
+    "execution_timeout_ms": 5000,
+    "simulation_only": true,
+    "log_level": "INFO"
+  }
+}

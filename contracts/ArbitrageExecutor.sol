@@ -36,6 +36,11 @@ pragma solidity ^0.8.20;
  *    - Commit-reveal scheme for transactions
  *    - Private mempool support
  *
+ * 7. Execution Mode:
+ *    - Support for both mainnet and forked execution
+ *    - Configurable execution mode for testing and training
+ *    - Different validation rules based on execution mode
+ *
  * SECURITY CONSIDERATIONS:
  * - All tokens must be whitelisted before trading
  * - Token approvals are explicitly managed
@@ -67,6 +72,7 @@ error PriceImpactTooHigh(uint256 impact, uint256 maxImpact);
 error SlippageTooHigh(uint256 expected, uint256 actual, uint256 maxSlippage);
 error MEVProtectionFailed();
 error CommitmentRequired();
+error InvalidExecutionMode();
 
 /**
  * @title ArbitrageExecutor
@@ -74,6 +80,9 @@ error CommitmentRequired();
  */
 contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     using SafeERC20 for IERC20;
+
+    // Execution Mode enum
+    enum ExecutionMode { MAINNET, FORK }
 
     // Constants
     uint256 private constant BPS = 10000;
@@ -98,6 +107,9 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     IMEVProtection public mevProtection;
     bool public useMEVProtection = true;
     mapping(bytes32 => bool) public pendingTransactions;
+    
+    // Execution Mode
+    ExecutionMode public executionMode = ExecutionMode.MAINNET;
     
     // Events
     event ArbitrageExecuted(
@@ -126,6 +138,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     event MEVProtectionEnabled(bool enabled);
     event MEVProtectionContractUpdated(address indexed newProtection);
     event TransactionCommitted(bytes32 indexed commitmentHash);
+    event ExecutionModeChanged(ExecutionMode mode);
     
     /**
      * @dev Constructor to initialize the arbitrage executor
@@ -302,8 +315,13 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     ) internal returns (uint256) {
         // Validate parameters
         if (!approvedRouters[router]) revert InvalidRouter(router);
-        if (!whitelistedTokens[tokenIn]) revert InvalidToken(tokenIn);
-        if (!whitelistedTokens[tokenOut]) revert InvalidToken(tokenOut);
+        
+        // In MAINNET mode, enforce strict token whitelisting
+        // In FORK mode, allow non-whitelisted tokens for testing
+        if (executionMode == ExecutionMode.MAINNET) {
+            if (!whitelistedTokens[tokenIn]) revert InvalidToken(tokenIn);
+            if (!whitelistedTokens[tokenOut]) revert InvalidToken(tokenOut);
+        }
         
         // Check token balance
         uint256 balanceBefore = IERC20(tokenIn).balanceOf(address(this));
@@ -324,8 +342,14 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         // Execute the trade
         uint256 amountOut = _executeTrade(router, path, amount, expectedOut);
         
-        // Verify profit
-        if (amountOut < minProfitAmount) revert InsufficientProfit(amountOut, minProfitAmount);
+        // Verify profit based on execution mode
+        // In FORK mode, we can relax profit requirements for testing
+        if (executionMode == ExecutionMode.MAINNET) {
+            if (amountOut < minProfitAmount) revert InsufficientProfit(amountOut, minProfitAmount);
+        } else {
+            // In FORK mode, still ensure the trade is not a loss, but allow smaller profits
+            if (amountOut < amount) revert InsufficientProfit(amountOut, amount);
+        }
         
         // Emit event
         emit ArbitrageExecuted(tokenIn, tokenOut, amount, amountOut, router, amountOut - amount);
@@ -740,6 +764,30 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         } else {
             revert("Invalid parameter");
         }
+    }
+    
+    /**
+     * @dev Set the execution mode (MAINNET or FORK)
+     * @param _mode The execution mode to set
+     */
+    function setExecutionMode(ExecutionMode _mode) external onlyOwner {
+        executionMode = _mode;
+        emit ExecutionModeChanged(_mode);
+    }
+    
+    /**
+     * @dev Get the current execution mode
+     * @return The current execution mode
+     */
+    function getExecutionMode() external view returns (ExecutionMode) {
+        return executionMode;
+    }
+    
+    /**
+     * @dev Modifier to adjust behavior based on execution mode
+     */
+    modifier executionModeAware() {
+        _;
     }
     
     /**

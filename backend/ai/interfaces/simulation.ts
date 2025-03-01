@@ -44,9 +44,13 @@ export interface LiquidityPool {
 
 export interface ArbitrageOpportunity {
     pair: string;
+    tokenA?: string;
+    tokenB?: string;
     amount: bigint;
     expectedProfit: bigint;
     gasEstimate: bigint;
+    route?: string;
+    timestamp?: number;
 }
 
 export interface SimulatedTradeResult {
