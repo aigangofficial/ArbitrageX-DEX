@@ -1,0 +1,30 @@
+{
+  "mode": "mainnet_fork",
+  "networks": [
+    "arbitrum",
+    "polygon"
+  ],
+  "tokens": [
+    "WETH",
+    "USDC",
+    "DAI"
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "curve",
+    "balancer"
+  ],
+  "fork_block_number": 0,
+  "run_time_seconds": 600,
+  "slippage_tolerance": 0.005,
+  "execution_timeout_ms": 5000,
+  "batch_trades": true,
+  "batch_size": 10,
+  "gas_strategy": "dynamic",
+  "dynamic_gas_adjustment": true,
+  "modules": [
+    "all"
+  ],
+  "output_dir": "results",
+  "debug": false
+}

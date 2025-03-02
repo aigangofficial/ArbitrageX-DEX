@@ -6,6 +6,7 @@ export class APIService {
   private api: AxiosInstance;
 
   constructor(baseURL: string = 'http://localhost:3000/api/v1') {
+    console.log(`Initializing API service with base URL: ${baseURL}`);
     this.api = axios.create({
       baseURL,
       timeout: 10000,
@@ -24,15 +25,64 @@ export class APIService {
     );
   }
 
+  // Bot control endpoints
+  public async startBot(params: {
+    runTime?: number;
+    tokens?: string;
+    dexes?: string;
+    gasStrategy?: string;
+  }): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('Starting bot with params:', params);
+      const response = await this.api.post('/bot-control/start', params);
+      return response.data;
+    } catch (error) {
+      console.error('Error starting bot:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  public async stopBot(): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('Stopping bot');
+      const response = await this.api.post('/bot-control/stop');
+      return response.data;
+    } catch (error) {
+      console.error('Error stopping bot:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  public async getBotRunningStatus(): Promise<{ isRunning: boolean }> {
+    try {
+      console.log('Checking bot status');
+      const response = await this.api.get('/bot-control/status');
+      return response.data.data;
+    } catch (error) {
+      console.error('Error checking bot status:', error);
+      throw this.handleError(error);
+    }
+  }
+
   // Trade endpoints
   public async getTrades(limit: number = 10): Promise<Trade[]> {
-    const response = await this.api.get(`/trades?limit=${limit}`);
-    return response.data.trades;
+    try {
+      const response = await this.api.get(`/trades?limit=${limit}`);
+      return response.data.trades;
+    } catch (error) {
+      console.error('Error fetching trades:', error);
+      throw this.handleError(error);
+    }
   }
 
   public async getTrade(txHash: string): Promise<Trade> {
-    const response = await this.api.get(`/trades/${txHash}`);
-    return response.data.trade;
+    try {
+      const response = await this.api.get(`/trades/${txHash}`);
+      return response.data.trade;
+    } catch (error) {
+      console.error(`Error fetching trade ${txHash}:`, error);
+      throw this.handleError(error);
+    }
   }
 
   public async executeArbitrage(params: {
@@ -41,8 +91,14 @@ export class APIService {
     amount: string;
     router: string;
   }): Promise<{ tradeId: string }> {
-    const response = await this.api.post('/trades/execute', params);
-    return response.data;
+    try {
+      console.log('Executing arbitrage with params:', params);
+      const response = await this.api.post('/trades/execute', params);
+      return response.data;
+    } catch (error) {
+      console.error('Error executing arbitrage:', error);
+      throw this.handleError(error);
+    }
   }
 
   public async getTradeStats(): Promise<{
@@ -52,14 +108,24 @@ export class APIService {
     totalProfit: string;
     avgGasUsed: number;
   }> {
-    const response = await this.api.get('/trades/stats');
-    return response.data.stats;
+    try {
+      const response = await this.api.get('/trades/stats');
+      return response.data.stats;
+    } catch (error) {
+      console.error('Error fetching trade stats:', error);
+      throw this.handleError(error);
+    }
   }
 
   // Bot status endpoints
   public async getBotStatus(): Promise<BotStatus> {
-    const response = await this.api.get('/status');
-    return response.data.status;
+    try {
+      const response = await this.api.get('/status');
+      return response.data.status;
+    } catch (error) {
+      console.error('Error fetching bot status:', error);
+      throw this.handleError(error);
+    }
   }
 
   public async getHealthMetrics(): Promise<{
@@ -72,8 +138,13 @@ export class APIService {
     };
     timestamp: string;
   }> {
-    const response = await this.api.get('/status/health');
-    return response.data;
+    try {
+      const response = await this.api.get('/status/health');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching health metrics:', error);
+      throw this.handleError(error);
+    }
   }
 
   // Execution Mode endpoints
@@ -82,8 +153,13 @@ export class APIService {
     lastUpdated: string;
     updatedBy: string;
   }> {
-    const response = await this.api.get('/execution-mode');
-    return response.data.data;
+    try {
+      const response = await this.api.get('/execution-mode');
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching execution mode:', error);
+      throw this.handleError(error);
+    }
   }
 
   public async setExecutionMode(mode: ExecutionMode, updatedBy: string = 'user'): Promise<{
@@ -91,8 +167,14 @@ export class APIService {
     lastUpdated: string;
     updatedBy: string;
   }> {
-    const response = await this.api.post('/execution-mode', { mode, updatedBy });
-    return response.data.data;
+    try {
+      console.log(`Setting execution mode to ${mode}`);
+      const response = await this.api.post('/execution-mode', { mode, updatedBy });
+      return response.data.data;
+    } catch (error) {
+      console.error('Error setting execution mode:', error);
+      throw this.handleError(error);
+    }
   }
 
   // Admin endpoints
@@ -100,15 +182,25 @@ export class APIService {
     subject: string;
     scope?: string[];
   }): Promise<{ token: string }> {
-    const response = await this.api.post('/admin/bypass-token', params);
-    return response.data;
+    try {
+      const response = await this.api.post('/admin/bypass-token', params);
+      return response.data;
+    } catch (error) {
+      console.error('Error generating bypass token:', error);
+      throw this.handleError(error);
+    }
   }
 
   public async revokeBypassToken(token: string): Promise<{ success: boolean }> {
-    const response = await this.api.delete('/admin/bypass-token', {
-      data: { token }
-    });
-    return response.data;
+    try {
+      const response = await this.api.delete('/admin/bypass-token', {
+        data: { token }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error revoking bypass token:', error);
+      throw this.handleError(error);
+    }
   }
 
   public async getTokenStats(token: string): Promise<{
@@ -117,17 +209,25 @@ export class APIService {
     lastUsed: Date;
     isRevoked: boolean;
   }> {
-    const response = await this.api.get('/admin/bypass-token/stats', {
-      headers: { 'x-bypass-token': token }
-    });
-    return response.data.stats;
+    try {
+      const response = await this.api.get('/admin/bypass-token/stats', {
+        headers: { 'x-bypass-token': token }
+      });
+      return response.data.stats;
+    } catch (error) {
+      console.error('Error fetching token stats:', error);
+      throw this.handleError(error);
+    }
   }
 
   // Error handling helper
-  private handleError(error: any): never {
+  private handleError(error: any): Error {
     if (error.response) {
-      throw new Error(error.response.data.error || 'API request failed');
+      return new Error(error.response.data.error || `API request failed with status ${error.response.status}`);
     }
-    throw error;
+    if (error.request) {
+      return new Error('No response received from API server. Please check your connection.');
+    }
+    return error;
   }
 } 

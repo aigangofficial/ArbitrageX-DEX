@@ -8,6 +8,7 @@ import { RealTimeMetrics } from '../components/RealTimeMetrics';
 import { NetworkSelector, Network, ExecutionMode } from '../components/NetworkSelector';
 import { AIStrategyInsights, AIStrategy } from '../components/AIStrategyInsights';
 import ExecutionModeSelector from '../components/ExecutionModeSelector';
+import BotControlPanel from '../components/BotControlPanel';
 import { useToast } from '../context/ToastContext';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { Trade, BotStatus } from '../services/websocket';
@@ -138,7 +139,8 @@ const MOCK_OPPORTUNITIES: AIOpportunity[] = [
 ];
 
 const Dashboard: React.FC = () => {
-  const { showToast } = useToast();
+  // Use a conditional hook to handle SSR
+  const toast = typeof window !== 'undefined' ? useToast() : { showToast: () => {} };
   const apiService = new APIService();
   
   // State for network selection
@@ -161,20 +163,21 @@ const Dashboard: React.FC = () => {
   });
   
   // State for bot status
-  const [botStatus, setBotStatus] = useState({
-    isActive: true,
-    status: 'idle',
-    lastUpdated: new Date().toISOString(),
-    activeStrategies: 0,
-    pendingTransactions: 0,
-    connectedNodes: 0,
-    cpuUsage: 0,
-    memoryUsage: { heapUsed: 0, heapTotal: 0, external: 0 },
-    uptime: 0,
-    network: 'Ethereum',
-    successfulTrades: 0,
+  const [botStatus, setBotStatus] = useState<BotStatus>({
+    isActive: false,
+    lastHeartbeat: new Date(),
     totalTrades: 0,
-    totalProfit: '0'
+    successfulTrades: 0,
+    failedTrades: 0,
+    totalProfit: '0',
+    averageGasUsed: 0,
+    memoryUsage: { heapUsed: 0, heapTotal: 0, external: 0 },
+    cpuUsage: 0,
+    pendingTransactions: 0,
+    network: 'Ethereum',
+    version: '1.0.0',
+    uptime: 0,
+    isHealthy: true
   });
   
   // State for AI opportunities and strategies
@@ -187,9 +190,10 @@ const Dashboard: React.FC = () => {
   
   // State for arbitrage execution
   const [isExecutingTrade, setIsExecutingTrade] = useState(false);
+  const [botRunning, setBotRunning] = useState<boolean>(false);
 
   // WebSocket connection for real-time updates
-  const { lastMessage, connectionStatus } = useWebSocket('ws://localhost:3001');
+  const { lastMessage, connectionStatus } = useWebSocket('ws://localhost:3000');
 
   // Load execution mode on component mount
   useEffect(() => {
@@ -199,7 +203,7 @@ const Dashboard: React.FC = () => {
         setExecutionMode(modeData.mode as ExecutionMode);
       } catch (error) {
         console.error('Failed to fetch execution mode:', error);
-        showToast({
+        toast.showToast({
           type: 'error',
           title: 'Error',
           message: 'Failed to fetch execution mode'
@@ -210,6 +214,31 @@ const Dashboard: React.FC = () => {
     fetchExecutionMode();
   }, []);
 
+  // Check bot status periodically
+  useEffect(() => {
+    const checkBotStatus = async () => {
+      try {
+        const botRunningStatus = await apiService.getBotRunningStatus();
+        setBotRunning(botRunningStatus.isRunning);
+      } catch (error) {
+        console.error('Failed to check bot status:', error);
+        toast.showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to check bot status'
+        });
+      }
+    };
+    
+    // Check immediately
+    checkBotStatus();
+    
+    // Then check every 10 seconds
+    const interval = setInterval(checkBotStatus, 10000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // Handle network change
   const handleNetworkChange = useCallback((networkId: string) => {
     setSelectedNetwork(networkId);
@@ -217,7 +246,7 @@ const Dashboard: React.FC = () => {
     // Refresh data for the new network
     fetchTradesForNetwork(networkId);
     
-    showToast({
+    toast.showToast({
       type: 'info',
       title: 'Network Changed',
       message: `Switched to ${NETWORKS.find(n => n.id === networkId)?.name || networkId} network`
@@ -234,14 +263,14 @@ const Dashboard: React.FC = () => {
       
       setExecutionMode(mode);
       
-      showToast({
+      toast.showToast({
         type: mode === ExecutionMode.MAINNET ? 'warning' : 'success',
         title: 'Execution Mode Changed',
         message: `Switched to ${mode === ExecutionMode.MAINNET ? 'Mainnet' : 'Fork'} execution mode`
       });
     } catch (error) {
       console.error('Failed to change execution mode:', error);
-      showToast({
+      toast.showToast({
         type: 'error',
         title: 'Error',
         message: 'Failed to change execution mode'
@@ -282,7 +311,7 @@ const Dashboard: React.FC = () => {
       
       // Show warning if in mainnet mode
       if (executionMode === ExecutionMode.MAINNET) {
-        showToast({
+        toast.showToast({
           type: 'warning',
           title: 'Live Execution',
           message: 'Executing trade on MAINNET with real assets'
@@ -291,7 +320,7 @@ const Dashboard: React.FC = () => {
       
       const result = await apiService.executeArbitrage(params);
       
-      showToast({
+      toast.showToast({
         type: 'success',
         title: 'Trade Executed',
         message: `Trade executed successfully with ID: ${result.tradeId}`
@@ -301,7 +330,7 @@ const Dashboard: React.FC = () => {
       fetchTradesForNetwork(selectedNetwork);
     } catch (error) {
       console.error('Trade execution failed:', error);
-      showToast({
+      toast.showToast({
         type: 'error',
         title: 'Execution Failed',
         message: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -313,7 +342,7 @@ const Dashboard: React.FC = () => {
 
   // Handle strategy application
   const handleApplyStrategy = useCallback((strategy: AIStrategy) => {
-    showToast({
+    toast.showToast({
       type: 'info',
       title: 'Strategy Applied',
       message: `Applied strategy: ${strategy.name}`
@@ -322,7 +351,7 @@ const Dashboard: React.FC = () => {
 
   // Handle opportunity simulation
   const handleSimulateOpportunity = useCallback((opportunity: AIOpportunity) => {
-    showToast({
+    toast.showToast({
       type: 'info',
       title: 'Simulating Opportunity',
       message: `Simulating ${opportunity.tokenPair} opportunity`
@@ -331,7 +360,7 @@ const Dashboard: React.FC = () => {
 
   // Handle opportunity execution
   const handleExecuteOpportunity = useCallback((opportunity: AIOpportunity) => {
-    showToast({
+    toast.showToast({
       type: 'info',
       title: 'Executing Opportunity',
       message: `Executing ${opportunity.tokenPair} opportunity`
@@ -360,7 +389,7 @@ const Dashboard: React.FC = () => {
           // Update execution mode if changed from another client
           setExecutionMode(data.mode);
           
-          showToast({
+          toast.showToast({
             type: data.mode === ExecutionMode.MAINNET ? 'warning' : 'success',
             title: 'Execution Mode Changed',
             message: `Execution mode changed to ${data.mode === ExecutionMode.MAINNET ? 'Mainnet' : 'Fork'}`
@@ -372,12 +401,22 @@ const Dashboard: React.FC = () => {
     }
   }, [lastMessage]);
 
+  const handleBotStatusChange = (isRunning: boolean) => {
+    setBotRunning(isRunning);
+    // You can add additional logic here if needed when bot status changes
+  };
+
   return (
     <DashboardLayout title="ArbitrageX Dashboard">
       <div className="dashboard-grid">
         {/* Top row */}
         <div className="top-row">
-          <BotStatusPanel status={botStatus} isLoading={isLoadingBotStatus} />
+          <BotControlPanel onStatusChange={handleBotStatusChange} />
+          <BotStatusPanel 
+            status={botStatus} 
+            isLoading={isLoadingBotStatus}
+            connectionStatus={connectionStatus}
+          />
           <RealTimeMetrics metrics={metrics} isLoading={isLoadingMetrics} />
           <NetworkSelector
             networks={NETWORKS}

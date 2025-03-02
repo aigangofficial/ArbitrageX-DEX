@@ -12,6 +12,7 @@ import { createStatusRouter } from './routes/status';
 import { createBypassTokenMiddleware } from './middleware/bypassTokenMiddleware';
 import { createAdminRouter } from './routes/admin';
 import aiRouter from './routes/ai';
+import botControlRouter from './routes/bot-control';
 import { createMarketRouter } from './routes/market';
 import { createNetworkExecutionRouter } from './routes/networkExecutionRoutes';
 import executionModeRouter from './routes/execution-mode';
@@ -30,7 +31,7 @@ interface ServerConfig {
   corsOrigin?: string;
 }
 
-export async function createServer(config: ServerConfig): Promise<Express> {
+export async function createServer(config: ServerConfig): Promise<{ app: Express, server: Server }> {
   const app = express();
   const httpServer = createHttpServer(app);
 
@@ -70,6 +71,7 @@ export async function createServer(config: ServerConfig): Promise<Express> {
   app.use('/api/v1/trades', createTradeRouter(wsService));
   app.use('/api/v1/status', createStatusRouter());
   app.use('/api/v1/ai', aiRouter);
+  app.use('/api/v1/bot-control', botControlRouter);
   app.use('/api/v1/market', createMarketRouter());
   app.use('/api/admin', createAdminRouter(bypassTokenManager));
   
@@ -77,6 +79,25 @@ export async function createServer(config: ServerConfig): Promise<Express> {
   app.use('/api/v1/network-execution', createNetworkExecutionRouter(wsService));
   // Add direct execution mode routes
   app.use('/api/v1/execution-mode', executionModeRouter);
+
+  // Add a root route handler
+  app.get('/', (req, res) => {
+    res.json({
+      status: 'ok',
+      message: 'ArbitrageX API is running',
+      version: '1.0.0',
+      endpoints: {
+        trades: '/api/v1/trades',
+        status: '/api/v1/status',
+        ai: '/api/v1/ai',
+        botControl: '/api/v1/bot-control',
+        market: '/api/v1/market',
+        admin: '/api/admin',
+        networkExecution: '/api/v1/network-execution',
+        executionMode: '/api/v1/execution-mode'
+      }
+    });
+  });
 
   // Global error handler
   app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -92,7 +113,7 @@ export async function createServer(config: ServerConfig): Promise<Express> {
     await mongoose.connect(config.mongoUri);
   }
 
-  return app;
+  return { app, server: httpServer };
 }
 
 // Only start the server if this file is run directly
@@ -107,9 +128,8 @@ if (require.main === module) {
   createServer({
     redis: redisClient,
     mongoUri: config.mongoUri || 'mongodb://localhost:27017/arbitragex',
-  }).then(app => {
+  }).then(({ app, server }) => {
     const PORT = process.env.PORT || 3000;
-    const server = createHttpServer(app);
     
     server.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);

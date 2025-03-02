@@ -14,8 +14,17 @@ interface UseArbitrageXReturn {
   connectionStatus: ConnectionStatus;
   lastMessage: any;
   sendMessage: (message: any) => void;
+}
+
 export function useArbitrageX(options: UseArbitrageXOptions = {}) {
-  const [ws] = useState(() => new WebSocketService(options.wsUrl));
+  // Only create WebSocketService instance in browser environment
+  const [ws] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return new WebSocketService(options.wsUrl);
+    }
+    return null;
+  });
+  
   const [api] = useState(() => new APIService(options.apiUrl));
   
   const [isConnected, setIsConnected] = useState(false);
@@ -27,6 +36,11 @@ export function useArbitrageX(options: UseArbitrageXOptions = {}) {
 
   // Initialize WebSocket connection and event listeners
   useEffect(() => {
+    // Skip if not in browser or WebSocket not initialized
+    if (typeof window === 'undefined' || !ws) {
+      return;
+    }
+    
     const handleConnect = () => {
       setIsConnected(true);
       setConnectionState('connected');
@@ -85,6 +99,11 @@ export function useArbitrageX(options: UseArbitrageXOptions = {}) {
   // Load initial data from API
   const loadInitialData = useCallback(async () => {
     try {
+      // Skip API calls during SSR
+      if (typeof window === 'undefined') {
+        return;
+      }
+      
       const [tradesData, statusData] = await Promise.all([
         api.getTrades(100),
         api.getBotStatus()

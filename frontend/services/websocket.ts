@@ -48,24 +48,38 @@ export class WebSocketService extends EventEmitter {
   private subscribedChannels: Set<string> = new Set();
   private connectionState: 'connecting' | 'connected' | 'disconnected' | 'error' = 'disconnected';
 
-  constructor(private readonly wsUrl: string = 'ws://localhost:3000/ws') {
+  constructor(private readonly wsUrl: string = 'ws://localhost:3000') {
     super();
-    this.connect();
+    // Only connect if in browser environment
+    if (typeof window !== 'undefined' && typeof WebSocket !== 'undefined') {
+      this.connect();
+    } else {
+      console.warn('WebSocket not available - running in SSR mode');
+    }
   }
 
   private connect(): void {
-    if (this.connectionState === 'connecting') return;
+    if (this.connectionState === 'connecting' || typeof WebSocket === 'undefined') return;
 
     this.connectionState = 'connecting';
-    this.ws = new WebSocket(this.wsUrl);
-    this.setupEventHandlers();
-    this.setupPing();
+    try {
+      console.log(`Connecting to WebSocket at ${this.wsUrl}...`);
+      this.ws = new WebSocket(this.wsUrl);
+      this.setupEventHandlers();
+      this.setupPing();
+    } catch (error) {
+      console.error('Failed to create WebSocket connection:', error);
+      this.connectionState = 'error';
+      this.emit('error', new Error('Failed to create WebSocket connection'));
+      this.handleReconnect();
+    }
   }
 
   private setupEventHandlers(): void {
     if (!this.ws) return;
 
     this.ws.onopen = () => {
+      console.log('WebSocket connection established');
       this.connectionState = 'connected';
       this.reconnectAttempts = 0;
       this.emit('connected');
@@ -74,7 +88,8 @@ export class WebSocketService extends EventEmitter {
       this.requestBotStatus();
     };
 
-    this.ws.onclose = () => {
+    this.ws.onclose = (event) => {
+      console.log(`WebSocket connection closed: ${event.code} - ${event.reason}`);
       this.connectionState = 'disconnected';
       this.emit('disconnected');
       this.cleanup();
@@ -82,14 +97,16 @@ export class WebSocketService extends EventEmitter {
     };
 
     this.ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
       this.connectionState = 'error';
       this.emit('error', new Error('WebSocket connection error'));
-      console.error('WebSocket error:', error);
     };
 
     this.ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log('Received WebSocket message:', data.type);
+        
         switch (data.type) {
           case 'trade_update':
             this.emit('trade', data.data);
@@ -99,6 +116,9 @@ export class WebSocketService extends EventEmitter {
             break;
           case 'error':
             this.emit('error', new Error(data.message || 'Unknown WebSocket error'));
+            break;
+          case 'connection':
+            console.log('Connection message:', data.message);
             break;
           default:
             console.warn('Unknown message type:', data.type);
@@ -137,6 +157,8 @@ export class WebSocketService extends EventEmitter {
       this.maxReconnectTimeout
     );
 
+    console.log(`Attempting to reconnect in ${timeout}ms (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
+    
     this.reconnectTimer = setTimeout(() => {
       this.reconnectAttempts++;
       this.emit('reconnecting', {
@@ -148,12 +170,17 @@ export class WebSocketService extends EventEmitter {
   }
 
   public subscribe(channel: string): void {
+    console.log(`Subscribing to channel: ${channel}`);
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({
         type: 'subscribe',
         channels: [channel]
       }));
       this.subscribedChannels.add(channel);
+    } else {
+      // Just add to the set to subscribe later when connected
+      this.subscribedChannels.add(channel);
+      console.log(`WebSocket not open, will subscribe to ${channel} when connected`);
     }
   }
 
@@ -169,6 +196,7 @@ export class WebSocketService extends EventEmitter {
 
   private resubscribeToChannels(): void {
     if (this.subscribedChannels.size > 0) {
+      console.log(`Resubscribing to ${this.subscribedChannels.size} channels`);
       this.ws?.send(JSON.stringify({
         type: 'subscribe',
         channels: Array.from(this.subscribedChannels)
@@ -177,8 +205,11 @@ export class WebSocketService extends EventEmitter {
   }
 
   public requestBotStatus(): void {
+    console.log('Requesting bot status');
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ type: 'get_status' }));
+    } else {
+      console.warn('Cannot request bot status: WebSocket not connected');
     }
   }
 
@@ -206,6 +237,7 @@ export class WebSocketService extends EventEmitter {
   }
 
   public forceReconnect(): void {
+    console.log('Forcing WebSocket reconnection');
     this.cleanup();
     this.reconnectAttempts = 0;
     this.connect();

@@ -2,8 +2,9 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import Redis from 'ioredis';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import { aiRouter } from './routes/ai';
+import aiRouter from './routes/ai';
 import healthRouter from './routes/health';
+import botControlRouter from './routes/bot-control';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 
@@ -68,6 +69,7 @@ export async function createApp(redis: Redis): Promise<Express> {
   // Routes with rate limiting
   app.use('/api/v1/ai', aiLimiter, aiRouter);
   app.use('/health', healthRouter);
+  app.use('/api/v1/bot-control', botControlRouter);
 
   // Catch 404 and forward to error handler
   app.use((req: Request, _res: Response, next: NextFunction) => {

@@ -15,7 +15,7 @@
     "balancer"
   ],
   "fork_block_number": 0,
-  "run_time_seconds": 300,
+  "run_time_seconds": 600,
   "slippage_tolerance": 0.005,
   "execution_timeout_ms": 5000,
   "batch_trades": true,
@@ -80,7 +80,55 @@
     "mongodb_enabled": false,
     "mongodb_uri": "mongodb://localhost:27017/",
     "mongodb_db": "arbitragex",
-    "mongodb_collection": "trade_history"
+    "mongodb_collection": "trade_history",
+    "networks": [
+      "polygon",
+      "arbitrum"
+    ],
+    "tokens": [
+      "WETH",
+      "USDC",
+      "DAI"
+    ],
+    "dexes": [
+      "uniswap_v3",
+      "balancer",
+      "curve"
+    ],
+    "thresholds": {
+      "min_profit_usd": 20,
+      "min_profit_after_gas_percentage": 70,
+      "dynamic": {
+        "high_congestion": {
+          "min_profit_usd": 35,
+          "min_profit_after_gas_percentage": 80
+        },
+        "low_congestion": {
+          "min_profit_usd": 15,
+          "min_profit_after_gas_percentage": 60
+        }
+      }
+    },
+    "priority_pairs": [
+      {
+        "network": "polygon",
+        "pair": "WETH-DAI",
+        "dex": "uniswap_v3",
+        "weight": 1.0
+      },
+      {
+        "network": "arbitrum",
+        "pair": "WETH-DAI",
+        "dex": "curve",
+        "weight": 0.9
+      },
+      {
+        "network": "polygon",
+        "pair": "WETH-USDC",
+        "dex": "balancer",
+        "weight": 0.85
+      }
+    ]
   },
   "mev_protection": {
     "flashbots_enabled": true,
@@ -149,6 +197,18 @@
       "polygon": "${POLYGON_RPC_URL}",
       "optimism": "${OPTIMISM_RPC_URL}",
       "bsc": "${BSC_RPC_URL}"
+    },
+    "network_settings": {
+      "polygon": {
+        "protection_level": "medium",
+        "use_flashbots": false,
+        "priority_fee_strategy": "dynamic"
+      },
+      "arbitrum": {
+        "protection_level": "high",
+        "use_flashbots": true,
+        "priority_fee_strategy": "aggressive_for_high_value"
+      }
     }
   }
 }

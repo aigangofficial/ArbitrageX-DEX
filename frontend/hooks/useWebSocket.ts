@@ -10,7 +10,7 @@ interface UseWebSocketReturn {
   reconnect: () => void;
 }
 
-export const useWebSocket = (url: string = 'ws://localhost:3000/api/ws/arbitrage'): UseWebSocketReturn => {
+export const useWebSocket = (url: string = 'ws://localhost:3000/ws'): UseWebSocketReturn => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
   const [lastMessage, setLastMessage] = useState<any>(null);

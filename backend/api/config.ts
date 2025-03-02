@@ -163,6 +163,7 @@ export interface Config {
         wmatic: string;
         usdc: string;
         usdt: string;
+        dai: string;
     };
     database: {
         uri: string;
@@ -233,14 +234,15 @@ const config: Config = {
     quickswapRouter: process.env.QUICKSWAP_ROUTER_ADDRESS || '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
 
     // Protocol Addresses
-    aavePool: process.env.AAVE_POOL_ADDRESS || '0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951',
+    aavePool: process.env.AAVE_POOL_ADDRESS || '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
     bridge: process.env.BRIDGE_ADDRESS || '0x1234...',
 
     // Token Addresses
-    weth: process.env.WETH_ADDRESS || '0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9',
+    weth: process.env.WETH_ADDRESS || '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     wmatic: process.env.WMATIC_ADDRESS || '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
-    usdc: process.env.USDC_ADDRESS || '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
-    usdt: process.env.USDT_ADDRESS || '0x7169D38820dfd117C3FA1f22a697dBA58d90BA06',
+    usdc: process.env.USDC_ADDRESS || '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    usdt: process.env.USDT_ADDRESS || '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    dai: process.env.DAI_ADDRESS || '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   },
   database: {
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/arbitragex',
