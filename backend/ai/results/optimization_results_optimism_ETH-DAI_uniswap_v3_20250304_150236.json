@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-03-04 15:02:36",
+  "config": {
+    "network": "optimism",
+    "token_pair": [
+      "ETH",
+      "DAI"
+    ],
+    "dex": "uniswap_v3",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 93.86857511455528,
+      "confidence": 0.8354214902126853,
+      "execution_time": 74.82622207302771,
+      "price_impact": 0.0032479877114854837,
+      "slippage_tolerance": 0.0029689320128170296,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 109.60432573477347,
+      "confidence": 0.8320879442993787,
+      "execution_time": 134.4987495808125,
+      "price_impact": 0.001537032532782233,
+      "slippage_tolerance": 0.003431529669545213,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 30.63172577473544,
+      "confidence": 0.7975405799522624,
+      "execution_time": 140.8128162329249,
+      "price_impact": 0.002045068649930956,
+      "slippage_tolerance": 0.0032629391431660123,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 118.7792322536864,
+      "confidence": 0.7614705222162443,
+      "execution_time": 164.57732850500264,
+      "price_impact": 0.0012891570823569966,
+      "slippage_tolerance": 0.00715408505394958,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 26.436574341786965,
+      "confidence": 0.9228313598466846,
+      "execution_time": 139.01242786324883,
+      "price_impact": 0.003769180878216928,
+      "slippage_tolerance": 0.007604128462771163,
+      "timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 84.61718559489162,
+      "confidence": 0.8354214902126853,
+      "execution_time": 74.82622207302771,
+      "price_impact": 0.0032479877114854837,
+      "slippage_tolerance": 0.0029689320128170296,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 108.38415051343713,
+      "confidence": 0.8320879442993787,
+      "execution_time": 134.4987495808125,
+      "price_impact": 0.001537032532782233,
+      "slippage_tolerance": 0.003431529669545213,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 29.742285942537592,
+      "confidence": 0.7975405799522624,
+      "execution_time": 140.8128162329249,
+      "price_impact": 0.002045068649930956,
+      "slippage_tolerance": 0.0032629391431660123,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 96.9299762926214,
+      "confidence": 0.7614705222162443,
+      "execution_time": 164.57732850500264,
+      "price_impact": 0.0012891570823569966,
+      "slippage_tolerance": 0.00715408505394958,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 28.12263694819568,
+      "confidence": 0.9228313598466846,
+      "execution_time": 139.01242786324883,
+      "price_impact": 0.003769180878216928,
+      "slippage_tolerance": 0.007604128462771163,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 84.61718559489162,
+      "confidence": 0.8354214902126853,
+      "execution_time": 74.82622207302771,
+      "price_impact": 0.0032479877114854837,
+      "slippage_tolerance": 0.0029689320128170296,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 1.9281413636199178,
+      "protection_strategy": "gas_price_bump"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 108.38415051343713,
+      "confidence": 0.8320879442993787,
+      "execution_time": 134.4987495808125,
+      "price_impact": 0.001537032532782233,
+      "slippage_tolerance": 0.003431529669545213,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 3.888156228610396,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 29.742285942537592,
+      "confidence": 0.7975405799522624,
+      "execution_time": 140.8128162329249,
+      "price_impact": 0.002045068649930956,
+      "slippage_tolerance": 0.0032629391431660123,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 1.038582452861246,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 96.9299762926214,
+      "confidence": 0.7614705222162443,
+      "execution_time": 164.57732850500264,
+      "price_impact": 0.0012891570823569966,
+      "slippage_tolerance": 0.00715408505394958,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 4.836360437062877,
+      "protection_strategy": "gas_price_bump"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 28.12263694819568,
+      "confidence": 0.9228313598466846,
+      "execution_time": 139.01242786324883,
+      "price_impact": 0.003769180878216928,
+      "slippage_tolerance": 0.007604128462771163,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 1.020079279262049,
+      "protection_strategy": "gas_price_bump"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 84.61718559489162,
+      "confidence": 0.8354214902126853,
+      "execution_time": 74.82622207302771,
+      "price_impact": 0.0032479877114854837,
+      "slippage_tolerance": 0.0029689320128170296,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 1.9281413636199178,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 37.069230119204704,
+      "gas_used": 106372.2654239931,
+      "gas_cost": 1.1829413955909367e-05,
+      "status": "failed",
+      "actual_profit": 0,
+      "actual_gas_price": 39.98726246884663,
+      "actual_gas_used": 96615.8090889972,
+      "actual_gas_cost": 1.1590205150045126e-05,
+      "net_profit": -1.1590205150045126e-05,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 108.38415051343713,
+      "confidence": 0.8320879442993787,
+      "execution_time": 134.4987495808125,
+      "price_impact": 0.001537032532782233,
+      "slippage_tolerance": 0.003431529669545213,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 3.888156228610396,
+      "protection_strategy": "backrunning",
+      "gas_price": 35.37045661780158,
+      "gas_used": 280554.9458577812,
+      "gas_cost": 2.9770069624116966e-05,
+      "status": "success",
+      "actual_profit": 109.2997699134981,
+      "actual_gas_price": 37.79903044352977,
+      "actual_gas_used": 260408.89226893053,
+      "actual_gas_cost": 2.952961093991751e-05,
+      "net_profit": 105.41158415527676,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 29.742285942537592,
+      "confidence": 0.7975405799522624,
+      "execution_time": 140.8128162329249,
+      "price_impact": 0.002045068649930956,
+      "slippage_tolerance": 0.0032629391431660123,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 1.038582452861246,
+      "protection_strategy": "private_tx",
+      "gas_price": 28.183339229371253,
+      "gas_used": 299254.4757810866,
+      "gas_cost": 2.5301971220538086e-05,
+      "status": "success",
+      "actual_profit": 25.96664327085596,
+      "actual_gas_price": 27.857267070176768,
+      "actual_gas_used": 323575.2795137181,
+      "actual_gas_cost": 2.704176893616223e-05,
+      "net_profit": 24.928033776225778,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 96.9299762926214,
+      "confidence": 0.7614705222162443,
+      "execution_time": 164.57732850500264,
+      "price_impact": 0.0012891570823569966,
+      "slippage_tolerance": 0.00715408505394958,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 4.836360437062877,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 34.35373236384648,
+      "gas_used": 154486.0898068299,
+      "gas_cost": 1.592152134948296e-05,
+      "status": "success",
+      "actual_profit": 116.24876345289553,
+      "actual_gas_price": 31.27954065903086,
+      "actual_gas_used": 140056.6495748988,
+      "actual_gas_cost": 1.3142722994837053e-05,
+      "net_profit": 111.41238987310966,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "optimism_ETH-DAI_uniswap_v3_1741086156",
+      "network": "optimism",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 28.12263694819568,
+      "confidence": 0.9228313598466846,
+      "execution_time": 139.01242786324883,
+      "price_impact": 0.003769180878216928,
+      "slippage_tolerance": 0.007604128462771163,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 1.020079279262049,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 30.73425164635715,
+      "gas_used": 144050.92959481262,
+      "gas_cost": 1.3281892560175943e-05,
+      "status": "failed",
+      "actual_profit": 0,
+      "actual_gas_price": 30.6174744359546,
+      "actual_gas_used": 131341.9337292771,
+      "actual_gas_cost": 1.2064074894974954e-05,
+      "net_profit": -1.2064074894974954e-05,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "metrics": {
+    "total_trades": 5,
+    "successful_trades": 3,
+    "success_rate": 0.6,
+    "total_profit": 251.5151766372496,
+    "total_gas_cost": 9.336838291593688e-05,
+    "net_profit": 241.75198415033213,
+    "avg_execution_time": 130.7455088510033
+  }
+}

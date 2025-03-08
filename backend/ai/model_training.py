@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 import xgboost as xgb
 import lightgbm as lgb
 from typing import Dict, List, Tuple, Optional, Union, Any
+from pathlib import Path
 import logging
 import json
 import os
@@ -20,7 +21,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import pickle
 import joblib
-from feature_extractor import FeatureSet
+from backend.ai.feature_extractor import FeatureSet
 
 # Configure logging
 logging.basicConfig(

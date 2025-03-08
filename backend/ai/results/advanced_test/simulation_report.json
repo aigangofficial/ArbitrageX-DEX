@@ -1,0 +1,88 @@
+{
+  "simulation_period": {
+    "start_date": "2025-03-05",
+    "end_date": "2025-03-07",
+    "total_days": 3
+  },
+  "overall_metrics": {
+    "total_trades": 31,
+    "successful_trades": 22,
+    "success_rate": 70.96774193548387,
+    "total_profit_usd": -1232.5261525515687,
+    "avg_profit_per_day_usd": -410.84205085052287
+  },
+  "ml_metrics": {
+    "total_model_updates": 5,
+    "total_strategy_adaptations": 5,
+    "avg_prediction_accuracy": 69.0487625,
+    "initial_prediction_accuracy": 62.0,
+    "final_prediction_accuracy": 69.0487625,
+    "accuracy_improvement": 7.048762499999995
+  },
+  "monthly_breakdown": {
+    "2025-03": {
+      "trades": 62,
+      "successful_trades": 43,
+      "net_profit_usd": -2429.6833439820566,
+      "gas_cost_usd": 1715.0833750000002,
+      "model_updates": 9,
+      "strategy_adaptations": 9,
+      "prediction_accuracy": 65.5845875,
+      "days": 3,
+      "avg_profit_per_day": -809.8944479940188,
+      "success_rate": 69.35483870967742
+    }
+  },
+  "top_profitable_pairs": [
+    {
+      "pair": "LINK-USDC",
+      "trades": 3,
+      "successful_trades": 2,
+      "net_profit_usd": -56.385275084526484
+    },
+    {
+      "pair": "WETH-DAI",
+      "trades": 5,
+      "successful_trades": 4,
+      "net_profit_usd": -123.56027893936967
+    },
+    {
+      "pair": "WBTC-DAI",
+      "trades": 5,
+      "successful_trades": 2,
+      "net_profit_usd": -160.67785067039054
+    },
+    {
+      "pair": "WETH-USDC",
+      "trades": 9,
+      "successful_trades": 8,
+      "net_profit_usd": -258.37165789852105
+    },
+    {
+      "pair": "WBTC-USDC",
+      "trades": 9,
+      "successful_trades": 6,
+      "net_profit_usd": -395.94033995876094
+    }
+  ],
+  "top_profitable_dexes": [
+    {
+      "dex": "uniswap_v3",
+      "trades": 16,
+      "successful_trades": 8,
+      "net_profit_usd": -156.48315177339694
+    },
+    {
+      "dex": "curve",
+      "trades": 13,
+      "successful_trades": 11,
+      "net_profit_usd": -270.84408537117974
+    },
+    {
+      "dex": "balancer",
+      "trades": 18,
+      "successful_trades": 12,
+      "net_profit_usd": -271.4894259945132
+    }
+  ]
+}

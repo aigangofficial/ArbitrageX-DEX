@@ -14,15 +14,15 @@ This analysis examines the performance of the ArbitrageX AI system across multip
 
 ## Performance Overview
 
-| Metric | Value |
-|--------|-------|
-| Total Token Pairs Tested | 10 |
-| Average Success Rate | 23.64% |
-| Best Performing Pair | AAVE-WETH (34.78%) |
-| Worst Performing Pair | WETH-USDC (15.69%) |
-| Average Expected Profit | $-1403.80 |
-| Average Confidence Score | 0.4769 |
-| Average Execution Time | 115.17 ms |
+| Metric                   | Value              |
+| ------------------------ | ------------------ |
+| Total Token Pairs Tested | 10                 |
+| Average Success Rate     | 23.64%             |
+| Best Performing Pair     | AAVE-WETH (34.78%) |
+| Worst Performing Pair    | WETH-USDC (15.69%) |
+| Average Expected Profit  | $-1403.80          |
+| Average Confidence Score | 0.4769             |
+| Average Execution Time   | 115.17 ms          |
 
 ## Token Pair Performance Ranking
 
@@ -81,4 +81,4 @@ The multi-pair test provides valuable insights into the performance characterist
 
 By focusing on the best-performing pairs and implementing the recommended improvements, the ArbitrageX system can move toward profitability. The consistent execution times across all pairs indicate that the system's performance is reliable, which is a positive foundation for further development.
 
-The next phase should focus on gas optimization and refining the AI model to improve profitability while maintaining the system's speed and reliability. 
+The next phase should focus on gas optimization and refining the AI model to improve profitability while maintaining the system's speed and reliability.

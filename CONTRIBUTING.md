@@ -47,9 +47,9 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 
 ## Use a Consistent Coding Style
 
-* Use TypeScript for backend and frontend code
-* 2 spaces for indentation rather than tabs
-* You can try running `npm run lint` for style unification
+- Use TypeScript for backend and frontend code
+- 2 spaces for indentation rather than tabs
+- You can try running `npm run lint` for style unification
 
 ## Code of Conduct
 
@@ -61,11 +61,11 @@ In the interest of fostering an open and welcoming environment, we as contributo
 
 Examples of behavior that contributes to creating a positive environment include:
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+- Using welcoming and inclusive language
+- Being respectful of differing viewpoints and experiences
+- Gracefully accepting constructive criticism
+- Focusing on what is best for the community
+- Showing empathy towards other community members
 
 ### Our Responsibilities
 
@@ -88,12 +88,14 @@ By contributing, you agree that your contributions will be licensed under its MI
 ### Setup
 
 1. Fork and Clone
+
 ```bash
 git clone https://github.com/yourusername/arbitragex.git
 cd arbitragex
 ```
 
 2. Install Dependencies
+
 ```bash
 npm install
 cd backend && npm install
@@ -101,6 +103,7 @@ cd frontend && npm install
 ```
 
 3. Configure Environment
+
 ```bash
 cp config/.env.example config/.env.fork
 # Edit .env.fork with your settings
@@ -111,6 +114,7 @@ cp config/.env.example config/.env.fork
 All development must be done against a mainnet fork for consistent testing:
 
 1. Configure Fork
+
 ```env
 MAINNET_RPC_URL=your_mainnet_rpc_url
 FORK_BLOCK_NUMBER=19261000
@@ -118,11 +122,13 @@ FORK_ENABLED=true
 ```
 
 2. Start Development Environment
+
 ```bash
 npm run start:fork
 ```
 
 3. Run Tests
+
 ```bash
 npm test
 ```
@@ -130,18 +136,21 @@ npm test
 ### Code Style
 
 1. TypeScript
+
 - Use strict mode
 - Follow ESLint configuration
 - Document public functions
 - Use type annotations
 
 2. Solidity
+
 - Follow Solidity style guide
 - Use latest stable version (0.8.20)
 - Document functions with NatSpec
 - Include test coverage
 
 3. React
+
 - Use functional components
 - Implement proper error boundaries
 - Follow component structure
@@ -150,18 +159,21 @@ npm test
 ### Testing Requirements
 
 1. Smart Contracts
+
 - 100% test coverage
 - Include mainnet fork tests
 - Test flash loan repayment
 - Verify gas usage
 
 2. Backend
+
 - API endpoint tests
 - WebSocket service tests
 - Integration tests
 - Performance tests
 
 3. Frontend
+
 - Component tests
 - Integration tests
 - E2E tests
@@ -170,17 +182,20 @@ npm test
 ### Pull Request Process
 
 1. Create Feature Branch
+
 ```bash
 git checkout -b feature/your-feature
 ```
 
 2. Develop and Test
+
 - Write tests first
 - Implement feature
 - Run all tests
 - Update documentation
 
 3. Submit PR
+
 - Reference issue number
 - Include test results
 - Add documentation
@@ -189,6 +204,7 @@ git checkout -b feature/your-feature
 ### Code Review
 
 PRs must pass:
+
 1. All tests on mainnet fork
 2. Linter checks
 3. Type checking
@@ -198,6 +214,7 @@ PRs must pass:
 ### Documentation
 
 Update:
+
 1. README.md
 2. API documentation
 3. Test documentation
@@ -206,6 +223,7 @@ Update:
 ### Monitoring
 
 Implement:
+
 1. Metrics collection
 2. Error tracking
 3. Performance monitoring
@@ -214,6 +232,7 @@ Implement:
 ### Security
 
 Follow:
+
 1. Smart contract best practices
 2. OWASP guidelines
 3. Gas optimization patterns
@@ -222,6 +241,7 @@ Follow:
 ### Release Process
 
 1. Version Bump
+
 ```bash
 npm version patch|minor|major
 ```

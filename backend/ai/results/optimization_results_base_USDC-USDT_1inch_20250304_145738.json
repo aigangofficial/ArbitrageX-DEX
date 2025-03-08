@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-03-04 14:57:38",
+  "config": {
+    "network": "base",
+    "token_pair": [
+      "USDC",
+      "USDT"
+    ],
+    "dex": "1inch",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 145.06962111929428,
+      "confidence": 0.5149699940041159,
+      "execution_time": 118.46446471427522,
+      "price_impact": 0.004649116719337994,
+      "slippage_tolerance": 0.008269139758852975,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 88.57567518248038,
+      "confidence": 0.7134003202354061,
+      "execution_time": 153.98720496843163,
+      "price_impact": 0.004448246680041845,
+      "slippage_tolerance": 0.00555046494898466,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 142.55396016086664,
+      "confidence": 0.8794016266473337,
+      "execution_time": 80.93933332824962,
+      "price_impact": 0.003955890524454686,
+      "slippage_tolerance": 0.006069067953561243,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 63.852554442348655,
+      "confidence": 0.8025225839854995,
+      "execution_time": 130.57144139693523,
+      "price_impact": 0.0034069769736309306,
+      "slippage_tolerance": 0.008329051489377457,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 177.2476342390051,
+      "confidence": 0.785950544158392,
+      "execution_time": 65.46674558881848,
+      "price_impact": 0.004807303199428179,
+      "slippage_tolerance": 0.00832458906556088,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 168.38887349968073,
+      "confidence": 0.5149699940041159,
+      "execution_time": 118.46446471427522,
+      "price_impact": 0.004649116719337994,
+      "slippage_tolerance": 0.008269139758852975,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 81.08606923632415,
+      "confidence": 0.7134003202354061,
+      "execution_time": 153.98720496843163,
+      "price_impact": 0.004448246680041845,
+      "slippage_tolerance": 0.00555046494898466,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 138.5077024264784,
+      "confidence": 0.8794016266473337,
+      "execution_time": 80.93933332824962,
+      "price_impact": 0.003955890524454686,
+      "slippage_tolerance": 0.006069067953561243,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 68.29836806150583,
+      "confidence": 0.8025225839854995,
+      "execution_time": 130.57144139693523,
+      "price_impact": 0.0034069769736309306,
+      "slippage_tolerance": 0.008329051489377457,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 167.69257962387812,
+      "confidence": 0.785950544158392,
+      "execution_time": 65.46674558881848,
+      "price_impact": 0.004807303199428179,
+      "slippage_tolerance": 0.00832458906556088,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 168.38887349968073,
+      "confidence": 0.5149699940041159,
+      "execution_time": 118.46446471427522,
+      "price_impact": 0.004649116719337994,
+      "slippage_tolerance": 0.008269139758852975,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.5299505125830724,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 81.08606923632415,
+      "confidence": 0.7134003202354061,
+      "execution_time": 153.98720496843163,
+      "price_impact": 0.004448246680041845,
+      "slippage_tolerance": 0.00555046494898466,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 2.590281563524244,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 138.5077024264784,
+      "confidence": 0.8794016266473337,
+      "execution_time": 80.93933332824962,
+      "price_impact": 0.003955890524454686,
+      "slippage_tolerance": 0.006069067953561243,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 6.921886876410836,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 68.29836806150583,
+      "confidence": 0.8025225839854995,
+      "execution_time": 130.57144139693523,
+      "price_impact": 0.0034069769736309306,
+      "slippage_tolerance": 0.008329051489377457,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 1.4124982550964515,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 167.69257962387812,
+      "confidence": 0.785950544158392,
+      "execution_time": 65.46674558881848,
+      "price_impact": 0.004807303199428179,
+      "slippage_tolerance": 0.00832458906556088,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 4.067476067826983,
+      "protection_strategy": "gas_price_bump"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 168.38887349968073,
+      "confidence": 0.5149699940041159,
+      "execution_time": 118.46446471427522,
+      "price_impact": 0.004649116719337994,
+      "slippage_tolerance": 0.008269139758852975,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.5299505125830724,
+      "protection_strategy": "private_tx",
+      "gas_price": 24.957546600348202,
+      "gas_used": 155733.03228602663,
+      "gas_cost": 1.1660143231476123e-05,
+      "status": "success",
+      "actual_profit": 152.767274651972,
+      "actual_gas_price": 27.0537149782428,
+      "actual_gas_used": 161917.0226925621,
+      "actual_gas_cost": 1.3141370946150741e-05,
+      "net_profit": 149.237310998018,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 81.08606923632415,
+      "confidence": 0.7134003202354061,
+      "execution_time": 153.98720496843163,
+      "price_impact": 0.004448246680041845,
+      "slippage_tolerance": 0.00555046494898466,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 2.590281563524244,
+      "protection_strategy": "time_delay",
+      "gas_price": 31.151533197868453,
+      "gas_used": 365677.8699697721,
+      "gas_cost": 3.417427891826754e-05,
+      "status": "success",
+      "actual_profit": 90.33300501034397,
+      "actual_gas_price": 33.489457154434405,
+      "actual_gas_used": 371556.653613941,
+      "actual_gas_cost": 3.73296918949473e-05,
+      "net_profit": 87.74268611712783,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 138.5077024264784,
+      "confidence": 0.8794016266473337,
+      "execution_time": 80.93933332824962,
+      "price_impact": 0.003955890524454686,
+      "slippage_tolerance": 0.006069067953561243,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 6.921886876410836,
+      "protection_strategy": "backrunning",
+      "gas_price": 27.104267867908817,
+      "gas_used": 129701.69271544028,
+      "gas_cost": 1.0546408266841472e-05,
+      "status": "success",
+      "actual_profit": 125.19530827547685,
+      "actual_gas_price": 25.977829284347138,
+      "actual_gas_used": 127091.60391850608,
+      "actual_gas_cost": 9.904691970206444e-06,
+      "net_profit": 118.27341149437405,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 68.29836806150583,
+      "confidence": 0.8025225839854995,
+      "execution_time": 130.57144139693523,
+      "price_impact": 0.0034069769736309306,
+      "slippage_tolerance": 0.008329051489377457,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 1.4124982550964515,
+      "protection_strategy": "time_delay",
+      "gas_price": 35.441311259632954,
+      "gas_used": 225050.62198844287,
+      "gas_cost": 2.39282674291992e-05,
+      "status": "failed",
+      "actual_profit": 0,
+      "actual_gas_price": 34.91786247014149,
+      "actual_gas_used": 238498.4198865096,
+      "actual_gas_cost": 2.49835650748296e-05,
+      "net_profit": -2.49835650748296e-05,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "base_USDC-USDT_1inch_1741085858",
+      "network": "base",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "1inch",
+      "expected_profit": 167.69257962387812,
+      "confidence": 0.785950544158392,
+      "execution_time": 65.46674558881848,
+      "price_impact": 0.004807303199428179,
+      "slippage_tolerance": 0.00832458906556088,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 4.067476067826983,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 33.51693838341738,
+      "gas_used": 162165.2214701387,
+      "gas_cost": 1.630584520784362e-05,
+      "status": "success",
+      "actual_profit": 140.42468330120994,
+      "actual_gas_price": 34.9262652021267,
+      "actual_gas_used": 154341.20170834076,
+      "actual_gas_cost": 1.617168522744132e-05,
+      "net_profit": 136.35719106169773,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "metrics": {
+    "total_trades": 5,
+    "successful_trades": 4,
+    "success_rate": 0.8,
+    "total_profit": 508.7202712390028,
+    "total_gas_cost": 0.00010153100511357542,
+    "net_profit": 491.6105746876525,
+    "avg_execution_time": 109.88583799934204
+  }
+}

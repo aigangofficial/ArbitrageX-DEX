@@ -1,0 +1,379 @@
+{
+  "timestamp": "2025-03-04 14:59:14",
+  "config": {
+    "network": "optimism",
+    "token_pair": [
+      "WETH",
+      "USDC"
+    ],
+    "dex": "sushiswap",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 109.55812320017301,
+      "confidence": 0.7312855583193882,
+      "execution_time": 61.953501331564894,
+      "price_impact": 0.003942689141369044,
+      "slippage_tolerance": 0.0024365667615266623,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 58.547238901417266,
+      "confidence": 0.7180028983901244,
+      "execution_time": 139.77413124008393,
+      "price_impact": 0.004246154744656363,
+      "slippage_tolerance": 0.00838752204808375,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 198.12067841646865,
+      "confidence": 0.5454458633927752,
+      "execution_time": 182.51125061469187,
+      "price_impact": 0.004506859067748107,
+      "slippage_tolerance": 0.009812197726107624,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 83.14090912179917,
+      "confidence": 0.714306136047208,
+      "execution_time": 74.57494228232568,
+      "price_impact": 0.0019009117318588534,
+      "slippage_tolerance": 0.007685125634119043,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 182.2791563245057,
+      "confidence": 0.7141792259120823,
+      "execution_time": 79.34812813997053,
+      "price_impact": 0.002980507861149682,
+      "slippage_tolerance": 0.0019531559608221274,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 102.85439162055866,
+      "confidence": 0.7312855583193882,
+      "execution_time": 61.953501331564894,
+      "price_impact": 0.003942689141369044,
+      "slippage_tolerance": 0.0024365667615266623,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 61.12879253471696,
+      "confidence": 0.7180028983901244,
+      "execution_time": 139.77413124008393,
+      "price_impact": 0.004246154744656363,
+      "slippage_tolerance": 0.00838752204808375,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 176.74888650491707,
+      "confidence": 0.5454458633927752,
+      "execution_time": 182.51125061469187,
+      "price_impact": 0.004506859067748107,
+      "slippage_tolerance": 0.009812197726107624,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 92.46783885868136,
+      "confidence": 0.714306136047208,
+      "execution_time": 74.57494228232568,
+      "price_impact": 0.0019009117318588534,
+      "slippage_tolerance": 0.007685125634119043,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 187.317897748991,
+      "confidence": 0.7141792259120823,
+      "execution_time": 79.34812813997053,
+      "price_impact": 0.002980507861149682,
+      "slippage_tolerance": 0.0019531559608221274,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 102.85439162055866,
+      "confidence": 0.7312855583193882,
+      "execution_time": 61.953501331564894,
+      "price_impact": 0.003942689141369044,
+      "slippage_tolerance": 0.0024365667615266623,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.969950190144445,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 61.12879253471696,
+      "confidence": 0.7180028983901244,
+      "execution_time": 139.77413124008393,
+      "price_impact": 0.004246154744656363,
+      "slippage_tolerance": 0.00838752204808375,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.686252757717839,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 176.74888650491707,
+      "confidence": 0.5454458633927752,
+      "execution_time": 182.51125061469187,
+      "price_impact": 0.004506859067748107,
+      "slippage_tolerance": 0.009812197726107624,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.7763483831866551,
+      "protection_strategy": "gas_price_bump"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 187.317897748991,
+      "confidence": 0.7141792259120823,
+      "execution_time": 79.34812813997053,
+      "price_impact": 0.002980507861149682,
+      "slippage_tolerance": 0.0019531559608221274,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 4.081479869476661,
+      "protection_strategy": "flashbots"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 102.85439162055866,
+      "confidence": 0.7312855583193882,
+      "execution_time": 61.953501331564894,
+      "price_impact": 0.003942689141369044,
+      "slippage_tolerance": 0.0024365667615266623,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.969950190144445,
+      "protection_strategy": "backrunning",
+      "gas_price": 32.14490333427052,
+      "gas_used": 100085.09204806885,
+      "gas_cost": 9.651676827260222e-06,
+      "status": "success",
+      "actual_profit": 104.38898460590406,
+      "actual_gas_price": 32.69434108173109,
+      "actual_gas_used": 100784.20068711227,
+      "actual_gas_cost": 9.885219098742256e-06,
+      "net_profit": 102.41902453054051,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 61.12879253471696,
+      "confidence": 0.7180028983901244,
+      "execution_time": 139.77413124008393,
+      "price_impact": 0.004246154744656363,
+      "slippage_tolerance": 0.00838752204808375,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.686252757717839,
+      "protection_strategy": "time_delay",
+      "gas_price": 20.495763105416625,
+      "gas_used": 271954.4941592323,
+      "gas_cost": 1.6721744663223105e-05,
+      "status": "failed",
+      "actual_profit": 0,
+      "actual_gas_price": 21.747156707972323,
+      "actual_gas_used": 248966.57611561476,
+      "actual_gas_cost": 1.624294543750078e-05,
+      "net_profit": -1.624294543750078e-05,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 176.74888650491707,
+      "confidence": 0.5454458633927752,
+      "execution_time": 182.51125061469187,
+      "price_impact": 0.004506859067748107,
+      "slippage_tolerance": 0.009812197726107624,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.7763483831866551,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 25.637931952744317,
+      "gas_used": 169573.35678282403,
+      "gas_cost": 1.3042530546589429e-05,
+      "status": "success",
+      "actual_profit": 172.64095754647565,
+      "actual_gas_price": 24.83578472249739,
+      "actual_gas_used": 168750.37085636362,
+      "actual_gas_cost": 1.2573143647290733e-05,
+      "net_profit": 170.86459659014537,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WETH-USDC_sushiswap_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 187.317897748991,
+      "confidence": 0.7141792259120823,
+      "execution_time": 79.34812813997053,
+      "price_impact": 0.002980507861149682,
+      "slippage_tolerance": 0.0019531559608221274,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 4.081479869476661,
+      "protection_strategy": "flashbots",
+      "gas_price": 39.95749309135782,
+      "gas_used": 225678.70504810166,
+      "gas_cost": 2.7052665893478302e-05,
+      "status": "success",
+      "actual_profit": 167.28577814517968,
+      "actual_gas_price": 42.58123491111339,
+      "actual_gas_used": 231468.37321274632,
+      "actual_gas_cost": 2.956862752279565e-05,
+      "net_profit": 163.2042687070755,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "metrics": {
+    "total_trades": 4,
+    "successful_trades": 3,
+    "success_rate": 0.75,
+    "total_profit": 444.3157202975594,
+    "total_gas_cost": 6.826993570632942e-05,
+    "net_profit": 436.48787358481593,
+    "avg_execution_time": 115.8967528315778
+  }
+}

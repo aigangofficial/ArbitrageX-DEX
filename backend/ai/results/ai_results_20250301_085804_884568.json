@@ -1,9 +1,7 @@
 {
   "timestamp": "2025-03-01 08:58:04",
   "mode": "MAINNET FORK",
-  "modules": [
-    "strategy_optimizer"
-  ],
+  "modules": ["strategy_optimizer"],
   "results": {
     "strategy_optimizer": {
       "success": false,
@@ -16,23 +14,12 @@
     "mode": "mainnet_fork",
     "fork_url": "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
     "fork_block_number": "18000000",
-    "networks": [
-      "ethereum"
-    ],
+    "networks": ["ethereum"],
     "tokens": {
-      "ethereum": [
-        "AAVE",
-        "WETH"
-      ]
+      "ethereum": ["AAVE", "WETH"]
     },
     "dexes": {
-      "ethereum": [
-        "uniswap_v3",
-        "sushiswap",
-        "curve",
-        "balancer",
-        "1inch"
-      ]
+      "ethereum": ["uniswap_v3", "sushiswap", "curve", "balancer", "1inch"]
     },
     "token_pair": "AAVE-WETH",
     "gas_price_multiplier": 1.1,

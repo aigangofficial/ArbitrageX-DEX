@@ -1,0 +1,216 @@
+/* ArbitrageX Dashboard Dark Theme */
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    --success-color: #2ecc71;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --gray-color: #6c757d;
+    
+    --dark-bg: #1a1a1a;
+    --dark-card-bg: #2d2d2d;
+    --dark-header-bg: #252525;
+    --dark-text: #e0e0e0;
+    --dark-text-secondary: #aaaaaa;
+    --dark-border: #444444;
+}
+
+body.dark-mode {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+/* Card Styles */
+.dark-mode .card {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border);
+}
+
+.dark-mode .card-header {
+    background-color: var(--dark-header-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.dark-mode .card-footer {
+    background-color: var(--dark-header-bg);
+    border-color: var(--dark-border);
+}
+
+/* Table Styles */
+.dark-mode .table {
+    color: var(--dark-text);
+}
+
+.dark-mode .table th {
+    background-color: var(--dark-header-bg);
+    border-color: var(--dark-border);
+}
+
+.dark-mode .table td {
+    border-color: var(--dark-border);
+}
+
+.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Form Styles */
+.dark-mode .form-control {
+    background-color: #333333;
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.dark-mode .form-control:focus {
+    background-color: #3a3a3a;
+    color: var(--dark-text);
+}
+
+.dark-mode .form-check-input {
+    background-color: #333333;
+    border-color: var(--dark-border);
+}
+
+.dark-mode .form-check-label {
+    color: var(--dark-text);
+}
+
+.dark-mode .form-floating label {
+    color: var(--dark-text-secondary);
+}
+
+/* Status Bar */
+.dark-mode #status-bar {
+    background-color: var(--dark-header-bg) !important;
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.dark-mode .text-muted {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* List Group */
+.dark-mode .list-group-item {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.dark-mode .list-group-item:hover {
+    background-color: #333333;
+}
+
+/* Dropdown Menu */
+.dark-mode .dropdown-menu {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border);
+}
+
+.dark-mode .dropdown-item {
+    color: var(--dark-text);
+}
+
+.dark-mode .dropdown-item:hover {
+    background-color: #333333;
+    color: var(--dark-text);
+}
+
+.dark-mode .dropdown-divider {
+    border-color: var(--dark-border);
+}
+
+/* Buttons */
+.dark-mode .btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.dark-mode .btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Footer */
+.dark-mode footer {
+    background-color: var(--dark-header-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+/* Alerts */
+.dark-mode .alert {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.dark-mode .alert-info {
+    background-color: rgba(52, 152, 219, 0.2);
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+.dark-mode .alert-success {
+    background-color: rgba(46, 204, 113, 0.2);
+    border-color: rgba(46, 204, 113, 0.3);
+}
+
+.dark-mode .alert-warning {
+    background-color: rgba(243, 156, 18, 0.2);
+    border-color: rgba(243, 156, 18, 0.3);
+}
+
+.dark-mode .alert-danger {
+    background-color: rgba(231, 76, 60, 0.2);
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+/* Charts */
+.dark-mode .apexcharts-canvas {
+    background-color: var(--dark-card-bg) !important;
+}
+
+.dark-mode .apexcharts-title-text,
+.dark-mode .apexcharts-legend-text,
+.dark-mode .apexcharts-yaxis-title,
+.dark-mode .apexcharts-xaxis-title {
+    fill: var(--dark-text) !important;
+}
+
+.dark-mode .apexcharts-tooltip {
+    background-color: var(--dark-header-bg) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text) !important;
+}
+
+.dark-mode .apexcharts-tooltip-title {
+    background-color: var(--dark-bg) !important;
+    border-color: var(--dark-border) !important;
+}
+
+.dark-mode .apexcharts-xaxis-label,
+.dark-mode .apexcharts-yaxis-label {
+    fill: var(--dark-text-secondary) !important;
+}
+
+.dark-mode .apexcharts-grid line {
+    stroke: var(--dark-border) !important;
+}
+
+/* Scrollbar */
+.dark-mode ::-webkit-scrollbar-track {
+    background: #333333;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: #555555;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #777777;
+} 

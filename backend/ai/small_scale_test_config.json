@@ -1,0 +1,18 @@
+{
+  "network": "ethereum",
+  "token_pair": [
+    "WETH",
+    "USDC"
+  ],
+  "dex": "uniswap_v3",
+  "trade_count": 10,
+  "trade_size": {
+    "eth_amount": 0.1,
+    "usdc_amount": 100
+  },
+  "gas_strategy": "dynamic",
+  "mev_protection": true,
+  "detailed_logging": true,
+  "debug": true,
+  "timestamp": "20250304_114926"
+}

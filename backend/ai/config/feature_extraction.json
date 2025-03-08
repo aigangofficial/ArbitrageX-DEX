@@ -1,0 +1,19 @@
+{
+  "data_directory": "backend/ai/data",
+  "feature_window_size": 24,
+  "target_window_size": 6,
+  "min_data_points": 20,
+  "scaling_method": "standard",
+  "features_to_extract": [
+    "market_volatility",
+    "gas_price_trends",
+    "token_liquidity",
+    "time_patterns",
+    "network_congestion",
+    "historical_profitability"
+  ],
+  "target_variables": [
+    "profit",
+    "success_rate"
+  ]
+} 

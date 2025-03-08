@@ -9,12 +9,13 @@ import logging
 import json
 import time
 import uuid
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Union, Any, Tuple
 from datetime import datetime
 import asyncio
 import random
 from web3 import Web3
 import requests
+from backend.bot.database_connector import DatabaseConnector
 
 # Configure logging
 logging.basicConfig(
@@ -61,6 +62,9 @@ class NetworkScanner:
         
         # Opportunity ID counter
         self.opportunity_counter = 0
+        
+        # Initialize database connector
+        self.db_connector = DatabaseConnector(config)
         
         logger.info(f"Network Scanner initialized for networks: {', '.join(self.networks)}")
     
@@ -144,44 +148,42 @@ class NetworkScanner:
                 # Add more networks as needed
             }
     
-    def scan_networks(self) -> List[Dict]:
+    def scan(self) -> List[Dict]:
         """
         Scan all configured networks for arbitrage opportunities.
         
         Returns:
-            List of potential arbitrage opportunities
+            List of arbitrage opportunities across all networks
         """
+        logger.info("Starting network scan for arbitrage opportunities")
         all_opportunities = []
         
+        # Check database connection
+        if not self.db_connector.is_connected():
+            logger.warning("Database connection not available. Attempting to reconnect...")
+            # Attempt to reconnect
+            if not self.db_connector._connect_to_mongodb():
+                logger.error("Failed to connect to database. Continuing without database persistence.")
+        
+        # Scan each network
         for network in self.networks:
-            # Check if we should scan this network based on scan interval
-            current_time = time.time()
-            network_scan_interval = self.config.get("network_scan_intervals", {}).get(network, self.config.get("scan_interval", 5))
-            
-            if current_time - self.last_scan_times.get(network, 0) < network_scan_interval:
-                continue
-            
-            # Update last scan time
-            self.last_scan_times[network] = current_time
-            
             try:
-                logger.info(f"Scanning {network} for arbitrage opportunities")
-                opportunities = self._scan_network(network)
+                logger.info(f"Scanning network: {network}")
+                network_opportunities = self._scan_network(network)
                 
-                if opportunities:
-                    logger.info(f"Found {len(opportunities)} potential opportunities on {network}")
-                    all_opportunities.extend(opportunities)
+                if network_opportunities:
+                    logger.info(f"Found {len(network_opportunities)} opportunities on {network}")
+                    all_opportunities.extend(network_opportunities)
                 else:
-                    logger.debug(f"No opportunities found on {network}")
-                    
+                    logger.info(f"No arbitrage opportunities found on {network}")
             except Exception as e:
-                logger.error(f"Error scanning {network}: {e}")
+                logger.error(f"Error scanning network {network}: {e}")
+                continue
         
-        # Clean up price cache periodically
-        if time.time() - self.last_cache_cleanup > 300:  # Every 5 minutes
-            self._cleanup_price_cache()
-            self.last_cache_cleanup = time.time()
+        # Clean up price cache
+        self._cleanup_price_cache()
         
+        logger.info(f"Network scan complete. Found {len(all_opportunities)} total opportunities")
         return all_opportunities
     
     def _scan_network(self, network: str) -> List[Dict]:
@@ -189,48 +191,46 @@ class NetworkScanner:
         Scan a specific network for arbitrage opportunities.
         
         Args:
-            network: Network name to scan
+            network: Network to scan (e.g., "ethereum", "arbitrum", etc.)
             
         Returns:
-            List of potential arbitrage opportunities on the network
+            List of potential arbitrage opportunities
         """
         opportunities = []
         
-        # In a real implementation, this would:
+        # Real implementation would:
         # 1. Query on-chain data for token prices across different DEXes
-        # 2. Compare prices to identify arbitrage opportunities
+        # 2. Compare prices to find arbitrage opportunities
         # 3. Calculate potential profit after gas and fees
         # 4. Return viable opportunities
         
-        # For demonstration, we'll generate mock opportunities
-        if self.config.get("use_mock_data", True):
-            mock_count = random.randint(0, 3)  # Random number of opportunities
-            for _ in range(mock_count):
+        # For demonstration, generate mock opportunities if configured
+        if self.config.get("mock_mode", False):
+            # Generate random number of opportunities (0-5)
+            opportunity_count = random.randint(0, 5)
+            
+            for _ in range(opportunity_count):
                 opportunity = self._generate_mock_opportunity(network)
                 opportunities.append(opportunity)
-            
-            return opportunities
-        
-        # Real implementation would include:
-        # 1. Get DEX configurations for this network
-        network_dexes = self.dex_configs.get(network, {})
-        if not network_dexes:
-            logger.warning(f"No DEX configurations found for {network}")
-            return []
-        
-        # 2. Get token pairs to monitor
-        token_pairs = self._get_token_pairs(network)
-        
-        # 3. Check each token pair across different DEXes
-        for token_pair in token_pairs:
-            token_a, token_b = token_pair
-            
-            # Get prices from different DEXes
-            dex_prices = self._get_prices_across_dexes(network, token_a, token_b, network_dexes)
-            
-            # Find arbitrage opportunities
-            arb_opportunities = self._find_arbitrage_in_prices(network, token_a, token_b, dex_prices)
-            opportunities.extend(arb_opportunities)
+                
+                # Save opportunity to database
+                if self.db_connector.is_connected():
+                    # Convert opportunity format to match database schema
+                    db_opportunity = {
+                        'tokenA': opportunity['token_a'],
+                        'tokenB': opportunity['token_b'],
+                        'route': [
+                            {'exchange': opportunity['buy_dex'], 'action': 'buy', 'price': opportunity['buy_price']},
+                            {'exchange': opportunity['sell_dex'], 'action': 'sell', 'price': opportunity['sell_price']}
+                        ],
+                        'expectedProfit': opportunity['potential_profit'],
+                        'network': opportunity['network'],
+                        'confidence': opportunity['confidence'],
+                        'timestamp': datetime.now(),
+                        'details': opportunity  # Store the full opportunity details
+                    }
+                    
+                    self.db_connector.save_arbitrage_opportunity(db_opportunity)
         
         return opportunities
     
@@ -485,7 +485,16 @@ class NetworkScanner:
             "buy_router": f"0x{random.randint(0, 0xffffffff):08x}",  # Mock address
             "sell_router": f"0x{random.randint(0, 0xffffffff):08x}",  # Mock address
             "timestamp": datetime.now().isoformat(),
-            "confidence": random.uniform(0.7, 0.95)  # Mock confidence score
+            "confidence": random.uniform(0.7, 0.95),  # Mock confidence score
+            "status": "pending",
+            "execution_path": [
+                {"step": 1, "action": "swap", "from_token": token_a, "to_token": token_b, "dex": buy_dex},
+                {"step": 2, "action": "swap", "from_token": token_b, "to_token": token_a, "dex": sell_dex}
+            ],
+            "risk_score": random.uniform(0.1, 0.5),
+            "gas_price_gwei": random.uniform(10, 100),
+            "block_number": random.randint(10000000, 20000000),
+            "created_at": datetime.now().isoformat()
         }
         
         return opportunity
@@ -501,8 +510,106 @@ class NetworkScanner:
         
         for key in expired_keys:
             del self.price_cache[key]
+            
+        if expired_keys:
+            logger.debug(f"Cleaned up {len(expired_keys)} expired price cache entries")
+            
+    def get_opportunities_from_db(self, network: Optional[str] = None, limit: int = 100, 
+                                 min_profit: Optional[float] = None, 
+                                 token_pair: Optional[Tuple[str, str]] = None) -> List[Dict]:
+        """
+        Retrieve arbitrage opportunities from the database.
         
-        logger.debug(f"Cleaned up {len(expired_keys)} expired entries from price cache")
+        Args:
+            network: Optional network to filter by
+            limit: Maximum number of opportunities to return
+            min_profit: Minimum profit threshold
+            token_pair: Optional token pair to filter by (tokenA, tokenB)
+            
+        Returns:
+            List of arbitrage opportunities from the database
+        """
+        if not self.db_connector.is_connected():
+            logger.error("Cannot retrieve opportunities: Not connected to MongoDB")
+            return []
+            
+        try:
+            # Build query
+            query = {}
+            
+            if network:
+                query["network"] = network
+                
+            if min_profit:
+                query["expectedProfit"] = {"$gte": min_profit}
+                
+            if token_pair:
+                token_a, token_b = token_pair
+                query["tokenA"] = token_a
+                query["tokenB"] = token_b
+                
+            # Get opportunities from database
+            opportunities = list(self.db_connector.db.arbitrageopportunities.find(
+                query, 
+                sort=[("timestamp", -1)],
+                limit=limit
+            ))
+            
+            # Convert MongoDB ObjectId to string for JSON serialization
+            for opp in opportunities:
+                if "_id" in opp:
+                    opp["_id"] = str(opp["_id"])
+                    
+            logger.info(f"Retrieved {len(opportunities)} opportunities from database")
+            return opportunities
+            
+        except Exception as e:
+            logger.error(f"Error retrieving opportunities from database: {e}")
+            return []
+            
+    def update_opportunity_status(self, opportunity_id: str, status: str, 
+                                 execution_result: Optional[Dict] = None) -> bool:
+        """
+        Update the status of an arbitrage opportunity in the database.
+        
+        Args:
+            opportunity_id: ID of the opportunity to update
+            status: New status (e.g., "pending", "executing", "completed", "failed")
+            execution_result: Optional execution result data
+            
+        Returns:
+            True if updated successfully, False otherwise
+        """
+        if not self.db_connector.is_connected():
+            logger.error("Cannot update opportunity: Not connected to MongoDB")
+            return False
+            
+        try:
+            # Build update document
+            update_doc = {
+                "status": status,
+                "updatedAt": datetime.now()
+            }
+            
+            if execution_result:
+                update_doc["executionResult"] = execution_result
+                
+            # Update opportunity in database
+            result = self.db_connector.db.arbitrageopportunities.update_one(
+                {"_id": opportunity_id},
+                {"$set": update_doc}
+            )
+            
+            if result.matched_count == 0:
+                logger.warning(f"Opportunity not found: {opportunity_id}")
+                return False
+                
+            logger.info(f"Updated opportunity {opportunity_id} status to {status}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating opportunity status: {e}")
+            return False
 
 # Example usage
 if __name__ == "__main__":
@@ -518,7 +625,7 @@ if __name__ == "__main__":
     scanner = NetworkScanner(config)
     
     # Scan for opportunities
-    opportunities = scanner.scan_networks()
+    opportunities = scanner.scan()
     
     # Print results
     for opp in opportunities:

@@ -1,0 +1,97 @@
+{
+  "timestamp": "20250304_153644",
+  "config": {
+    "networks": [
+      "ethereum",
+      "arbitrum",
+      "polygon",
+      "optimism",
+      "base"
+    ],
+    "token_pairs": [
+      [
+        "WETH",
+        "USDC"
+      ],
+      [
+        "WBTC",
+        "DAI"
+      ],
+      [
+        "ETH",
+        "DAI"
+      ],
+      [
+        "USDC",
+        "USDT"
+      ],
+      [
+        "WETH",
+        "WBTC"
+      ]
+    ],
+    "dexes": [
+      "uniswap_v3",
+      "sushiswap",
+      "curve",
+      "balancer",
+      "1inch"
+    ],
+    "min_trades": 450,
+    "batch_size": 20,
+    "gas_strategy": "dynamic",
+    "output_dir": "results",
+    "max_workers": 6,
+    "learning_interval": 30,
+    "adaptation_interval": 60,
+    "compare_baseline": false,
+    "debug": false,
+    "enable_learning": true,
+    "parallel": true,
+    "timestamp": "20250304_153644"
+  },
+  "predictions": [],
+  "protected_trades": [],
+  "execution_results": [],
+  "analysis": {
+    "total_predictions": 0,
+    "profitable_predictions": 0,
+    "profitable_prediction_rate": 0,
+    "total_trades": 0,
+    "successful_trades": 0,
+    "success_rate": 0,
+    "total_profit_usd": 0,
+    "avg_profit_per_trade_usd": 0,
+    "avg_profit_per_successful_trade_usd": 0,
+    "total_gas_cost_usd": 0,
+    "avg_gas_cost_usd": 0,
+    "net_profit_usd": 0,
+    "networks": {},
+    "token_pairs": {},
+    "dexes": {},
+    "best_network": null,
+    "best_token_pair": null,
+    "best_dex": null,
+    "execution_speed": {
+      "avg_execution_time_ms": 0,
+      "min_execution_time_ms": 0,
+      "max_execution_time_ms": 0,
+      "throughput_trades_per_second": 0
+    }
+  },
+  "learning_stats": {
+    "total_processed_results": 0,
+    "successful_model_updates": 0,
+    "failed_model_updates": 0,
+    "strategy_adaptations": 1,
+    "last_update_time": null,
+    "queue_size": 0,
+    "model_update_queue_size": 0,
+    "historical_results_count": 0,
+    "is_running": true,
+    "next_model_update": "2025-03-03T16:06:45.612917",
+    "next_strategy_adaptation": "2025-03-04T16:36:55.624719"
+  },
+  "execution_time": 1.0272760391235352,
+  "trades_per_second": 0.0
+}

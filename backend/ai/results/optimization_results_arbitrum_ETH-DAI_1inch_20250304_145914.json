@@ -1,0 +1,331 @@
+{
+  "timestamp": "2025-03-04 14:59:14",
+  "config": {
+    "network": "arbitrum",
+    "token_pair": [
+      "ETH",
+      "DAI"
+    ],
+    "dex": "1inch",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 194.8136659567187,
+      "confidence": 0.5952973958651052,
+      "execution_time": 189.10903205171715,
+      "price_impact": 0.003187961257736575,
+      "slippage_tolerance": 0.005765001967113287,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 31.80361543241821,
+      "confidence": 0.8592721452570999,
+      "execution_time": 87.58677235301414,
+      "price_impact": 0.004265742645223398,
+      "slippage_tolerance": 0.00330073379547624,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 126.01676881687533,
+      "confidence": 0.9180850376632399,
+      "execution_time": 159.16160889007375,
+      "price_impact": 0.002434478964004318,
+      "slippage_tolerance": 0.00878019618417665,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 38.23556124363138,
+      "confidence": 0.5419664637502168,
+      "execution_time": 182.75980596680262,
+      "price_impact": 0.001325052527253821,
+      "slippage_tolerance": 0.0011826488239974813,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 103.54194194362782,
+      "confidence": 0.5064918073981006,
+      "execution_time": 175.85736388514715,
+      "price_impact": 0.00409285784273892,
+      "slippage_tolerance": 0.008858530084527746,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 162.38085391221713,
+      "confidence": 0.5952973958651052,
+      "execution_time": 189.10903205171715,
+      "price_impact": 0.003187961257736575,
+      "slippage_tolerance": 0.005765001967113287,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 31.656779222587833,
+      "confidence": 0.8592721452570999,
+      "execution_time": 87.58677235301414,
+      "price_impact": 0.004265742645223398,
+      "slippage_tolerance": 0.00330073379547624,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 116.02316707147486,
+      "confidence": 0.9180850376632399,
+      "execution_time": 159.16160889007375,
+      "price_impact": 0.002434478964004318,
+      "slippage_tolerance": 0.00878019618417665,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 36.2039730126714,
+      "confidence": 0.5419664637502168,
+      "execution_time": 182.75980596680262,
+      "price_impact": 0.001325052527253821,
+      "slippage_tolerance": 0.0011826488239974813,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 93.8975424876984,
+      "confidence": 0.5064918073981006,
+      "execution_time": 175.85736388514715,
+      "price_impact": 0.00409285784273892,
+      "slippage_tolerance": 0.008858530084527746,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 31.656779222587833,
+      "confidence": 0.8592721452570999,
+      "execution_time": 87.58677235301414,
+      "price_impact": 0.004265742645223398,
+      "slippage_tolerance": 0.00330073379547624,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.440076647844126,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 36.2039730126714,
+      "confidence": 0.5419664637502168,
+      "execution_time": 182.75980596680262,
+      "price_impact": 0.001325052527253821,
+      "slippage_tolerance": 0.0011826488239974813,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.6149477635784812,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 93.8975424876984,
+      "confidence": 0.5064918073981006,
+      "execution_time": 175.85736388514715,
+      "price_impact": 0.00409285784273892,
+      "slippage_tolerance": 0.008858530084527746,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.191774421597404,
+      "protection_strategy": "time_delay"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 31.656779222587833,
+      "confidence": 0.8592721452570999,
+      "execution_time": 87.58677235301414,
+      "price_impact": 0.004265742645223398,
+      "slippage_tolerance": 0.00330073379547624,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.440076647844126,
+      "protection_strategy": "private_tx",
+      "gas_price": 23.072120924273435,
+      "gas_used": 220270.1942595255,
+      "gas_cost": 1.5246301673906917e-05,
+      "status": "success",
+      "actual_profit": 34.14318083047077,
+      "actual_gas_price": 24.35752856752426,
+      "actual_gas_used": 210682.78142402894,
+      "actual_gas_cost": 1.5395135601663762e-05,
+      "net_profit": 32.70308878749105,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 36.2039730126714,
+      "confidence": 0.5419664637502168,
+      "execution_time": 182.75980596680262,
+      "price_impact": 0.001325052527253821,
+      "slippage_tolerance": 0.0011826488239974813,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.6149477635784812,
+      "protection_strategy": "private_tx",
+      "gas_price": 34.310272288403496,
+      "gas_used": 174864.9691277735,
+      "gas_cost": 1.7998994113431544e-05,
+      "status": "success",
+      "actual_profit": 30.143212913288863,
+      "actual_gas_price": 34.31458771347413,
+      "actual_gas_used": 170441.05022000533,
+      "actual_gas_cost": 1.7545843103253067e-05,
+      "net_profit": 28.52824760386728,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_ETH-DAI_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "1inch",
+      "expected_profit": 93.8975424876984,
+      "confidence": 0.5064918073981006,
+      "execution_time": 175.85736388514715,
+      "price_impact": 0.00409285784273892,
+      "slippage_tolerance": 0.008858530084527746,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.191774421597404,
+      "protection_strategy": "time_delay",
+      "gas_price": 33.5001886572186,
+      "gas_used": 344171.64876754454,
+      "gas_cost": 3.458944549253616e-05,
+      "status": "success",
+      "actual_profit": 104.76000490406982,
+      "actual_gas_price": 36.070092907659465,
+      "actual_gas_used": 350380.87439527566,
+      "actual_gas_cost": 3.791481207751367e-05,
+      "net_profit": 102.56819256766033,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "metrics": {
+    "total_trades": 3,
+    "successful_trades": 3,
+    "success_rate": 1.0,
+    "total_profit": 169.04639864782945,
+    "total_gas_cost": 7.085579078243049e-05,
+    "net_profit": 163.79952895901866,
+    "avg_execution_time": 148.73464740165466
+  }
+}

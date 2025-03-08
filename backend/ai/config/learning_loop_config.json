@@ -1,0 +1,16 @@
+{
+  "data_directory": "backend/ai/data",
+  "models_directory": "backend/ai/models",
+  "learning_interval_minutes": 30,
+  "adaptation_interval_minutes": 60,
+  "min_data_points_for_learning": 20,
+  "model_types": ["xgboost", "lightgbm", "neural_network"],
+  "feature_importance_threshold": 0.05,
+  "performance_metrics": ["profit", "success_rate", "execution_time"],
+  "network_prioritization": true,
+  "token_pair_prioritization": true,
+  "dex_prioritization": true,
+  "enable_parallel_processing": true,
+  "max_workers": 4,
+  "logging_level": "INFO"
+} 

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ArbitrageX Dashboard{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Theme CSS (light/dark) -->
+    {% if config.appearance.theme == 'dark' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
+    {% endif %}
+    
+    <!-- Page-specific CSS -->
+    {% block styles %}{% endblock %}
+    
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body class="{% if config.appearance.theme == 'dark' %}dark-mode{% endif %}">
+    <!-- Navigation -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <i class="fas fa-robot me-2"></i>
+                    ArbitrageX Dashboard
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'dashboard' %}active{% endif %}" href="{{ url_for('index') }}">
+                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'power_control' %}active{% endif %}" href="{{ url_for('power_control') }}">
+                                <i class="fas fa-power-off me-1"></i> Power Control
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'trades' %}active{% endif %}" href="{{ url_for('trades') }}">
+                                <i class="fas fa-exchange-alt me-1"></i> Trades
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'analytics' %}active{% endif %}" href="{{ url_for('analytics') }}">
+                                <i class="fas fa-chart-bar me-1"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'strategies' %}active{% endif %}" href="{{ url_for('strategies') }}">
+                                <i class="fas fa-chess me-1"></i> Strategies
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'backtesting' %}active{% endif %}" href="{{ url_for('backtesting') }}">
+                                <i class="fas fa-chart-line me-1"></i> Backtesting
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'notifications' %}active{% endif %}" href="{{ url_for('notifications') }}">
+                                <i class="fas fa-bell me-1"></i> Notifications
+                                <span id="notification-badge" class="badge bg-danger d-none">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'security' %}active{% endif %}" href="{{ url_for('security') }}">
+                                <i class="fas fa-shield-alt me-1"></i> Security
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'logs' %}active{% endif %}" href="{{ url_for('logs') }}">
+                                <i class="fas fa-list-alt me-1"></i> Logs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'wallet' %}active{% endif %}" href="{{ url_for('wallet') }}">
+                                <i class="fas fa-wallet me-1"></i> Wallet
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'mev_protection' %}active{% endif %}" href="{{ url_for('mev_protection') }}">
+                                <i class="fas fa-shield-virus me-1"></i> MEV Protection
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'networks' %}active{% endif %}" href="{{ url_for('networks') }}">
+                                <i class="fas fa-network-wired me-2"></i>Networks
+                                <span id="network-mode-indicator" class="badge bg-info d-none">Fork</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'ml_visualization' %}active{% endif %}" href="{{ url_for('ml_visualization') }}">
+                                <i class="fas fa-brain me-2"></i>ML Visualization
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'flash_loans' %}active{% endif %}" href="{{ url_for('flash_loans') }}">
+                                <i class="fas fa-bolt me-2"></i>Flash Loans
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if page == 'system_monitor' %}active{% endif %}" href="{{ url_for('system_monitor') }}">
+                                <i class="fas fa-chart-line me-2"></i>System Monitor
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i> {{ session.user }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-id-card me-2"></i> Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('settings') }}"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Status Bar -->
+    <div id="status-bar" class="bg-light py-1 px-3 d-flex justify-content-between">
+        <div>
+            <span id="bot-status-indicator" class="status-dot"></span>
+            <span id="bot-status-text">Checking status...</span>
+        </div>
+        <div>
+            <button id="start-bot-btn" class="btn btn-sm btn-success me-1" style="display: none;">
+                <i class="fas fa-play"></i> Start
+            </button>
+            <button id="pause-bot-btn" class="btn btn-sm btn-warning me-1" style="display: none;">
+                <i class="fas fa-pause"></i> Pause
+            </button>
+            <button id="resume-bot-btn" class="btn btn-sm btn-info me-1" style="display: none;">
+                <i class="fas fa-play"></i> Resume
+            </button>
+            <button id="stop-bot-btn" class="btn btn-sm btn-danger me-1" style="display: none;">
+                <i class="fas fa-stop"></i> Stop
+            </button>
+            <span id="refresh-time" class="text-muted small">Last update: Never</span>
+        </div>
+    </div>
+
+    <!-- Bot Status Overlay -->
+    <div id="bot-status-overlay" class="d-none">
+        <div class="status-badge">
+            <span id="overlay-status-text">RUNNING</span>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-auto py-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 text-lg-start">
+                    <span class="text-muted">&copy; 2023 ArbitrageX Trading Bot</span>
+                </div>
+                <div class="col-lg-6 text-lg-end">
+                    <span id="server-time" class="text-muted"></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery (for AJAX calls) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Common Dashboard JS -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    
+    <!-- Page-specific JavaScript -->
+    {% block scripts %}{% endblock %}
+    
+    <script>
+        // Update server time
+        function updateServerTime() {
+            const now = new Date();
+            document.getElementById('server-time').textContent = now.toLocaleString();
+            setTimeout(updateServerTime, 1000);
+        }
+        
+        // Initialize Socket.IO
+        const socket = io();
+        
+        socket.on('connect', function() {
+            console.log('Socket.IO connected');
+        });
+        
+        socket.on('authentication', function(data) {
+            console.log('Authentication:', data);
+        });
+        
+        // Subscribe to system status updates
+        socket.emit('subscribe', {topic: 'system_status'});
+        
+        // Handle system status updates
+        socket.on('system_status', function(data) {
+            updateSystemStatus(data);
+            
+            // Update the status overlay
+            const statusOverlay = document.getElementById('bot-status-overlay');
+            const overlayText = document.getElementById('overlay-status-text');
+            
+            if (statusOverlay && overlayText) {
+                // Remove all status classes
+                statusOverlay.classList.remove('d-none');
+                statusOverlay.querySelector('.status-badge').classList.remove('running', 'paused', 'stopped');
+                
+                // Update text and class based on status
+                if (data.status === 'running') {
+                    overlayText.textContent = 'RUNNING';
+                    statusOverlay.querySelector('.status-badge').classList.add('running');
+                } else if (data.status === 'paused') {
+                    overlayText.textContent = 'PAUSED';
+                    statusOverlay.querySelector('.status-badge').classList.add('paused');
+                } else {
+                    overlayText.textContent = 'STOPPED';
+                    statusOverlay.querySelector('.status-badge').classList.add('stopped');
+                }
+                
+                // Show overlay temporarily
+                statusOverlay.style.opacity = '1';
+                setTimeout(() => {
+                    statusOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        statusOverlay.classList.add('d-none');
+                    }, 500);
+                }, 3000);
+            }
+        });
+        
+        // Update bot status indicator
+        function updateSystemStatus(data) {
+            const statusIndicator = document.getElementById('bot-status-indicator');
+            const statusText = document.getElementById('bot-status-text');
+            const startBtn = document.getElementById('start-bot-btn');
+            const pauseBtn = document.getElementById('pause-bot-btn');
+            const resumeBtn = document.getElementById('resume-bot-btn');
+            const stopBtn = document.getElementById('stop-bot-btn');
+            
+            if (data.status === 'running') {
+                statusIndicator.className = 'status-dot status-active';
+                statusText.textContent = 'Bot is running';
+                startBtn.style.display = 'none';
+                pauseBtn.style.display = 'inline-block';
+                resumeBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+            } else if (data.status === 'paused') {
+                statusIndicator.className = 'status-dot status-paused';
+                statusText.textContent = 'Bot is paused';
+                startBtn.style.display = 'none';
+                pauseBtn.style.display = 'none';
+                resumeBtn.style.display = 'inline-block';
+                stopBtn.style.display = 'inline-block';
+            } else {
+                statusIndicator.className = 'status-dot status-inactive';
+                statusText.textContent = 'Bot is stopped';
+                startBtn.style.display = 'inline-block';
+                pauseBtn.style.display = 'none';
+                resumeBtn.style.display = 'none';
+                stopBtn.style.display = 'none';
+            }
+            
+            // Update refresh time
+            document.getElementById('refresh-time').textContent = 'Last update: ' + new Date().toLocaleTimeString();
+        }
+        
+        // Start the bot
+        document.getElementById('start-bot-btn').addEventListener('click', function() {
+            fetch('/api/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Bot started successfully', 'success');
+                    // Request status update
+                    checkStatus();
+                } else {
+                    showAlert('Failed to start bot: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('Error starting bot: ' + error, 'danger');
+            });
+        });
+        
+        // Pause the bot
+        document.getElementById('pause-bot-btn').addEventListener('click', function() {
+            fetch('/api/pause', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Bot paused successfully', 'success');
+                    // Request status update
+                    checkStatus();
+                } else {
+                    showAlert('Failed to pause bot: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('Error pausing bot: ' + error, 'danger');
+            });
+        });
+        
+        // Resume the bot
+        document.getElementById('resume-bot-btn').addEventListener('click', function() {
+            fetch('/api/resume', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Bot resumed successfully', 'success');
+                    // Request status update
+                    checkStatus();
+                } else {
+                    showAlert('Failed to resume bot: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('Error resuming bot: ' + error, 'danger');
+            });
+        });
+        
+        // Stop the bot
+        document.getElementById('stop-bot-btn').addEventListener('click', function() {
+            fetch('/api/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Bot stopped successfully', 'success');
+                    // Request status update
+                    checkStatus();
+                } else {
+                    showAlert('Failed to stop bot: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('Error stopping bot: ' + error, 'danger');
+            });
+        });
+        
+        // Check system status
+        function checkStatus() {
+            fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                updateSystemStatus(data);
+            })
+            .catch(error => {
+                console.error('Error checking status:', error);
+            });
+        }
+        
+        // Show alert
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateServerTime();
+            checkStatus();
+            
+            // Periodically check status
+            setInterval(checkStatus, 30000); // every 30 seconds
+            
+            // Check network status
+            checkNetworkStatus();
+        });
+        
+        // Check network status and update the indicator
+        function checkNetworkStatus() {
+            fetch('/api/networks/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const networkIndicator = document.getElementById('network-mode-indicator');
+                    
+                    if (data.current_network === 'mainnet') {
+                        networkIndicator.textContent = 'LIVE';
+                        networkIndicator.className = 'badge bg-danger';
+                    } else {
+                        networkIndicator.textContent = 'FORK';
+                        networkIndicator.className = 'badge bg-info';
+                    }
+                    
+                    // Show the indicator
+                    networkIndicator.classList.remove('d-none');
+                    
+                    // Add a tooltip to the navbar brand
+                    const navbarBrand = document.querySelector('.navbar-brand');
+                    if (navbarBrand) {
+                        if (data.current_network === 'mainnet') {
+                            navbarBrand.setAttribute('data-bs-toggle', 'tooltip');
+                            navbarBrand.setAttribute('data-bs-placement', 'bottom');
+                            navbarBrand.setAttribute('title', 'LIVE MODE - Using real funds');
+                            
+                            // Add a subtle border to indicate live mode
+                            document.body.classList.add('live-mode');
+                        } else {
+                            navbarBrand.removeAttribute('data-bs-toggle');
+                            navbarBrand.removeAttribute('data-bs-placement');
+                            navbarBrand.removeAttribute('title');
+                            
+                            // Remove live mode indicator
+                            document.body.classList.remove('live-mode');
+                        }
+                        
+                        // Initialize tooltip
+                        new bootstrap.Tooltip(navbarBrand);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error checking network status:', error);
+            });
+        }
+    </script>
+</body>
+</html> 

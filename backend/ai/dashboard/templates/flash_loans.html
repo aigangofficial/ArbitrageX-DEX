@@ -1,0 +1,870 @@
+{% extends "base.html" %}
+
+{% block title %}Flash Loan Analytics - ArbitrageX{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Flash Loan Analytics</h1>
+        <p class="text-muted">Track and analyze flash loan usage, costs, and risks.</p>
+    </div>
+</div>
+
+<!-- Flash Loan Overview Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Flash Loan Overview</h2>
+                
+                <div class="row">
+                    <!-- Total Flash Loans Used -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Total Used</h6>
+                                        <h3 class="mb-0" id="total-flash-loan-amount">Loading...</h3>
+                                    </div>
+                                    <div class="text-primary">
+                                        <i class="fas fa-coins fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Fees Paid -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Total Fees Paid</h6>
+                                        <h3 class="mb-0" id="total-fees-paid">Loading...</h3>
+                                    </div>
+                                    <div class="text-danger">
+                                        <i class="fas fa-dollar-sign fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Average Loan Size -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Avg. Loan Size</h6>
+                                        <h3 class="mb-0" id="avg-loan-size">Loading...</h3>
+                                    </div>
+                                    <div class="text-success">
+                                        <i class="fas fa-chart-line fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Success Rate -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Success Rate</h6>
+                                        <h3 class="mb-0" id="success-rate">Loading...</h3>
+                                    </div>
+                                    <div class="text-info">
+                                        <i class="fas fa-check-circle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Live Flash Loan Usage -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 mb-0">Live Flash Loan Usage</h2>
+                    <div>
+                        <select id="provider-filter" class="form-select form-select-sm">
+                            <option value="all">All Providers</option>
+                            <option value="aave">Aave</option>
+                            <option value="uniswap">Uniswap</option>
+                            <option value="balancer">Balancer</option>
+                            <option value="maker">Maker</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover" id="flash-loans-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Provider</th>
+                                <th>Token</th>
+                                <th>Amount</th>
+                                <th>Fee Rate</th>
+                                <th>Fee Paid</th>
+                                <th>Trade Result</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flash-loans-body">
+                            <!-- Flash loan entries will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="loading-loans" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading flash loan data...</p>
+                </div>
+                
+                <div id="no-loans" class="alert alert-info" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>No flash loans found.
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button id="load-more-loans" class="btn btn-outline-primary" style="display: none;">
+                        Load More
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Failure Cost Estimation -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Failure Cost Estimation</h2>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <form id="failure-simulation-form" class="mb-4">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="simulation-provider" class="form-label">Provider</label>
+                                    <select id="simulation-provider" class="form-select" required>
+                                        <option value="aave">Aave</option>
+                                        <option value="uniswap">Uniswap</option>
+                                        <option value="balancer">Balancer</option>
+                                        <option value="maker">Maker</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="simulation-token" class="form-label">Token</label>
+                                    <select id="simulation-token" class="form-select" required>
+                                        <option value="ETH">ETH</option>
+                                        <option value="USDC">USDC</option>
+                                        <option value="USDT">USDT</option>
+                                        <option value="DAI">DAI</option>
+                                        <option value="WBTC">WBTC</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="simulation-amount" class="form-label">Amount</label>
+                                    <div class="input-group">
+                                        <input type="number" id="simulation-amount" class="form-control" min="0" step="any" required>
+                                        <span class="input-group-text token-symbol">ETH</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-calculator me-2"></i>Calculate Failure Cost
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card border-danger h-100">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0">Estimated Failure Cost</h5>
+                            </div>
+                            <div class="card-body" id="failure-cost-result">
+                                <div class="text-center py-4">
+                                    <p class="text-muted mb-0">Enter loan details and calculate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>About Failure Costs:</strong> If a flash loan transaction fails (e.g., due to slippage or market movements), you still pay the gas costs and, with some providers, the flash loan fee. This can lead to significant losses. Always simulate and understand the potential costs before executing.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historical Fee Analysis -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 mb-0">Flash Loan Fee Analysis</h2>
+                    <div>
+                        <select id="timeframe-selector" class="form-select form-select-sm">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="365">Last Year</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Fee Trends Chart -->
+                    <div class="col-md-8 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Fee Rate Trends</h5>
+                                <div id="fee-trends-chart" style="height: 300px;">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading chart data...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fee Distribution Chart -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Fees by Provider</h5>
+                                <div id="fee-distribution-chart" style="height: 300px;">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading chart data...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Provider Fee Comparison -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Current Provider Fee Comparison</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped" id="provider-fee-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Provider</th>
+                                                <th>Current Fee Rate</th>
+                                                <th>Fee Structure</th>
+                                                <th>Est. Cost for 100 ETH</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="provider-fee-body">
+                                            <tr>
+                                                <td colspan="5" class="text-center">Loading provider data...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flash Loan Details Modal -->
+<div class="modal fade" id="loan-details-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Flash Loan Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Loan ID:</div>
+                    <div class="col-sm-8" id="loan-id"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Provider:</div>
+                    <div class="col-sm-8" id="loan-provider"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Date/Time:</div>
+                    <div class="col-sm-8" id="loan-time"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Token:</div>
+                    <div class="col-sm-8" id="loan-token"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Amount:</div>
+                    <div class="col-sm-8" id="loan-amount"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Fee Rate:</div>
+                    <div class="col-sm-8" id="loan-fee-rate"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Fee Paid:</div>
+                    <div class="col-sm-8" id="loan-fee-paid"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Gas Used:</div>
+                    <div class="col-sm-8" id="loan-gas"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Status:</div>
+                    <div class="col-sm-8" id="loan-status"></div>
+                </div>
+                
+                <!-- Transaction Details -->
+                <h5 class="mt-4">Transaction Details</h5>
+                <div id="loan-transaction" class="mt-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-4 fw-bold">Transaction Hash:</div>
+                                <div class="col-sm-8">
+                                    <a href="#" id="loan-tx-hash" target="_blank"></a>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-sm-4 fw-bold">Block Number:</div>
+                                <div class="col-sm-8" id="loan-block-number"></div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-sm-4 fw-bold">Total Gas Cost:</div>
+                                <div class="col-sm-8" id="loan-gas-cost"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trade Details -->
+                <h5 class="mt-4">Trade Details</h5>
+                <div id="loan-trade-details" class="mt-3">
+                    <!-- Trade details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the page
+        loadFlashLoanOverview();
+        loadFlashLoans();
+        loadFeeAnalysis();
+        
+        // Set up event listeners
+        document.getElementById('provider-filter').addEventListener('change', function() {
+            loadFlashLoans(true);
+        });
+        
+        document.getElementById('load-more-loans').addEventListener('click', function() {
+            loadMoreFlashLoans();
+        });
+        
+        // Simulation form
+        document.getElementById('failure-simulation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateFailureCost();
+        });
+        
+        // Update token symbol in form
+        document.getElementById('simulation-token').addEventListener('change', function() {
+            updateTokenSymbol();
+        });
+        
+        // Timeframe selector
+        document.getElementById('timeframe-selector').addEventListener('change', function() {
+            loadFeeAnalysis();
+        });
+    });
+    
+    let currentPage = 1;
+    let hasMoreLoans = false;
+    
+    async function loadFlashLoanOverview() {
+        try {
+            const response = await fetch('/api/flash-loans/overview');
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('total-flash-loan-amount').textContent = `${data.total_amount} ${data.currency}`;
+                document.getElementById('total-fees-paid').textContent = `${data.total_fees} ${data.currency}`;
+                document.getElementById('avg-loan-size').textContent = `${data.avg_loan_size} ${data.currency}`;
+                document.getElementById('success-rate').textContent = `${data.success_rate}%`;
+            } else {
+                showAlert('Failed to load flash loan overview: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading flash loan overview:', error);
+            showAlert('Error loading flash loan overview', 'danger');
+        }
+    }
+    
+    async function loadFlashLoans(reset = true) {
+        if (reset) {
+            currentPage = 1;
+            document.getElementById('flash-loans-body').innerHTML = '';
+        }
+        
+        document.getElementById('loading-loans').style.display = 'block';
+        document.getElementById('no-loans').style.display = 'none';
+        document.getElementById('load-more-loans').style.display = 'none';
+        
+        const provider = document.getElementById('provider-filter').value;
+        
+        try {
+            const response = await fetch(`/api/flash-loans?page=${currentPage}&provider=${provider}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.loans.length === 0 && currentPage === 1) {
+                    document.getElementById('no-loans').style.display = 'block';
+                } else {
+                    const tbody = document.getElementById('flash-loans-body');
+                    
+                    data.loans.forEach(loan => {
+                        const tradeSuccess = loan.trade_result === 'success';
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${new Date(loan.timestamp).toLocaleString()}</td>
+                                <td>${loan.provider}</td>
+                                <td>${loan.token}</td>
+                                <td>${loan.amount}</td>
+                                <td>${loan.fee_rate}%</td>
+                                <td>${loan.fee_paid}</td>
+                                <td><span class="badge bg-${tradeSuccess ? 'success' : 'danger'}">${loan.trade_result}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary view-loan-btn" data-loan-id="${loan.id}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    // Set up view buttons
+                    document.querySelectorAll('.view-loan-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const loanId = this.getAttribute('data-loan-id');
+                            viewLoanDetails(loanId);
+                        });
+                    });
+                    
+                    // Show load more button if there are more loans
+                    hasMoreLoans = data.pagination.has_more;
+                    if (hasMoreLoans) {
+                        document.getElementById('load-more-loans').style.display = 'block';
+                    }
+                }
+            } else {
+                showAlert('Failed to load flash loans: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading flash loans:', error);
+            showAlert('Error loading flash loans', 'danger');
+        } finally {
+            document.getElementById('loading-loans').style.display = 'none';
+        }
+    }
+    
+    function loadMoreFlashLoans() {
+        currentPage++;
+        loadFlashLoans(false);
+    }
+    
+    async function calculateFailureCost() {
+        const provider = document.getElementById('simulation-provider').value;
+        const token = document.getElementById('simulation-token').value;
+        const amount = document.getElementById('simulation-amount').value;
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            showAlert('Please enter a valid amount', 'warning');
+            return;
+        }
+        
+        const resultContainer = document.getElementById('failure-cost-result');
+        resultContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Calculating...</p>
+            </div>
+        `;
+        
+        try {
+            const response = await fetch('/api/flash-loans/failure-cost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    provider,
+                    token,
+                    amount: parseFloat(amount)
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                resultContainer.innerHTML = `
+                    <div class="d-flex flex-column align-items-center py-2">
+                        <div class="display-6 text-danger fw-bold">${data.failure_cost} ${token}</div>
+                        <div class="mt-2 text-muted">(≈ $${data.failure_cost_usd})</div>
+                        
+                        <div class="mt-3 w-100">
+                            <div class="d-flex justify-content-between">
+                                <span>Flash Loan Fee:</span>
+                                <span>${data.loan_fee} ${token}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Gas Cost (est.):</span>
+                                <span>${data.gas_cost} ETH</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total Failure Cost:</span>
+                                <span>${data.failure_cost} ${token}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-danger mb-0">${data.error || 'Failed to calculate failure cost'}</p>
+                    </div>
+                `;
+                showAlert('Failed to calculate failure cost: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error calculating failure cost:', error);
+            resultContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <p class="text-danger mb-0">Error calculating failure cost</p>
+                </div>
+            `;
+            showAlert('Error calculating failure cost', 'danger');
+        }
+    }
+    
+    function updateTokenSymbol() {
+        const token = document.getElementById('simulation-token').value;
+        const tokenSymbols = document.querySelectorAll('.token-symbol');
+        tokenSymbols.forEach(el => {
+            el.textContent = token;
+        });
+    }
+    
+    async function viewLoanDetails(loanId) {
+        try {
+            const response = await fetch(`/api/flash-loans/${loanId}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                const loan = data.loan;
+                
+                // Update modal content
+                document.getElementById('loan-id').textContent = loan.id;
+                document.getElementById('loan-provider').textContent = loan.provider;
+                document.getElementById('loan-time').textContent = new Date(loan.timestamp).toLocaleString();
+                document.getElementById('loan-token').textContent = loan.token;
+                document.getElementById('loan-amount').textContent = loan.amount;
+                document.getElementById('loan-fee-rate').textContent = `${loan.fee_rate}%`;
+                document.getElementById('loan-fee-paid').textContent = loan.fee_paid;
+                document.getElementById('loan-gas').textContent = loan.gas_used;
+                document.getElementById('loan-status').innerHTML = `<span class="badge bg-${loan.trade_result === 'success' ? 'success' : 'danger'}">${loan.trade_result}</span>`;
+                
+                // Transaction details
+                document.getElementById('loan-tx-hash').textContent = loan.transaction.hash.substring(0, 16) + '...' + loan.transaction.hash.substring(loan.transaction.hash.length - 8);
+                document.getElementById('loan-tx-hash').href = `https://etherscan.io/tx/${loan.transaction.hash}`;
+                document.getElementById('loan-block-number').textContent = loan.transaction.block_number || 'Pending';
+                document.getElementById('loan-gas-cost').textContent = loan.transaction.gas_cost;
+                
+                // Trade details
+                const tradeDetails = document.getElementById('loan-trade-details');
+                if (loan.trade) {
+                    tradeDetails.innerHTML = `
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-4 fw-bold">Strategy:</div>
+                                    <div class="col-sm-8">${loan.trade.strategy}</div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-sm-4 fw-bold">Trading Pair:</div>
+                                    <div class="col-sm-8">${loan.trade.trading_pair}</div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-sm-4 fw-bold">Profit/Loss:</div>
+                                    <div class="col-sm-8">
+                                        <span class="${parseFloat(loan.trade.profit) >= 0 ? 'text-success' : 'text-danger'}">
+                                            ${loan.trade.profit}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-sm-4 fw-bold">Net Result:</div>
+                                    <div class="col-sm-8">
+                                        <span class="${parseFloat(loan.trade.net_result) >= 0 ? 'text-success' : 'text-danger'}">
+                                            ${loan.trade.net_result}
+                                        </span>
+                                        <small class="text-muted">(after fees and gas)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    tradeDetails.innerHTML = '<div class="alert alert-info">No trade details available.</div>';
+                }
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('loan-details-modal'));
+                modal.show();
+            } else {
+                showAlert('Failed to load loan details: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading loan details:', error);
+            showAlert('Error loading loan details', 'danger');
+        }
+    }
+    
+    async function loadFeeAnalysis() {
+        const days = document.getElementById('timeframe-selector').value;
+        
+        try {
+            const response = await fetch(`/api/flash-loans/fee-analysis?days=${days}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                renderFeeTrendsChart(data.fee_trends);
+                renderFeeDistributionChart(data.fee_distribution);
+                updateProviderFeeTable(data.provider_comparison);
+            } else {
+                showAlert('Failed to load fee analysis: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading fee analysis:', error);
+            showAlert('Error loading fee analysis', 'danger');
+        }
+    }
+    
+    function renderFeeTrendsChart(trendData) {
+        const chartElement = document.getElementById('fee-trends-chart');
+        chartElement.innerHTML = '';
+        
+        const series = [];
+        const providers = Object.keys(trendData);
+        
+        providers.forEach(provider => {
+            series.push({
+                name: provider,
+                data: trendData[provider].map(point => {
+                    return {
+                        x: new Date(point.date).getTime(),
+                        y: point.fee_rate
+                    };
+                })
+            });
+        });
+        
+        const options = {
+            series: series,
+            chart: {
+                type: 'line',
+                height: 300,
+                toolbar: {
+                    show: false
+                },
+                animations: {
+                    enabled: false
+                }
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    datetimeUTC: false
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Fee Rate (%)'
+                },
+                min: 0
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy'
+                }
+            },
+            legend: {
+                position: 'top'
+            }
+        };
+        
+        const chart = new ApexCharts(chartElement, options);
+        chart.render();
+    }
+    
+    function renderFeeDistributionChart(distributionData) {
+        const chartElement = document.getElementById('fee-distribution-chart');
+        chartElement.innerHTML = '';
+        
+        const series = distributionData.map(item => item.total_fees);
+        const labels = distributionData.map(item => item.provider);
+        
+        const options = {
+            series: series,
+            labels: labels,
+            chart: {
+                type: 'donut',
+                height: 300
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Total Fees',
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0).toFixed(4) + ' ETH';
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            legend: {
+                position: 'bottom'
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        height: 260
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+        
+        const chart = new ApexCharts(chartElement, options);
+        chart.render();
+    }
+    
+    function updateProviderFeeTable(providerData) {
+        const tbody = document.getElementById('provider-fee-body');
+        tbody.innerHTML = '';
+        
+        providerData.forEach(provider => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${provider.name}</td>
+                    <td>${provider.current_fee_rate}%</td>
+                    <td>${provider.fee_structure}</td>
+                    <td>${provider.example_cost} ETH</td>
+                    <td>${provider.notes}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    function showAlert(message, type) {
+        const alertsContainer = document.createElement('div');
+        alertsContainer.className = 'position-fixed top-0 end-0 p-3';
+        alertsContainer.style.zIndex = '5000';
+        alertsContainer.id = 'alerts-container';
+        
+        const existingContainer = document.getElementById('alerts-container');
+        const container = existingContainer || alertsContainer;
+        
+        if (!existingContainer) {
+            document.body.appendChild(container);
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = `toast align-items-center text-white bg-${type} border-0`;
+        alert.role = 'alert';
+        alert.ariaLive = 'assertive';
+        alert.ariaAtomic = 'true';
+        
+        alert.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        container.appendChild(alert);
+        
+        const bsAlert = new bootstrap.Toast(alert, { delay: 5000 });
+        bsAlert.show();
+        
+        alert.addEventListener('hidden.bs.toast', function() {
+            container.removeChild(alert);
+            if (container.children.length === 0 && container.id === 'alerts-container') {
+                document.body.removeChild(container);
+            }
+        });
+    }
+</script>
+{% endblock %} 

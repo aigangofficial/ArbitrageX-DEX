@@ -1,0 +1,379 @@
+{
+  "timestamp": "2025-03-04 14:57:38",
+  "config": {
+    "network": "ethereum",
+    "token_pair": [
+      "WETH",
+      "USDC"
+    ],
+    "dex": "uniswap_v3",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 130.46847886616808,
+      "confidence": 0.7018658288606041,
+      "execution_time": 110.47962515134745,
+      "price_impact": 0.0012346239640586968,
+      "slippage_tolerance": 0.002485232508659695,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 137.6035721621929,
+      "confidence": 0.8602554853689479,
+      "execution_time": 165.58815580342858,
+      "price_impact": 0.0026273088025919617,
+      "slippage_tolerance": 0.009198588441804503,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 60.9237564791869,
+      "confidence": 0.7479219507035386,
+      "execution_time": 67.49555044068755,
+      "price_impact": 0.004910698539678728,
+      "slippage_tolerance": 0.007365266742176195,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 169.87346201842757,
+      "confidence": 0.9163278747764378,
+      "execution_time": 92.243358046069,
+      "price_impact": 0.0048091492397976405,
+      "slippage_tolerance": 0.005288449563951048,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 32.18443564613452,
+      "confidence": 0.8134213099180265,
+      "execution_time": 193.49825815036172,
+      "price_impact": 0.0025472420362380958,
+      "slippage_tolerance": 0.007976319441355014,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 153.65580843239277,
+      "confidence": 0.7018658288606041,
+      "execution_time": 110.47962515134745,
+      "price_impact": 0.0012346239640586968,
+      "slippage_tolerance": 0.002485232508659695,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 151.68911612855752,
+      "confidence": 0.8602554853689479,
+      "execution_time": 165.58815580342858,
+      "price_impact": 0.0026273088025919617,
+      "slippage_tolerance": 0.009198588441804503,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 57.2166302255612,
+      "confidence": 0.7479219507035386,
+      "execution_time": 67.49555044068755,
+      "price_impact": 0.004910698539678728,
+      "slippage_tolerance": 0.007365266742176195,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 136.39895167842994,
+      "confidence": 0.9163278747764378,
+      "execution_time": 92.243358046069,
+      "price_impact": 0.0048091492397976405,
+      "slippage_tolerance": 0.005288449563951048,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 28.37106886889839,
+      "confidence": 0.8134213099180265,
+      "execution_time": 193.49825815036172,
+      "price_impact": 0.0025472420362380958,
+      "slippage_tolerance": 0.007976319441355014,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 153.65580843239277,
+      "confidence": 0.7018658288606041,
+      "execution_time": 110.47962515134745,
+      "price_impact": 0.0012346239640586968,
+      "slippage_tolerance": 0.002485232508659695,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.435155517844081,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 151.68911612855752,
+      "confidence": 0.8602554853689479,
+      "execution_time": 165.58815580342858,
+      "price_impact": 0.0026273088025919617,
+      "slippage_tolerance": 0.009198588441804503,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.971802592826106,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 136.39895167842994,
+      "confidence": 0.9163278747764378,
+      "execution_time": 92.243358046069,
+      "price_impact": 0.0048091492397976405,
+      "slippage_tolerance": 0.005288449563951048,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.482385812870023,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 28.37106886889839,
+      "confidence": 0.8134213099180265,
+      "execution_time": 193.49825815036172,
+      "price_impact": 0.0025472420362380958,
+      "slippage_tolerance": 0.007976319441355014,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.8038070301008612,
+      "protection_strategy": "backrunning"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 153.65580843239277,
+      "confidence": 0.7018658288606041,
+      "execution_time": 110.47962515134745,
+      "price_impact": 0.0012346239640586968,
+      "slippage_tolerance": 0.002485232508659695,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.435155517844081,
+      "protection_strategy": "private_tx",
+      "gas_price": 31.864568495718483,
+      "gas_used": 382584.80824810977,
+      "gas_cost": 3.6572699483529646e-05,
+      "status": "success",
+      "actual_profit": 128.05181261290738,
+      "actual_gas_price": 30.187422243810122,
+      "actual_gas_used": 359029.91335986025,
+      "actual_gas_cost": 3.2514562778258e-05,
+      "net_profit": 122.61662458050053,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 151.68911612855752,
+      "confidence": 0.8602554853689479,
+      "execution_time": 165.58815580342858,
+      "price_impact": 0.0026273088025919617,
+      "slippage_tolerance": 0.009198588441804503,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.971802592826106,
+      "protection_strategy": "time_delay",
+      "gas_price": 33.372207298076404,
+      "gas_used": 337463.49472508935,
+      "gas_cost": 3.378570510449698e-05,
+      "status": "success",
+      "actual_profit": 147.69635342470244,
+      "actual_gas_price": 32.06389237775695,
+      "actual_gas_used": 330194.8971980593,
+      "actual_gas_cost": 3.176200094232928e-05,
+      "net_profit": 146.7245190698754,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 136.39895167842994,
+      "confidence": 0.9163278747764378,
+      "execution_time": 92.243358046069,
+      "price_impact": 0.0048091492397976405,
+      "slippage_tolerance": 0.005288449563951048,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.482385812870023,
+      "protection_strategy": "private_tx",
+      "gas_price": 23.511182862129687,
+      "gas_used": 366521.2721646518,
+      "gas_cost": 2.5852045958170598e-05,
+      "status": "success",
+      "actual_profit": 145.835040789228,
+      "actual_gas_price": 22.899835621964318,
+      "actual_gas_used": 332794.70868715446,
+      "actual_gas_cost": 2.2862832374386016e-05,
+      "net_profit": 140.3526321135256,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "ethereum_WETH-USDC_uniswap_v3_1741085858",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 28.37106886889839,
+      "confidence": 0.8134213099180265,
+      "execution_time": 193.49825815036172,
+      "price_impact": 0.0025472420362380958,
+      "slippage_tolerance": 0.007976319441355014,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.8038070301008612,
+      "protection_strategy": "backrunning",
+      "gas_price": 27.022962128705483,
+      "gas_used": 258010.3425268087,
+      "gas_cost": 2.0916611144748843e-05,
+      "status": "success",
+      "actual_profit": 24.970245824318177,
+      "actual_gas_price": 27.01140497313618,
+      "actual_gas_used": 256196.46187306166,
+      "actual_gas_cost": 2.0760679153013732e-05,
+      "net_profit": 24.166418033538164,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "metrics": {
+    "total_trades": 4,
+    "successful_trades": 4,
+    "success_rate": 1.0,
+    "total_profit": 446.553452651156,
+    "total_gas_cost": 0.00010790007524798703,
+    "net_profit": 433.8601937974397,
+    "avg_execution_time": 140.4523492878017
+  }
+}

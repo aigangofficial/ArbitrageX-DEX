@@ -1,0 +1,863 @@
+{% extends "base.html" %}
+
+{% block title %}System Monitor - ArbitrageX{% endblock %}
+
+{% block head %}
+<style>
+    .metric-card {
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    }
+    
+    .chart-container {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+    
+    .status-healthy {
+        color: #198754;
+    }
+    
+    .status-warning {
+        color: #ffc107;
+    }
+    
+    .status-critical {
+        color: #dc3545;
+    }
+    
+    .resource-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .resource-low {
+        background-color: #198754;
+    }
+    
+    .resource-medium {
+        background-color: #ffc107;
+    }
+    
+    .resource-high {
+        background-color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-0">System Monitor</h1>
+        <p class="text-muted">Track system resource usage and performance metrics in real-time</p>
+    </div>
+</div>
+
+<!-- System Status Overview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 mb-0">System Status Overview</h2>
+                    <div>
+                        <button id="refresh-metrics-btn" class="btn btn-sm btn-primary">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- CPU Usage Card -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card metric-card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-muted">CPU Usage</h5>
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i id="cpu-status-icon" class="fas fa-microchip fa-2x me-2 status-healthy"></i>
+                                    <h2 id="cpu-usage" class="display-4 mb-0">0%</h2>
+                                </div>
+                                <div class="progress mb-2">
+                                    <div id="cpu-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <p id="cpu-cores" class="text-muted mb-0">Cores: 0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Memory Usage Card -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card metric-card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-muted">Memory Usage</h5>
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i id="memory-status-icon" class="fas fa-memory fa-2x me-2 status-healthy"></i>
+                                    <h2 id="memory-usage" class="display-4 mb-0">0%</h2>
+                                </div>
+                                <div class="progress mb-2">
+                                    <div id="memory-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <p id="memory-details" class="text-muted mb-0">0 GB / 0 GB</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Disk Usage Card -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card metric-card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-muted">Disk Usage</h5>
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i id="disk-status-icon" class="fas fa-hdd fa-2x me-2 status-healthy"></i>
+                                    <h2 id="disk-usage" class="display-4 mb-0">0%</h2>
+                                </div>
+                                <div class="progress mb-2">
+                                    <div id="disk-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <p id="disk-details" class="text-muted mb-0">0 GB / 0 GB</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Network Latency Card -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card metric-card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-muted">Network Latency</h5>
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i id="network-status-icon" class="fas fa-network-wired fa-2x me-2 status-healthy"></i>
+                                    <h2 id="network-latency" class="display-4 mb-0">0ms</h2>
+                                </div>
+                                <div class="progress mb-2">
+                                    <div id="network-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <p id="network-details" class="text-muted mb-0">Avg: 0ms | Max: 0ms</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historical Charts -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Historical Performance</h2>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">CPU & Memory Usage</h5>
+                                <div id="cpu-memory-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Network Latency</h5>
+                                <div id="network-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Disk I/O</h5>
+                                <div id="disk-io-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Network Traffic</h5>
+                                <div id="network-traffic-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Resources Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Detailed Resource Usage</h2>
+                
+                <div class="table-responsive">
+                    <table class="table" id="processes-table">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                <th>PID</th>
+                                <th>CPU %</th>
+                                <th>Memory %</th>
+                                <th>Status</th>
+                                <th>Started</th>
+                                <th>Threads</th>
+                            </tr>
+                        </thead>
+                        <tbody id="processes-body">
+                            <!-- Processes will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="loading-processes" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading processes...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">System Information</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-group mb-4">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Operating System
+                                <span id="system-os" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Python Version
+                                <span id="system-python" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                CPU Model
+                                <span id="system-cpu" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Memory
+                                <span id="system-memory" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Disk Space
+                                <span id="system-disk" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <ul class="list-group mb-4">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Hostname
+                                <span id="system-hostname" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Uptime
+                                <span id="system-uptime" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Bot Version
+                                <span id="system-version" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Last Reboot
+                                <span id="system-reboot" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Network Interface
+                                <span id="system-network" class="badge bg-primary rounded-pill">Loading...</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize page
+        loadSystemMetrics();
+        loadHistoricalData();
+        loadProcesses();
+        loadSystemInfo();
+        
+        // Set up refresh button
+        document.getElementById('refresh-metrics-btn').addEventListener('click', function() {
+            loadSystemMetrics();
+            loadProcesses();
+        });
+        
+        // Set up auto-refresh
+        setInterval(loadSystemMetrics, 30000); // Refresh every 30 seconds
+        setInterval(loadProcesses, 60000); // Refresh processes every minute
+    });
+    
+    // Charts
+    let cpuMemoryChart = null;
+    let networkChart = null;
+    let diskIoChart = null;
+    let networkTrafficChart = null;
+    
+    async function loadSystemMetrics() {
+        try {
+            const response = await fetch('/api/system/metrics');
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update CPU metrics
+                updateCpuMetrics(data.metrics.cpu);
+                
+                // Update Memory metrics
+                updateMemoryMetrics(data.metrics.memory);
+                
+                // Update Disk metrics
+                updateDiskMetrics(data.metrics.disk);
+                
+                // Update Network metrics
+                updateNetworkMetrics(data.metrics.network);
+            } else {
+                showAlert('Failed to load system metrics: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading system metrics:', error);
+            showAlert('Error loading system metrics', 'danger');
+        }
+    }
+    
+    function updateCpuMetrics(cpuData) {
+        document.getElementById('cpu-usage').textContent = `${cpuData.usage}%`;
+        document.getElementById('cpu-cores').textContent = `Cores: ${cpuData.cores}`;
+        
+        const cpuProgress = document.getElementById('cpu-progress');
+        cpuProgress.style.width = `${cpuData.usage}%`;
+        
+        // Update status icon based on usage
+        const cpuIcon = document.getElementById('cpu-status-icon');
+        if (cpuData.usage < 50) {
+            cpuIcon.className = 'fas fa-microchip fa-2x me-2 status-healthy';
+            cpuProgress.className = 'progress-bar bg-success';
+        } else if (cpuData.usage < 80) {
+            cpuIcon.className = 'fas fa-microchip fa-2x me-2 status-warning';
+            cpuProgress.className = 'progress-bar bg-warning';
+        } else {
+            cpuIcon.className = 'fas fa-microchip fa-2x me-2 status-critical';
+            cpuProgress.className = 'progress-bar bg-danger';
+        }
+    }
+    
+    function updateMemoryMetrics(memoryData) {
+        document.getElementById('memory-usage').textContent = `${memoryData.percent}%`;
+        document.getElementById('memory-details').textContent = `${memoryData.used} / ${memoryData.total}`;
+        
+        const memoryProgress = document.getElementById('memory-progress');
+        memoryProgress.style.width = `${memoryData.percent}%`;
+        
+        // Update status icon based on usage
+        const memoryIcon = document.getElementById('memory-status-icon');
+        if (memoryData.percent < 60) {
+            memoryIcon.className = 'fas fa-memory fa-2x me-2 status-healthy';
+            memoryProgress.className = 'progress-bar bg-success';
+        } else if (memoryData.percent < 85) {
+            memoryIcon.className = 'fas fa-memory fa-2x me-2 status-warning';
+            memoryProgress.className = 'progress-bar bg-warning';
+        } else {
+            memoryIcon.className = 'fas fa-memory fa-2x me-2 status-critical';
+            memoryProgress.className = 'progress-bar bg-danger';
+        }
+    }
+    
+    function updateDiskMetrics(diskData) {
+        document.getElementById('disk-usage').textContent = `${diskData.percent}%`;
+        document.getElementById('disk-details').textContent = `${diskData.used} / ${diskData.total}`;
+        
+        const diskProgress = document.getElementById('disk-progress');
+        diskProgress.style.width = `${diskData.percent}%`;
+        
+        // Update status icon based on usage
+        const diskIcon = document.getElementById('disk-status-icon');
+        if (diskData.percent < 70) {
+            diskIcon.className = 'fas fa-hdd fa-2x me-2 status-healthy';
+            diskProgress.className = 'progress-bar bg-success';
+        } else if (diskData.percent < 90) {
+            diskIcon.className = 'fas fa-hdd fa-2x me-2 status-warning';
+            diskProgress.className = 'progress-bar bg-warning';
+        } else {
+            diskIcon.className = 'fas fa-hdd fa-2x me-2 status-critical';
+            diskProgress.className = 'progress-bar bg-danger';
+        }
+    }
+    
+    function updateNetworkMetrics(networkData) {
+        document.getElementById('network-latency').textContent = `${networkData.current_latency}ms`;
+        document.getElementById('network-details').textContent = `Avg: ${networkData.avg_latency}ms | Max: ${networkData.max_latency}ms`;
+        
+        const networkProgress = document.getElementById('network-progress');
+        
+        // Calculate percentage based on thresholds (0-200ms range)
+        const latencyPercent = Math.min(100, (networkData.current_latency / 2));
+        networkProgress.style.width = `${latencyPercent}%`;
+        
+        // Update status icon based on latency
+        const networkIcon = document.getElementById('network-status-icon');
+        if (networkData.current_latency < 50) {
+            networkIcon.className = 'fas fa-network-wired fa-2x me-2 status-healthy';
+            networkProgress.className = 'progress-bar bg-success';
+        } else if (networkData.current_latency < 100) {
+            networkIcon.className = 'fas fa-network-wired fa-2x me-2 status-warning';
+            networkProgress.className = 'progress-bar bg-warning';
+        } else {
+            networkIcon.className = 'fas fa-network-wired fa-2x me-2 status-critical';
+            networkProgress.className = 'progress-bar bg-danger';
+        }
+    }
+    
+    async function loadHistoricalData() {
+        try {
+            const response = await fetch('/api/system/historical');
+            const data = await response.json();
+            
+            if (data.success) {
+                // Render CPU & Memory chart
+                renderCpuMemoryChart(data.historical.cpu_memory);
+                
+                // Render Network Latency chart
+                renderNetworkChart(data.historical.network);
+                
+                // Render Disk I/O chart
+                renderDiskIoChart(data.historical.disk_io);
+                
+                // Render Network Traffic chart
+                renderNetworkTrafficChart(data.historical.network_traffic);
+            } else {
+                showAlert('Failed to load historical data: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading historical data:', error);
+            showAlert('Error loading historical data', 'danger');
+        }
+    }
+    
+    function renderCpuMemoryChart(cpuMemoryData) {
+        const cpuMemoryElement = document.getElementById('cpu-memory-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'CPU Usage',
+                    data: cpuMemoryData.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.cpu
+                        };
+                    })
+                },
+                {
+                    name: 'Memory Usage',
+                    data: cpuMemoryData.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.memory
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'area',
+                height: 300,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.3
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Usage (%)'
+                },
+                min: 0,
+                max: 100
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm:ss'
+                }
+            },
+            legend: {
+                position: 'top'
+            }
+        };
+        
+        if (cpuMemoryChart) {
+            cpuMemoryChart.destroy();
+        }
+        
+        cpuMemoryChart = new ApexCharts(cpuMemoryElement, options);
+        cpuMemoryChart.render();
+    }
+    
+    function renderNetworkChart(networkData) {
+        const networkElement = document.getElementById('network-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Network Latency',
+                    data: networkData.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.latency
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'line',
+                height: 300,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Latency (ms)'
+                },
+                min: 0
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm:ss'
+                }
+            }
+        };
+        
+        if (networkChart) {
+            networkChart.destroy();
+        }
+        
+        networkChart = new ApexCharts(networkElement, options);
+        networkChart.render();
+    }
+    
+    function renderDiskIoChart(diskIoData) {
+        const diskIoElement = document.getElementById('disk-io-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Read',
+                    data: diskIoData.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.read
+                        };
+                    })
+                },
+                {
+                    name: 'Write',
+                    data: diskIoData.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.write
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'bar',
+                height: 300,
+                stacked: false,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'MB/s'
+                },
+                min: 0
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm:ss'
+                }
+            },
+            legend: {
+                position: 'top'
+            }
+        };
+        
+        if (diskIoChart) {
+            diskIoChart.destroy();
+        }
+        
+        diskIoChart = new ApexCharts(diskIoElement, options);
+        diskIoChart.render();
+    }
+    
+    function renderNetworkTrafficChart(networkTrafficData) {
+        const networkTrafficElement = document.getElementById('network-traffic-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Sent',
+                    data: networkTrafficData.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.sent
+                        };
+                    })
+                },
+                {
+                    name: 'Received',
+                    data: networkTrafficData.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.received
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'area',
+                height: 300,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.3
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'KB/s'
+                },
+                min: 0
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm:ss'
+                }
+            },
+            legend: {
+                position: 'top'
+            }
+        };
+        
+        if (networkTrafficChart) {
+            networkTrafficChart.destroy();
+        }
+        
+        networkTrafficChart = new ApexCharts(networkTrafficElement, options);
+        networkTrafficChart.render();
+    }
+    
+    async function loadProcesses() {
+        const processesBody = document.getElementById('processes-body');
+        document.getElementById('loading-processes').style.display = 'block';
+        
+        try {
+            const response = await fetch('/api/system/processes');
+            const data = await response.json();
+            
+            if (data.success) {
+                processesBody.innerHTML = '';
+                
+                data.processes.forEach(process => {
+                    const cpuStatus = getResourceStatus(process.cpu_percent);
+                    const memoryStatus = getResourceStatus(process.memory_percent);
+                    
+                    processesBody.innerHTML += `
+                        <tr>
+                            <td>${process.name}</td>
+                            <td>${process.pid}</td>
+                            <td>
+                                <span class="resource-indicator resource-${cpuStatus}"></span>
+                                ${process.cpu_percent.toFixed(1)}%
+                            </td>
+                            <td>
+                                <span class="resource-indicator resource-${memoryStatus}"></span>
+                                ${process.memory_percent.toFixed(1)}%
+                            </td>
+                            <td>${process.status}</td>
+                            <td>${process.started}</td>
+                            <td>${process.threads}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                showAlert('Failed to load processes: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading processes:', error);
+            showAlert('Error loading processes', 'danger');
+        } finally {
+            document.getElementById('loading-processes').style.display = 'none';
+        }
+    }
+    
+    function getResourceStatus(percent) {
+        if (percent < 30) {
+            return 'low';
+        } else if (percent < 70) {
+            return 'medium';
+        } else {
+            return 'high';
+        }
+    }
+    
+    async function loadSystemInfo() {
+        try {
+            const response = await fetch('/api/system/info');
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update system information
+                document.getElementById('system-os').textContent = data.info.os;
+                document.getElementById('system-python').textContent = data.info.python;
+                document.getElementById('system-cpu').textContent = data.info.cpu;
+                document.getElementById('system-memory').textContent = data.info.memory;
+                document.getElementById('system-disk').textContent = data.info.disk;
+                document.getElementById('system-hostname').textContent = data.info.hostname;
+                document.getElementById('system-uptime').textContent = data.info.uptime;
+                document.getElementById('system-version').textContent = data.info.version;
+                document.getElementById('system-reboot').textContent = data.info.last_reboot;
+                document.getElementById('system-network').textContent = data.info.network;
+            } else {
+                showAlert('Failed to load system info: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading system info:', error);
+            showAlert('Error loading system info', 'danger');
+        }
+    }
+    
+    function showAlert(message, type) {
+        const alertsContainer = document.createElement('div');
+        alertsContainer.className = 'position-fixed top-0 end-0 p-3';
+        alertsContainer.style.zIndex = '5000';
+        alertsContainer.id = 'alerts-container';
+        
+        const existingContainer = document.getElementById('alerts-container');
+        const container = existingContainer || alertsContainer;
+        
+        if (!existingContainer) {
+            document.body.appendChild(container);
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = `toast align-items-center text-white bg-${type} border-0`;
+        alert.role = 'alert';
+        alert.ariaLive = 'assertive';
+        alert.ariaAtomic = 'true';
+        
+        alert.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        container.appendChild(alert);
+        
+        const bsAlert = new bootstrap.Toast(alert, { delay: 5000 });
+        bsAlert.show();
+        
+        alert.addEventListener('hidden.bs.toast', function() {
+            container.removeChild(alert);
+            if (container.children.length === 0 && container.id === 'alerts-container') {
+                document.body.removeChild(container);
+            }
+        });
+    }
+</script>
+{% endblock %} 

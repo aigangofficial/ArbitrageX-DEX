@@ -3,9 +3,15 @@ require('@testing-library/jest-dom');
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
   constructor() {}
-  observe() { return null; }
-  unobserve() { return null; }
-  disconnect() { return null; }
+  observe() {
+    return null;
+  }
+  unobserve() {
+    return null;
+  }
+  disconnect() {
+    return null;
+  }
 };
 
 // Mock window.matchMedia
@@ -26,7 +32,13 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
   constructor() {}
-  observe() { return null; }
-  unobserve() { return null; }
-  disconnect() { return null; }
-}; 
+  observe() {
+    return null;
+  }
+  unobserve() {
+    return null;
+  }
+  disconnect() {
+    return null;
+  }
+};

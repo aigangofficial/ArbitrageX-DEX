@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-03-07T19:20:03.712609",
+  "runtime_hours": 3.5749999999999997e-07,
+  "total_trades": 4,
+  "successful_trades": 3,
+  "success_rate": 0.75,
+  "total_profit_usd": 206.27509994216467,
+  "average_profit_per_trade": 51.56877498554117,
+  "profit_per_hour": 576993286.5515096,
+  "strategy_performance": {
+    "LINK-USDC_sushiswap": {
+      "total_trades": 1,
+      "successful_trades": 1,
+      "total_profit": 89.26630769980557,
+      "average_profit": 89.26630769980557
+    },
+    "LINK-USDC_curve": {
+      "total_trades": 1,
+      "successful_trades": 1,
+      "total_profit": 59.265353246383526,
+      "average_profit": 59.265353246383526
+    },
+    "WETH-DAI_curve": {
+      "total_trades": 2,
+      "successful_trades": 1,
+      "total_profit": 57.743438995975566,
+      "average_profit": 28.871719497987783
+    }
+  },
+  "circuit_breaker_active": false
+}

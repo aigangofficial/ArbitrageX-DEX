@@ -10,4 +10,4 @@ interface ISecurityAdmin {
     function whitelistToken(address token) external;
     function removeTokenFromWhitelist(address token) external;
     function executeParameterChange(string calldata parameter, uint256 newValue) external;
-} 
+}

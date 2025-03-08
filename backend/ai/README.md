@@ -24,12 +24,14 @@ The system consists of several interconnected modules that work together to prov
 ### Setup
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/your-username/arbitragex.git
    cd arbitragex
    ```
 
 2. Create and activate a virtual environment:
+
    ```
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -51,6 +53,7 @@ The easiest way to run the AI system is using the provided shell script:
 ```
 
 Options:
+
 - `--mainnet`: Run in mainnet mode (default: testnet)
 - `--visualize`: Enable visualization for modules that support it
 - `--save-results`: Save results to files
@@ -61,6 +64,7 @@ Options:
 - `--help`: Display help message
 
 Examples:
+
 ```bash
 # Run all modules with visualization
 ./run_ai_system.sh --visualize
@@ -127,6 +131,7 @@ The Strategy Optimizer analyzes current market conditions and recommends optimal
 - Slippage tolerance
 
 Output includes:
+
 - Profitability assessment
 - Confidence score
 - Estimated profit
@@ -147,6 +152,7 @@ The Backtesting module tests trading strategies against historical data to evalu
 - Sharpe ratio
 
 Visualization options include:
+
 - Profit over time
 - Success rate by token pair
 - Profit distribution
@@ -162,6 +168,7 @@ The Trade Analyzer identifies patterns and trends in trading data to improve fut
 - Network congestion patterns
 
 Visualization options include:
+
 - Time-based patterns
 - Network comparison
 - Token performance
@@ -176,6 +183,7 @@ The Network Adaptation module adapts trading strategies to different blockchain 
 - DEX liquidity
 
 Output includes:
+
 - Network-specific recommendations
 - Adaptation metrics
 - Cross-network arbitrage opportunities
@@ -190,6 +198,7 @@ The Test AI Model module tests the AI model against various scenarios to ensure 
 - Edge cases
 
 Output includes:
+
 - Confidence scores
 - Profit estimates
 - Success rates
@@ -285,4 +294,4 @@ The mainnet fork test generates a comprehensive report with the following inform
 - Network, token pair, and DEX distribution
 - Overall conclusion about AI system performance
 
-Reports are saved in the `results` directory with timestamps for easy reference. 
+Reports are saved in the `results` directory with timestamps for easy reference.

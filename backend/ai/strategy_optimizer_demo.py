@@ -1,129 +1,165 @@
+#!/usr/bin/env python3
 """
 Strategy Optimizer Demo Module for ArbitrageX
 
-This is a simplified version of the strategy optimizer for demonstration purposes.
+This is a simplified version of the strategy optimizer for small-scale testing.
+It generates synthetic arbitrage opportunities for testing the MEV protection,
+gas estimation, and trade execution modules.
 """
 
+import os
+import json
 import time
+import random
 import logging
-import numpy as np
-from datetime import datetime
-from typing import Dict
+import datetime
+from typing import Dict, List, Any, Optional
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("strategy_optimizer_demo.log"),
+        logging.StreamHandler()
+    ]
 )
-logger = logging.getLogger("StrategyOptimizer")
+logger = logging.getLogger("StrategyOptimizerDemo")
 
-class StrategyOptimizer:
+class StrategyOptimizerDemo:
     """
-    Simplified strategy optimizer for demonstration purposes.
+    Strategy Optimizer Demo class for ArbitrageX.
     """
     
-    def __init__(self):
-        """Initialize the strategy optimizer."""
-        self.min_confidence_threshold = 0.7
-        logger.info("StrategyOptimizer initialized")
-    
-    def predict_opportunity(self, opportunity: Dict) -> Dict:
+    def __init__(self, config_path: str):
         """
-        Predict if an arbitrage opportunity is profitable.
+        Initialize the Strategy Optimizer Demo module.
         
         Args:
-            opportunity: Dictionary containing opportunity details
-                - token_in: Address of input token
-                - token_out: Address of output token
-                - amount: Amount of input token (in wei)
-                - router: Address of the router to use
-                
-        Returns:
-            Dictionary with prediction results
+            config_path: Path to the configuration file
         """
-        start_time = time.time()
+        self.config_path = config_path
+        self.load_config()
+        self.results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
+        os.makedirs(self.results_dir, exist_ok=True)
+        logger.info("Strategy Optimizer Demo module initialized")
+    
+    def load_config(self):
+        """
+        Load the configuration from the config file.
+        """
+        try:
+            with open(self.config_path, "r") as f:
+                self.config = json.load(f)
+            logger.info(f"Configuration loaded from {self.config_path}")
+        except Exception as e:
+            logger.error(f"Error loading configuration: {e}")
+            self.config = {}
+    
+    def optimize_for_token_pair(self) -> str:
+        """
+        Generate synthetic arbitrage opportunities for a token pair.
         
-        # Token symbols for demo
-        token_symbols = {
-            "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "WETH",
-            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": "USDC",
-            "0x6B175474E89094C44Da98b954EedeAC495271d0F": "DAI",
-            "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599": "WBTC"
+        Returns:
+            Path to the AI optimization results file
+        """
+        logger.info("Generating synthetic arbitrage opportunities")
+        
+        # Get configuration
+        network = self.config.get("network", "ethereum")
+        token_pair = self.config.get("token_pair", ["WETH", "USDC"])
+        dex = self.config.get("dex", "uniswap_v3")
+        trade_count = self.config.get("trade_count", 5)
+        
+        logger.info(f"Generating {trade_count} opportunities for {'-'.join(token_pair)} on {network} using {dex}")
+        
+        # Generate opportunities
+        opportunities = []
+        for i in range(trade_count):
+            opportunity = self.generate_opportunity(network, token_pair, dex, i)
+            opportunities.append(opportunity)
+        
+        # Create results
+        results = {
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "config": self.config,
+            "opportunities": opportunities
         }
         
-        # Get token symbols
-        token_in_symbol = token_symbols.get(opportunity['token_in'], opportunity['token_in'][:8] + '...')
-        token_out_symbol = token_symbols.get(opportunity['token_out'], opportunity['token_out'][:8] + '...')
+        # Save results to file
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        results_file = os.path.join(self.results_dir, f"ai_results_{timestamp}.json")
         
-        # Time-based pattern
-        current_hour = datetime.now().hour
-        time_factor = 1.2 if 12 <= current_hour <= 16 else 0.8
+        with open(results_file, "w") as f:
+            json.dump(results, f, indent=2)
         
-        # Amount-based heuristic
-        amount_eth = float(opportunity['amount']) / 1e18
-        amount_factor = min(amount_eth / 10, 1.5)  # Cap at 1.5x
+        logger.info(f"AI optimization results saved to {results_file}")
         
-        # Router preference
-        router_factors = {
-            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D": 1.1,  # Uniswap
-            "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F": 1.0,  # Sushiswap
-            "0x1111111254fb6c44bAC0beD2854e76F90643097d": 1.2   # 1inch
+        # Log summary
+        profitable_opportunities = len([o for o in opportunities if o.get("expected_profit", 0) > 0])
+        avg_expected_profit = sum([o.get("expected_profit", 0) for o in opportunities]) / len(opportunities) if opportunities else 0
+        
+        logger.info(f"Generated {len(opportunities)} opportunities")
+        logger.info(f"Profitable opportunities: {profitable_opportunities}")
+        logger.info(f"Average expected profit: ${avg_expected_profit:.2f}")
+        
+        return results_file
+    
+    def generate_opportunity(self, network: str, token_pair: List[str], dex: str, index: int) -> Dict[str, Any]:
+        """
+        Generate a synthetic arbitrage opportunity.
+        
+        Args:
+            network: Network to generate opportunity for
+            token_pair: Token pair to generate opportunity for
+            dex: DEX to generate opportunity for
+            index: Index of the opportunity
+        
+        Returns:
+            Synthetic arbitrage opportunity
+        """
+        # Generate a unique ID for the opportunity
+        opportunity_id = f"{network}_{'-'.join(token_pair)}_{dex}_{index}_{int(time.time())}"
+        
+        # Generate a random expected profit (between $10 and $200)
+        expected_profit = random.uniform(10, 200)
+        
+        # Generate a random confidence score (between 0.5 and 1.0)
+        confidence = random.uniform(0.5, 1.0)
+        
+        # Generate a random execution time (between 50 and 200 ms)
+        execution_time = random.uniform(50, 200)
+        
+        # Generate a random price impact (between 0.1% and 0.5%)
+        price_impact = random.uniform(0.001, 0.005)
+        
+        # Generate a random slippage tolerance (between 0.1% and 1.0%)
+        slippage_tolerance = random.uniform(0.001, 0.01)
+        
+        # Create the opportunity
+        opportunity = {
+            "id": opportunity_id,
+            "network": network,
+            "token_pair": token_pair,
+            "dex": dex,
+            "expected_profit": expected_profit,
+            "confidence": confidence,
+            "execution_time": execution_time,
+            "price_impact": price_impact,
+            "slippage_tolerance": slippage_tolerance,
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        router_factor = router_factors.get(opportunity['router'], 0.9)
         
-        # Token pair factor
-        pair_factor = 1.2 if token_in_symbol == "WETH" and token_out_symbol == "USDC" else 0.9
+        logger.info(f"Generated opportunity {opportunity_id} with expected profit ${expected_profit:.2f}")
         
-        # Calculate confidence score
-        base_confidence = 0.65
-        confidence = base_confidence * time_factor * amount_factor * router_factor * pair_factor
-        confidence = min(max(confidence, 0), 1)  # Ensure between 0 and 1
-        
-        # Calculate estimated profit
-        base_profit_usd = amount_eth * 1800 * 0.002  # Assuming 0.2% profit on ETH price of $1800
-        estimated_profit_usd = base_profit_usd * time_factor * router_factor * pair_factor
-        
-        # Estimate gas cost
-        base_gas_units = 250000  # Base gas units for a swap
-        estimated_gas_units = base_gas_units * (1 + 0.1 * (amount_factor - 1))
-        gas_price_gwei = 20  # Assume 20 gwei
-        gas_cost_eth = estimated_gas_units * gas_price_gwei * 1e-9
-        gas_cost_usd = gas_cost_eth * 1800  # Assuming ETH price of $1800
-        
-        # Determine if profitable
-        is_profitable = estimated_profit_usd > gas_cost_usd and confidence > self.min_confidence_threshold
-        
-        # Calculate execution time (simulated)
-        execution_time_ms = 120 + np.random.normal(0, 20)
-        
-        # Prepare result
-        result = {
-            "is_profitable": is_profitable,
-            "confidence": round(confidence, 4),
-            "estimated_profit_usd": round(estimated_profit_usd, 2),
-            "execution_time_ms": round(execution_time_ms, 2),
-            "gas_cost_usd": round(gas_cost_usd, 2),
-            "net_profit_usd": round(estimated_profit_usd - gas_cost_usd, 2),
-            "token_pair": f"{token_in_symbol}-{token_out_symbol}",
-            "prediction_time_ms": round((time.time() - start_time) * 1000, 2)
-        }
-        
-        logger.info(f"Opportunity prediction: {result}")
-        return result
+        return opportunity
 
 if __name__ == "__main__":
     # Example usage
-    optimizer = StrategyOptimizer()
-    opportunity = {
-        "token_in": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",  # WETH
-        "token_out": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  # USDC
-        "amount": 1000000000000000000,  # 1 ETH in wei
-        "router": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"  # Uniswap
-    }
+    config_path = "small_scale_test_config.json"
     
-    start = time.time()
-    result = optimizer.predict_opportunity(opportunity)
-    end = time.time()
+    optimizer = StrategyOptimizerDemo(config_path)
+    results_file = optimizer.optimize_for_token_pair()
     
-    print(f"Prediction time: {(end-start)*1000:.2f}ms")
-    print(f"Result: {result}") 
+    print(f"AI optimization results saved to {results_file}") 

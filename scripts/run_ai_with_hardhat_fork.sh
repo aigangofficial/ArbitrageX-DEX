@@ -71,6 +71,19 @@ if [ ! -f "hardhat.config.ts" ]; then
     exit 1
 fi
 
+# Extract MAINNET_RPC_URL from .env
+if [ -f ".env" ]; then
+    MAINNET_RPC_URL=$(grep MAINNET_RPC_URL .env | cut -d '=' -f2)
+else
+    echo "Error: .env file not found. Please create one from .env.example"
+    exit 1
+fi
+
+if [ -z "$MAINNET_RPC_URL" ]; then
+    echo "Error: MAINNET_RPC_URL not found in .env file"
+    exit 1
+fi
+
 # Create results directory
 mkdir -p results
 
@@ -83,7 +96,7 @@ echo "Starting Hardhat node with mainnet fork..."
 echo "Block number: $FORK_BLOCK"
 
 # Start Hardhat node in the background
-npx hardhat node --fork https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY} --fork-block-number $FORK_BLOCK > $LOG_FILE 2>&1 &
+npx hardhat node --fork $MAINNET_RPC_URL --fork-block-number $FORK_BLOCK > $LOG_FILE 2>&1 &
 HARDHAT_PID=$!
 
 # Wait for Hardhat node to start

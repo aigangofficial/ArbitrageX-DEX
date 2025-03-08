@@ -1,0 +1,934 @@
+{% extends "base.html" %}
+
+{% block title %}Trading Analytics - ArbitrageX{% endblock %}
+
+{% block head %}
+<style>
+    .analytics-card {
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .analytics-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    }
+    
+    .chart-container {
+        height: 350px;
+        position: relative;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .time-filter-btn.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .profit-positive {
+        color: #28a745;
+    }
+    
+    .profit-negative {
+        color: #dc3545;
+    }
+    
+    .trend-indicator {
+        font-size: 0.9rem;
+        margin-left: 5px;
+    }
+    
+    .trend-up {
+        color: #28a745;
+    }
+    
+    .trend-down {
+        color: #dc3545;
+    }
+    
+    .trend-neutral {
+        color: #6c757d;
+    }
+    
+    .spinner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-0">Trading & Performance Analytics</h1>
+        <p class="text-muted">Comprehensive analysis of your trading bot's performance</p>
+    </div>
+</div>
+
+<!-- Time Period Filter -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Performance Metrics</h2>
+                    <div class="btn-group" role="group" id="time-filter">
+                        <button type="button" class="btn btn-outline-primary time-filter-btn active" data-period="day">Day</button>
+                        <button type="button" class="btn btn-outline-primary time-filter-btn" data-period="week">Week</button>
+                        <button type="button" class="btn btn-outline-primary time-filter-btn" data-period="month">Month</button>
+                        <button type="button" class="btn btn-outline-primary time-filter-btn" data-period="year">Year</button>
+                        <button type="button" class="btn btn-outline-primary time-filter-btn" data-period="all">All Time</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Overview -->
+<div class="row mb-4">
+    <!-- Total Profit/Loss -->
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm analytics-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Profit/Loss</h5>
+                <p class="metric-value" id="profit-loss-value">0.00 ETH</p>
+                <p class="metric-label" id="profit-loss-change">
+                    vs previous: <span class="trend-indicator trend-neutral">0.00%</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Win/Loss Ratio -->
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm analytics-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Win/Loss Ratio</h5>
+                <p class="metric-value" id="win-loss-ratio">0.00</p>
+                <p class="metric-label" id="win-loss-ratio-change">
+                    vs previous: <span class="trend-indicator trend-neutral">0.00%</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Rate -->
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm analytics-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Success Rate</h5>
+                <p class="metric-value" id="success-rate">0.00%</p>
+                <p class="metric-label" id="success-rate-change">
+                    vs previous: <span class="trend-indicator trend-neutral">0.00%</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Avg Gas Cost -->
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm analytics-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Average Gas Cost</h5>
+                <p class="metric-value" id="avg-gas-cost">0.00 ETH</p>
+                <p class="metric-label" id="avg-gas-cost-change">
+                    vs previous: <span class="trend-indicator trend-neutral">0.00%</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profit Over Time Chart -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Profit/Loss Over Time</h5>
+                <div class="chart-container" id="profit-chart-container">
+                    <div id="profit-chart"></div>
+                    <div class="spinner-overlay" id="profit-chart-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Rate & Trade Count Charts -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">Success Rate Over Time</h5>
+                <div class="chart-container" id="success-rate-chart-container">
+                    <div id="success-rate-chart"></div>
+                    <div class="spinner-overlay" id="success-rate-chart-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">Successful vs Failed Trades</h5>
+                <div class="chart-container" id="trade-count-chart-container">
+                    <div id="trade-count-chart"></div>
+                    <div class="spinner-overlay" id="trade-count-chart-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gas & Slippage Analysis -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">Gas Costs Over Time</h5>
+                <div class="chart-container" id="gas-chart-container">
+                    <div id="gas-chart"></div>
+                    <div class="spinner-overlay" id="gas-chart-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">Slippage Analysis</h5>
+                <div class="chart-container" id="slippage-chart-container">
+                    <div id="slippage-chart"></div>
+                    <div class="spinner-overlay" id="slippage-chart-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Breakdown Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Detailed Performance Breakdown</h5>
+                    <button id="export-csv-btn" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-download me-1"></i> Export CSV
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped" id="performance-table">
+                        <thead>
+                            <tr>
+                                <th>Time Period</th>
+                                <th>Total Trades</th>
+                                <th>Success Rate</th>
+                                <th>Profit/Loss</th>
+                                <th>Avg. Gas</th>
+                                <th>Avg. Slippage</th>
+                                <th>Best Trade</th>
+                                <th>Worst Trade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performance-table-body">
+                            <!-- Table rows will be added dynamically -->
+                            <tr>
+                                <td colspan="8" class="text-center">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentPeriod = 'day';
+    let profitChart = null;
+    let successRateChart = null;
+    let tradeCountChart = null;
+    let gasChart = null;
+    let slippageChart = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize page
+        setupTimeFilterButtons();
+        loadAnalyticsData('day');
+        
+        // Set up export button
+        document.getElementById('export-csv-btn').addEventListener('click', exportPerformanceData);
+    });
+    
+    function setupTimeFilterButtons() {
+        const timeFilterButtons = document.querySelectorAll('.time-filter-btn');
+        
+        timeFilterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                timeFilterButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get time period from data attribute
+                const period = this.getAttribute('data-period');
+                currentPeriod = period;
+                
+                // Load data for selected period
+                loadAnalyticsData(period);
+            });
+        });
+    }
+    
+    async function loadAnalyticsData(period) {
+        // Show spinners
+        showAllSpinners();
+        
+        try {
+            const response = await fetch(`/api/analytics/overview?period=${period}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                updateMetricCards(data.metrics);
+                renderProfitChart(data.profit_data);
+                renderSuccessRateChart(data.success_rate_data);
+                renderTradeCountChart(data.trade_count_data);
+                renderGasChart(data.gas_data);
+                renderSlippageChart(data.slippage_data);
+                updatePerformanceTable(data.breakdown);
+            } else {
+                showAlert('Failed to load analytics data: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading analytics data:', error);
+            showAlert('Error loading analytics data', 'danger');
+        } finally {
+            // Hide spinners
+            hideAllSpinners();
+        }
+    }
+    
+    function showAllSpinners() {
+        document.getElementById('profit-chart-spinner').style.display = 'flex';
+        document.getElementById('success-rate-chart-spinner').style.display = 'flex';
+        document.getElementById('trade-count-chart-spinner').style.display = 'flex';
+        document.getElementById('gas-chart-spinner').style.display = 'flex';
+        document.getElementById('slippage-chart-spinner').style.display = 'flex';
+    }
+    
+    function hideAllSpinners() {
+        document.getElementById('profit-chart-spinner').style.display = 'none';
+        document.getElementById('success-rate-chart-spinner').style.display = 'none';
+        document.getElementById('trade-count-chart-spinner').style.display = 'none';
+        document.getElementById('gas-chart-spinner').style.display = 'none';
+        document.getElementById('slippage-chart-spinner').style.display = 'none';
+    }
+    
+    function updateMetricCards(metrics) {
+        // Update Profit/Loss
+        const profitLossValue = document.getElementById('profit-loss-value');
+        const profitLossChange = document.getElementById('profit-loss-change');
+        
+        profitLossValue.textContent = metrics.profit_loss;
+        
+        if (metrics.profit_loss_change > 0) {
+            profitLossValue.className = 'metric-value profit-positive';
+            profitLossChange.innerHTML = `vs previous: <span class="trend-indicator trend-up"><i class="fas fa-arrow-up me-1"></i>${metrics.profit_loss_change}%</span>`;
+        } else if (metrics.profit_loss_change < 0) {
+            profitLossValue.className = 'metric-value profit-negative';
+            profitLossChange.innerHTML = `vs previous: <span class="trend-indicator trend-down"><i class="fas fa-arrow-down me-1"></i>${Math.abs(metrics.profit_loss_change)}%</span>`;
+        } else {
+            profitLossValue.className = 'metric-value';
+            profitLossChange.innerHTML = `vs previous: <span class="trend-indicator trend-neutral">0.00%</span>`;
+        }
+        
+        // Update Win/Loss Ratio
+        const winLossRatio = document.getElementById('win-loss-ratio');
+        const winLossRatioChange = document.getElementById('win-loss-ratio-change');
+        
+        winLossRatio.textContent = metrics.win_loss_ratio;
+        
+        if (metrics.win_loss_ratio_change > 0) {
+            winLossRatio.className = 'metric-value profit-positive';
+            winLossRatioChange.innerHTML = `vs previous: <span class="trend-indicator trend-up"><i class="fas fa-arrow-up me-1"></i>${metrics.win_loss_ratio_change}%</span>`;
+        } else if (metrics.win_loss_ratio_change < 0) {
+            winLossRatio.className = 'metric-value profit-negative';
+            winLossRatioChange.innerHTML = `vs previous: <span class="trend-indicator trend-down"><i class="fas fa-arrow-down me-1"></i>${Math.abs(metrics.win_loss_ratio_change)}%</span>`;
+        } else {
+            winLossRatio.className = 'metric-value';
+            winLossRatioChange.innerHTML = `vs previous: <span class="trend-indicator trend-neutral">0.00%</span>`;
+        }
+        
+        // Update Success Rate
+        const successRate = document.getElementById('success-rate');
+        const successRateChange = document.getElementById('success-rate-change');
+        
+        successRate.textContent = metrics.success_rate;
+        
+        if (metrics.success_rate_change > 0) {
+            successRate.className = 'metric-value profit-positive';
+            successRateChange.innerHTML = `vs previous: <span class="trend-indicator trend-up"><i class="fas fa-arrow-up me-1"></i>${metrics.success_rate_change}%</span>`;
+        } else if (metrics.success_rate_change < 0) {
+            successRate.className = 'metric-value profit-negative';
+            successRateChange.innerHTML = `vs previous: <span class="trend-indicator trend-down"><i class="fas fa-arrow-down me-1"></i>${Math.abs(metrics.success_rate_change)}%</span>`;
+        } else {
+            successRate.className = 'metric-value';
+            successRateChange.innerHTML = `vs previous: <span class="trend-indicator trend-neutral">0.00%</span>`;
+        }
+        
+        // Update Average Gas Cost
+        const avgGasCost = document.getElementById('avg-gas-cost');
+        const avgGasCostChange = document.getElementById('avg-gas-cost-change');
+        
+        avgGasCost.textContent = metrics.avg_gas_cost;
+        
+        if (metrics.avg_gas_cost_change < 0) {
+            avgGasCost.className = 'metric-value profit-positive';
+            avgGasCostChange.innerHTML = `vs previous: <span class="trend-indicator trend-up"><i class="fas fa-arrow-down me-1"></i>${Math.abs(metrics.avg_gas_cost_change)}%</span>`;
+        } else if (metrics.avg_gas_cost_change > 0) {
+            avgGasCost.className = 'metric-value profit-negative';
+            avgGasCostChange.innerHTML = `vs previous: <span class="trend-indicator trend-down"><i class="fas fa-arrow-up me-1"></i>${metrics.avg_gas_cost_change}%</span>`;
+        } else {
+            avgGasCost.className = 'metric-value';
+            avgGasCostChange.innerHTML = `vs previous: <span class="trend-indicator trend-neutral">0.00%</span>`;
+        }
+    }
+    
+    function renderProfitChart(data) {
+        const profitElement = document.getElementById('profit-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Profit/Loss',
+                    data: data.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.value
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'area',
+                height: 350,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.3,
+                    stops: [0, 90, 100],
+                    colorStops: []
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'ETH'
+                },
+                labels: {
+                    formatter: function (value) {
+                        return value.toFixed(4) + ' ETH';
+                    }
+                }
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm'
+                },
+                y: {
+                    formatter: function (value) {
+                        return value.toFixed(6) + ' ETH';
+                    }
+                }
+            },
+            colors: ['#0d6efd']
+        };
+        
+        // If we have positive profit, use green color
+        if (data.length > 0 && data[data.length - 1].value > 0) {
+            options.colors = ['#28a745'];
+            options.fill.gradient.colorStops = [
+                { offset: 0, color: '#28a745', opacity: 0.7 },
+                { offset: 100, color: '#28a745', opacity: 0.3 }
+            ];
+        } 
+        // If we have negative profit, use red color
+        else if (data.length > 0 && data[data.length - 1].value < 0) {
+            options.colors = ['#dc3545'];
+            options.fill.gradient.colorStops = [
+                { offset: 0, color: '#dc3545', opacity: 0.7 },
+                { offset: 100, color: '#dc3545', opacity: 0.3 }
+            ];
+        }
+        
+        if (profitChart) {
+            profitChart.destroy();
+        }
+        
+        profitChart = new ApexCharts(profitElement, options);
+        profitChart.render();
+    }
+    
+    function renderSuccessRateChart(data) {
+        const successRateElement = document.getElementById('success-rate-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Success Rate',
+                    data: data.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.value
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'line',
+                height: 350,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Success Rate (%)'
+                },
+                min: 0,
+                max: 100,
+                labels: {
+                    formatter: function (value) {
+                        return value.toFixed(1) + '%';
+                    }
+                }
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm'
+                },
+                y: {
+                    formatter: function (value) {
+                        return value.toFixed(2) + '%';
+                    }
+                }
+            },
+            colors: ['#28a745']
+        };
+        
+        if (successRateChart) {
+            successRateChart.destroy();
+        }
+        
+        successRateChart = new ApexCharts(successRateElement, options);
+        successRateChart.render();
+    }
+    
+    function renderTradeCountChart(data) {
+        const tradeCountElement = document.getElementById('trade-count-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Successful Trades',
+                    data: data.map(point => point.successful)
+                },
+                {
+                    name: 'Failed Trades',
+                    data: data.map(point => point.failed)
+                }
+            ],
+            chart: {
+                type: 'bar',
+                height: 350,
+                stacked: true,
+                toolbar: {
+                    show: true
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '60%',
+                    endingShape: 'rounded'
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                categories: data.map(point => {
+                    const date = new Date(point.timestamp);
+                    
+                    // Format differently based on selected time period
+                    if (currentPeriod === 'day') {
+                        return date.getHours() + ':00';
+                    } else if (currentPeriod === 'week') {
+                        return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
+                    } else if (currentPeriod === 'month') {
+                        return date.getDate();
+                    } else if (currentPeriod === 'year') {
+                        return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
+                    } else {
+                        return date.toLocaleDateString();
+                    }
+                })
+            },
+            yaxis: {
+                title: {
+                    text: 'Number of Trades'
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (value) {
+                        return value + ' trades';
+                    }
+                }
+            },
+            colors: ['#28a745', '#dc3545'],
+            legend: {
+                position: 'top'
+            }
+        };
+        
+        if (tradeCountChart) {
+            tradeCountChart.destroy();
+        }
+        
+        tradeCountChart = new ApexCharts(tradeCountElement, options);
+        tradeCountChart.render();
+    }
+    
+    function renderGasChart(data) {
+        const gasElement = document.getElementById('gas-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Average Gas Cost',
+                    data: data.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.value
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'area',
+                height: 350,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.3
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Gas Cost (ETH)'
+                },
+                labels: {
+                    formatter: function (value) {
+                        return value.toFixed(6) + ' ETH';
+                    }
+                }
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm'
+                },
+                y: {
+                    formatter: function (value) {
+                        return value.toFixed(6) + ' ETH';
+                    }
+                }
+            },
+            colors: ['#6f42c1']
+        };
+        
+        if (gasChart) {
+            gasChart.destroy();
+        }
+        
+        gasChart = new ApexCharts(gasElement, options);
+        gasChart.render();
+    }
+    
+    function renderSlippageChart(data) {
+        const slippageElement = document.getElementById('slippage-chart');
+        
+        const options = {
+            series: [
+                {
+                    name: 'Average Slippage',
+                    data: data.map(point => {
+                        return {
+                            x: new Date(point.timestamp).getTime(),
+                            y: point.value
+                        };
+                    })
+                }
+            ],
+            chart: {
+                type: 'area',
+                height: 350,
+                toolbar: {
+                    show: true
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.3
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Time'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Slippage (%)'
+                },
+                labels: {
+                    formatter: function (value) {
+                        return value.toFixed(2) + '%';
+                    }
+                }
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy HH:mm'
+                },
+                y: {
+                    formatter: function (value) {
+                        return value.toFixed(2) + '%';
+                    }
+                }
+            },
+            colors: ['#fd7e14']
+        };
+        
+        if (slippageChart) {
+            slippageChart.destroy();
+        }
+        
+        slippageChart = new ApexCharts(slippageElement, options);
+        slippageChart.render();
+    }
+    
+    function updatePerformanceTable(breakdown) {
+        const tableBody = document.getElementById('performance-table-body');
+        
+        if (breakdown.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No data available</td></tr>';
+            return;
+        }
+        
+        tableBody.innerHTML = '';
+        
+        breakdown.forEach(row => {
+            const tr = document.createElement('tr');
+            
+            tr.innerHTML = `
+                <td>${row.period}</td>
+                <td>${row.total_trades}</td>
+                <td>${row.success_rate}</td>
+                <td class="${parseFloat(row.profit_loss) >= 0 ? 'profit-positive' : 'profit-negative'}">${row.profit_loss}</td>
+                <td>${row.avg_gas}</td>
+                <td>${row.avg_slippage}</td>
+                <td class="profit-positive">${row.best_trade}</td>
+                <td class="profit-negative">${row.worst_trade}</td>
+            `;
+            
+            tableBody.appendChild(tr);
+        });
+    }
+    
+    function exportPerformanceData() {
+        // Create CSV content
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // Add headers
+        csvContent += "Time Period,Total Trades,Success Rate,Profit/Loss,Avg. Gas,Avg. Slippage,Best Trade,Worst Trade\n";
+        
+        // Get table rows
+        const rows = document.querySelectorAll('#performance-table tbody tr');
+        
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const rowData = Array.from(cells).map(cell => {
+                // Escape commas and double quotes
+                let data = cell.textContent.replace(/"/g, '""');
+                if (data.includes(',')) {
+                    data = `"${data}"`;
+                }
+                return data;
+            });
+            
+            csvContent += rowData.join(',') + '\n';
+        });
+        
+        // Create download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `arbitragex_performance_${currentPeriod}.csv`);
+        document.body.appendChild(link);
+        
+        // Click the link to trigger download
+        link.click();
+        
+        // Clean up
+        document.body.removeChild(link);
+    }
+    
+    function showAlert(message, type) {
+        const alertsContainer = document.createElement('div');
+        alertsContainer.className = 'position-fixed top-0 end-0 p-3';
+        alertsContainer.style.zIndex = '5000';
+        alertsContainer.id = 'alerts-container';
+        
+        const existingContainer = document.getElementById('alerts-container');
+        const container = existingContainer || alertsContainer;
+        
+        if (!existingContainer) {
+            document.body.appendChild(container);
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = `toast align-items-center text-white bg-${type} border-0`;
+        alert.role = 'alert';
+        alert.ariaLive = 'assertive';
+        alert.ariaAtomic = 'true';
+        
+        alert.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        container.appendChild(alert);
+        
+        const bsAlert = new bootstrap.Toast(alert, { delay: 5000 });
+        bsAlert.show();
+        
+        alert.addEventListener('hidden.bs.toast', function() {
+            container.removeChild(alert);
+            if (container.children.length === 0 && container.id === 'alerts-container') {
+                document.body.removeChild(container);
+            }
+        });
+    }
+</script>
+{% endblock %} 

@@ -1,32 +1,38 @@
 {
   "mode": "mainnet_fork",
+  "fork_url": "http://localhost:8545",
+  "fork_block_number": "latest",
   "networks": [
-    "arbitrum",
-    "polygon"
+    "ethereum",
+    "arbitrum"
   ],
-  "tokens": [
-    "WETH",
-    "USDC",
-    "DAI"
-  ],
-  "dexes": [
-    "uniswap_v3",
-    "curve",
-    "balancer"
-  ],
-  "fork_block_number": 0,
-  "run_time_seconds": 600,
+  "tokens": {
+    "ethereum": [
+      "WETH",
+      "USDC",
+      "DAI"
+    ],
+    "arbitrum": [
+      "WETH",
+      "USDC",
+      "DAI"
+    ]
+  },
+  "dexes": {
+    "ethereum": [
+      "uniswap_v3",
+      "sushiswap"
+    ],
+    "arbitrum": [
+      "uniswap_v3",
+      "sushiswap"
+    ]
+  },
+  "gas_price_multiplier": 1.1,
   "slippage_tolerance": 0.005,
   "execution_timeout_ms": 5000,
-  "batch_trades": true,
-  "batch_size": 10,
-  "gas_strategy": "dynamic",
-  "dynamic_gas_adjustment": true,
-  "modules": [
-    "all"
-  ],
-  "output_dir": "results",
-  "debug": false,
+  "simulation_only": false,
+  "log_level": "INFO",
   "trade_selection": {
     "min_historical_trades": 5,
     "min_success_rate": 0.4,

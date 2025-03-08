@@ -1,0 +1,48 @@
+{
+  "networks": [
+    "ethereum",
+    "arbitrum",
+    "polygon",
+    "optimism",
+    "base"
+  ],
+  "token_pairs": [
+    [
+      "WETH",
+      "USDC"
+    ],
+    [
+      "WBTC",
+      "DAI"
+    ],
+    [
+      "ETH",
+      "DAI"
+    ],
+    [
+      "USDC",
+      "USDT"
+    ],
+    [
+      "WETH",
+      "WBTC"
+    ]
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "sushiswap",
+    "curve",
+    "balancer",
+    "1inch"
+  ],
+  "min_trades": 20,
+  "batch_size": 5,
+  "gas_strategy": "dynamic",
+  "output_dir": "results",
+  "max_workers": 2,
+  "learning_interval": 30,
+  "adaptation_interval": 60,
+  "compare_baseline": false,
+  "debug": false,
+  "timestamp": "20250304_143904"
+}

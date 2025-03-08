@@ -1,19 +1,8 @@
 {
   "mode": "mainnet_fork",
-  "networks": [
-    "arbitrum",
-    "polygon"
-  ],
-  "tokens": [
-    "WETH",
-    "USDC",
-    "DAI"
-  ],
-  "dexes": [
-    "uniswap_v3",
-    "curve",
-    "balancer"
-  ],
+  "networks": ["arbitrum", "polygon"],
+  "tokens": ["WETH", "USDC", "DAI"],
+  "dexes": ["uniswap_v3", "curve", "balancer"],
   "fork_block_number": 0,
   "run_time_seconds": 600,
   "slippage_tolerance": 0.005,
@@ -22,9 +11,7 @@
   "batch_size": 10,
   "gas_strategy": "dynamic",
   "dynamic_gas_adjustment": true,
-  "modules": [
-    "all"
-  ],
+  "modules": ["all"],
   "output_dir": "results",
   "debug": false
 }

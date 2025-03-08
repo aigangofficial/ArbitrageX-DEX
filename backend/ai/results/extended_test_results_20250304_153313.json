@@ -1,0 +1,68 @@
+{
+  "timestamp": "20250304_153313",
+  "config": {
+    "networks": [
+      "ethereum",
+      "arbitrum",
+      "polygon"
+    ],
+    "token_pairs": [
+      [
+        "WETH",
+        "USDC"
+      ],
+      [
+        "WBTC",
+        "DAI"
+      ],
+      [
+        "ETH",
+        "DAI"
+      ]
+    ],
+    "dexes": [
+      "uniswap_v3",
+      "sushiswap",
+      "curve"
+    ],
+    "min_trades": 450,
+    "fork_block": 0,
+    "batch_size": 20,
+    "gas_strategy": "dynamic",
+    "output_dir": "results",
+    "debug": true,
+    "parallel": true,
+    "max_workers": 6,
+    "enable_learning": true,
+    "timestamp": "20250304_153313"
+  },
+  "predictions": [],
+  "protected_trades": [],
+  "execution_results": [],
+  "analysis": {
+    "total_predictions": 0,
+    "profitable_predictions": 0,
+    "profitable_prediction_rate": 0,
+    "total_trades": 0,
+    "successful_trades": 0,
+    "success_rate": 0,
+    "total_profit_usd": 0,
+    "avg_profit_per_trade_usd": 0,
+    "avg_profit_per_successful_trade_usd": 0,
+    "total_gas_cost_usd": 0,
+    "avg_gas_cost_usd": 0,
+    "net_profit_usd": 0,
+    "networks": {},
+    "token_pairs": {},
+    "dexes": {},
+    "best_network": null,
+    "best_token_pair": null,
+    "best_dex": null,
+    "execution_speed": {
+      "avg_execution_time_ms": 0,
+      "min_execution_time_ms": 0,
+      "max_execution_time_ms": 0,
+      "throughput_trades_per_second": 0
+    }
+  }
+}

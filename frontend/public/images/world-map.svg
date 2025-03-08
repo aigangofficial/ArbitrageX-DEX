@@ -1,0 +1,65 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="800" height="400" fill="none" />
+  
+  <!-- World Map Outline - Simplified -->
+  <path d="M150,120 C180,100 220,90 260,100 C300,110 330,130 370,120 C410,110 450,90 490,100 C530,110 570,130 610,120 C650,110 690,90 730,100 L730,200 C690,190 650,210 610,220 C570,230 530,210 490,200 C450,190 410,210 370,220 C330,230 290,210 250,200 C210,190 170,210 130,220 L130,120 Z" 
+        fill="none" stroke="#60a5fa" stroke-width="1.5" />
+  
+  <!-- North America -->
+  <path d="M100,100 C120,90 140,80 160,90 C180,100 200,110 220,100 C240,90 260,80 280,90 L280,150 C260,140 240,150 220,160 C200,170 180,160 160,150 C140,140 120,150 100,160 L100,100 Z" 
+        fill="#60a5fa" fill-opacity="0.2" stroke="#60a5fa" stroke-width="1" />
+  
+  <!-- Europe -->
+  <path d="M350,90 C370,80 390,70 410,80 C430,90 450,100 470,90 L470,140 C450,130 430,140 410,150 C390,160 370,150 350,140 L350,90 Z" 
+        fill="#60a5fa" fill-opacity="0.2" stroke="#60a5fa" stroke-width="1" />
+  
+  <!-- Asia -->
+  <path d="M480,80 C500,70 520,60 540,70 C560,80 580,90 600,80 C620,70 640,60 660,70 L660,140 C640,130 620,140 600,150 C580,160 560,150 540,140 C520,130 500,140 480,150 L480,80 Z" 
+        fill="#60a5fa" fill-opacity="0.2" stroke="#60a5fa" stroke-width="1" />
+  
+  <!-- Africa -->
+  <path d="M350,160 C370,150 390,140 410,150 C430,160 450,170 470,160 L470,220 C450,210 430,220 410,230 C390,240 370,230 350,220 L350,160 Z" 
+        fill="#60a5fa" fill-opacity="0.2" stroke="#60a5fa" stroke-width="1" />
+  
+  <!-- South America -->
+  <path d="M200,180 C220,170 240,160 260,170 C280,180 300,190 320,180 L320,250 C300,240 280,250 260,260 C240,270 220,260 200,250 L200,180 Z" 
+        fill="#60a5fa" fill-opacity="0.2" stroke="#60a5fa" stroke-width="1" />
+  
+  <!-- Australia -->
+  <path d="M600,200 C620,190 640,180 660,190 C680,200 700,210 720,200 L720,250 C700,240 680,250 660,260 C640,270 620,260 600,250 L600,200 Z" 
+        fill="#60a5fa" fill-opacity="0.2" stroke="#60a5fa" stroke-width="1" />
+  
+  <!-- Connection Points -->
+  <circle cx="190" cy="120" r="4" fill="#3b82f6" />
+  <circle cx="400" cy="110" r="4" fill="#3b82f6" />
+  <circle cx="580" cy="100" r="4" fill="#3b82f6" />
+  <circle cx="400" cy="190" r="4" fill="#3b82f6" />
+  <circle cx="250" cy="210" r="4" fill="#3b82f6" />
+  <circle cx="650" cy="220" r="4" fill="#3b82f6" />
+  
+  <!-- Connection Lines -->
+  <line x1="190" y1="120" x2="400" y2="110" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="400" y1="110" x2="580" y2="100" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="400" y1="110" x2="400" y2="190" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="190" y1="120" x2="250" y2="210" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="580" y1="100" x2="650" y2="220" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="400" y1="190" x2="250" y2="210" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="400" y1="190" x2="650" y2="220" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+  
+  <!-- Pulse Animations -->
+  <circle cx="190" cy="120" r="8" fill="#3b82f6" fill-opacity="0.3">
+    <animate attributeName="r" values="8;16;8" dur="3s" repeatCount="indefinite" />
+    <animate attributeName="fill-opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <circle cx="580" cy="100" r="8" fill="#3b82f6" fill-opacity="0.3">
+    <animate attributeName="r" values="8;16;8" dur="4s" repeatCount="indefinite" />
+    <animate attributeName="fill-opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite" />
+  </circle>
+  
+  <circle cx="400" cy="190" r="8" fill="#3b82f6" fill-opacity="0.3">
+    <animate attributeName="r" values="8;16;8" dur="5s" repeatCount="indefinite" />
+    <animate attributeName="fill-opacity" values="0.3;0.1;0.3" dur="5s" repeatCount="indefinite" />
+  </circle>
+</svg> 

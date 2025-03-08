@@ -1,0 +1,379 @@
+{
+  "timestamp": "2025-03-04 14:57:38",
+  "config": {
+    "network": "polygon",
+    "token_pair": [
+      "WBTC",
+      "DAI"
+    ],
+    "dex": "sushiswap",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 96.16100284923431,
+      "confidence": 0.8828953730986129,
+      "execution_time": 52.90341806251139,
+      "price_impact": 0.0037439931543345436,
+      "slippage_tolerance": 0.006839483493375819,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 81.37651229383005,
+      "confidence": 0.6166904931059125,
+      "execution_time": 55.73292624014238,
+      "price_impact": 0.0019517812282798266,
+      "slippage_tolerance": 0.0073770526348812225,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 63.00925430819696,
+      "confidence": 0.7152177633259234,
+      "execution_time": 64.0571144178135,
+      "price_impact": 0.004615117650479171,
+      "slippage_tolerance": 0.0019768392530510213,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 18.812999844993342,
+      "confidence": 0.5525415953335419,
+      "execution_time": 132.92365915243988,
+      "price_impact": 0.002865251964104444,
+      "slippage_tolerance": 0.009411475645425427,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 17.227573886810436,
+      "confidence": 0.6685596183378164,
+      "execution_time": 193.41881033646268,
+      "price_impact": 0.004844341793446312,
+      "slippage_tolerance": 0.005566952754251843,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 95.48893371691032,
+      "confidence": 0.8828953730986129,
+      "execution_time": 52.90341806251139,
+      "price_impact": 0.0037439931543345436,
+      "slippage_tolerance": 0.006839483493375819,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 92.10215408484918,
+      "confidence": 0.6166904931059125,
+      "execution_time": 55.73292624014238,
+      "price_impact": 0.0019517812282798266,
+      "slippage_tolerance": 0.0073770526348812225,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 68.26579645538794,
+      "confidence": 0.7152177633259234,
+      "execution_time": 64.0571144178135,
+      "price_impact": 0.004615117650479171,
+      "slippage_tolerance": 0.0019768392530510213,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 18.537932991026242,
+      "confidence": 0.5525415953335419,
+      "execution_time": 132.92365915243988,
+      "price_impact": 0.002865251964104444,
+      "slippage_tolerance": 0.009411475645425427,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 15.802886439308338,
+      "confidence": 0.6685596183378164,
+      "execution_time": 193.41881033646268,
+      "price_impact": 0.004844341793446312,
+      "slippage_tolerance": 0.005566952754251843,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 95.48893371691032,
+      "confidence": 0.8828953730986129,
+      "execution_time": 52.90341806251139,
+      "price_impact": 0.0037439931543345436,
+      "slippage_tolerance": 0.006839483493375819,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.7877007899175368,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 92.10215408484918,
+      "confidence": 0.6166904931059125,
+      "execution_time": 55.73292624014238,
+      "price_impact": 0.0019517812282798266,
+      "slippage_tolerance": 0.0073770526348812225,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.0450412558677327,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 68.26579645538794,
+      "confidence": 0.7152177633259234,
+      "execution_time": 64.0571144178135,
+      "price_impact": 0.004615117650479171,
+      "slippage_tolerance": 0.0019768392530510213,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 1.5301968328868951,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 15.802886439308338,
+      "confidence": 0.6685596183378164,
+      "execution_time": 193.41881033646268,
+      "price_impact": 0.004844341793446312,
+      "slippage_tolerance": 0.005566952754251843,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.06729632975154828,
+      "protection_strategy": "backrunning"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 95.48893371691032,
+      "confidence": 0.8828953730986129,
+      "execution_time": 52.90341806251139,
+      "price_impact": 0.0037439931543345436,
+      "slippage_tolerance": 0.006839483493375819,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.7877007899175368,
+      "protection_strategy": "backrunning",
+      "gas_price": 26.086887974804178,
+      "gas_used": 399341.8214747226,
+      "gas_cost": 3.125275608139601e-05,
+      "status": "success",
+      "actual_profit": 77.0383077970873,
+      "actual_gas_price": 26.673819086820956,
+      "actual_gas_used": 439185.97908303305,
+      "actual_gas_cost": 3.514430205458747e-05,
+      "net_profit": 76.2505718628677,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 92.10215408484918,
+      "confidence": 0.6166904931059125,
+      "execution_time": 55.73292624014238,
+      "price_impact": 0.0019517812282798266,
+      "slippage_tolerance": 0.0073770526348812225,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.0450412558677327,
+      "protection_strategy": "backrunning",
+      "gas_price": 27.47458436274323,
+      "gas_used": 340187.211792086,
+      "gas_cost": 2.80395067485242e-05,
+      "status": "success",
+      "actual_profit": 103.61942419106042,
+      "actual_gas_price": 29.762901421167456,
+      "actual_gas_used": 331835.24030558305,
+      "actual_gas_cost": 2.9629138635853445e-05,
+      "net_profit": 100.57435330605405,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 68.26579645538794,
+      "confidence": 0.7152177633259234,
+      "execution_time": 64.0571144178135,
+      "price_impact": 0.004615117650479171,
+      "slippage_tolerance": 0.0019768392530510213,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 1.5301968328868951,
+      "protection_strategy": "backrunning",
+      "gas_price": 36.402488070527724,
+      "gas_used": 263328.2025005588,
+      "gas_cost": 2.87574052504803e-05,
+      "status": "success",
+      "actual_profit": 75.44480420163381,
+      "actual_gas_price": 37.82279574180108,
+      "actual_gas_used": 274046.5511841415,
+      "actual_gas_cost": 3.109562018754846e-05,
+      "net_profit": 73.91457627312673,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_WBTC-DAI_sushiswap_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 15.802886439308338,
+      "confidence": 0.6685596183378164,
+      "execution_time": 193.41881033646268,
+      "price_impact": 0.004844341793446312,
+      "slippage_tolerance": 0.005566952754251843,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.06729632975154828,
+      "protection_strategy": "backrunning",
+      "gas_price": 32.77666249142277,
+      "gas_used": 100609.50970816634,
+      "gas_cost": 9.892931829396272e-06,
+      "status": "success",
+      "actual_profit": 16.012828410880367,
+      "actual_gas_price": 35.1466407998341,
+      "actual_gas_used": 98095.91102423353,
+      "actual_gas_cost": 1.0343225246103667e-05,
+      "net_profit": 15.945521737903574,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "metrics": {
+    "total_trades": 4,
+    "successful_trades": 4,
+    "success_rate": 1.0,
+    "total_profit": 272.1153646006619,
+    "total_gas_cost": 0.00010621228612409302,
+    "net_profit": 266.68502317995205,
+    "avg_execution_time": 91.52806726423249
+  }
+}

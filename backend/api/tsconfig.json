@@ -28,12 +28,7 @@
       "@models/*": ["api/models/*"],
       "@utils/*": ["api/utils/*"]
     },
-    "rootDirs": [
-      ".",
-      "../execution",
-      "../price-feed",
-      "../ai"
-    ],
+    "rootDirs": [".", "../execution", "../price-feed", "../ai"],
     "types": ["node", "jest", "express"],
     "typeRoots": ["./types", "./node_modules/@types"]
   },

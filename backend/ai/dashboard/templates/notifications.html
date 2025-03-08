@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Notifications</h5>
+                <div>
+                    <button id="refresh-notifications-btn" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button id="mark-all-read-btn" class="btn btn-sm btn-outline-success">
+                        <i class="fas fa-check-double"></i> Mark All Read
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <form id="notification-filter-form" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="category-filter" class="form-label">Category</label>
+                            <select id="category-filter" class="form-select">
+                                <option value="">All Categories</option>
+                                <option value="TRADE">Trade</option>
+                                <option value="SECURITY">Security</option>
+                                <option value="SYSTEM">System</option>
+                                <option value="ERROR">Error</option>
+                                <option value="PERFORMANCE">Performance</option>
+                                <option value="INFO">Info</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="priority-filter" class="form-label">Minimum Priority</label>
+                            <select id="priority-filter" class="form-select">
+                                <option value="">All Priorities</option>
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HIGH">High</option>
+                                <option value="CRITICAL">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="time-filter" class="form-label">Time Period</label>
+                            <select id="time-filter" class="form-select">
+                                <option value="24h">Last 24 Hours</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="limit-filter" class="form-label">Limit</label>
+                            <select id="limit-filter" class="form-select">
+                                <option value="25">25 Items</option>
+                                <option value="50">50 Items</option>
+                                <option value="100">100 Items</option>
+                                <option value="200">200 Items</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="notifications-container">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Send Notification</h5>
+                <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sendNotificationForm" aria-expanded="false" aria-controls="sendNotificationForm">
+                    <i class="fas fa-plus"></i> New Notification
+                </button>
+            </div>
+            <div class="collapse" id="sendNotificationForm">
+                <div class="card-body">
+                    <form id="notification-form" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="notification-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="notification-title" placeholder="Notification Title" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="notification-category" class="form-label">Category</label>
+                            <select id="notification-category" class="form-select" required>
+                                <option value="TRADE">Trade</option>
+                                <option value="SECURITY">Security</option>
+                                <option value="SYSTEM" selected>System</option>
+                                <option value="ERROR">Error</option>
+                                <option value="PERFORMANCE">Performance</option>
+                                <option value="INFO">Info</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="notification-priority" class="form-label">Priority</label>
+                            <select id="notification-priority" class="form-select" required>
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM" selected>Medium</option>
+                                <option value="HIGH">High</option>
+                                <option value="CRITICAL">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="notification-message" class="form-label">Message</label>
+                            <textarea class="form-control" id="notification-message" rows="3" placeholder="Notification message..." required></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="notification-channels" class="form-label">Channels (Optional)</label>
+                            <select id="notification-channels" class="form-select" multiple>
+                                <option value="EMAIL">Email</option>
+                                <option value="TELEGRAM">Telegram</option>
+                                <option value="SLACK">Slack</option>
+                                <option value="WEBHOOK">Webhook</option>
+                                <option value="CONSOLE">Console</option>
+                            </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple. Leave empty for default channels.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="notification-data" class="form-label">Additional Data (JSON, Optional)</label>
+                            <textarea class="form-control" id="notification-data" rows="3" placeholder='{"key": "value"}'></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Send Notification</button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#sendNotificationForm">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Notification Channel Status</h5>
+                <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#channelStatusPanel" aria-expanded="false" aria-controls="channelStatusPanel">
+                    <i class="fas fa-cog"></i> Configure Channels
+                </button>
+            </div>
+            <div class="collapse" id="channelStatusPanel">
+                <div class="card-body">
+                    <div id="channel-status-container">
+                        <div class="text-center">Loading channel status...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Template Modal -->
+<div class="modal fade" id="notificationTemplateModal" tabindex="-1" aria-labelledby="notificationTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationTemplateModalLabel">Send Template Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="template-notification-form">
+                    <div class="mb-3">
+                        <label for="template-name" class="form-label">Template</label>
+                        <select id="template-name" class="form-select" required>
+                            <option value="">Select a template</option>
+                            <option value="TRADE_SUCCESS">Trade Success</option>
+                            <option value="TRADE_FAILURE">Trade Failure</option>
+                            <option value="SECURITY_ALERT">Security Alert</option>
+                            <option value="ERROR">System Error</option>
+                        </select>
+                    </div>
+                    <div id="template-parameters-container" class="mb-3">
+                        <p class="text-muted">Select a template to see parameters</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="send-template-btn">Send Notification</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Details Modal -->
+<div class="modal fade" id="notificationDetailsModal" tabindex="-1" aria-labelledby="notificationDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationDetailsModalLabel">Notification Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="notification-details-content">
+                    <!-- Content will be filled dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let notificationsData = [];
+    let channelStatusData = {};
+    let templateDefinitions = {};
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load notifications
+        loadNotifications();
+        
+        // Load channel status
+        loadChannelStatus();
+        
+        // Load notification templates
+        loadTemplateDefinitions();
+        
+        // Set up event listeners
+        setupEventListeners();
+    });
+    
+    function setupEventListeners() {
+        // Filter form changes
+        document.getElementById('category-filter').addEventListener('change', loadNotifications);
+        document.getElementById('priority-filter').addEventListener('change', loadNotifications);
+        document.getElementById('time-filter').addEventListener('change', loadNotifications);
+        document.getElementById('limit-filter').addEventListener('change', loadNotifications);
+        
+        // Refresh button
+        document.getElementById('refresh-notifications-btn').addEventListener('click', function() {
+            this.disabled = true;
+            const icon = this.querySelector('i');
+            icon.classList.add('spinning');
+            
+            loadNotifications().finally(() => {
+                this.disabled = false;
+                icon.classList.remove('spinning');
+            });
+        });
+        
+        // Mark all read button
+        document.getElementById('mark-all-read-btn').addEventListener('click', markAllAsRead);
+        
+        // Send notification form
+        document.getElementById('notification-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendNotification();
+        });
+        
+        // Template selection
+        document.getElementById('template-name').addEventListener('change', showTemplateParameters);
+        
+        // Send template button
+        document.getElementById('send-template-btn').addEventListener('click', sendTemplateNotification);
+    }
+    
+    function loadNotifications() {
+        const category = document.getElementById('category-filter').value;
+        const priority = document.getElementById('priority-filter').value;
+        const timeFilter = document.getElementById('time-filter').value;
+        const limit = document.getElementById('limit-filter').value;
+        
+        // Calculate 'since' parameter based on time filter
+        let since = null;
+        if (timeFilter === '24h') {
+            since = '24h';
+        } else if (timeFilter === '7d') {
+            since = '168h'; // 7 * 24
+        } else if (timeFilter === '30d') {
+            since = '720h'; // 30 * 24
+        }
+        
+        // Build query parameters
+        let params = new URLSearchParams();
+        params.append('limit', limit);
+        if (category) params.append('category', category);
+        if (priority) params.append('min_priority', priority);
+        if (since) params.append('since', since);
+        
+        // Show loading indicator
+        document.getElementById('notifications-container').innerHTML = `
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+        
+        // Fetch notifications
+        return fetch(`/api/notifications?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                notificationsData = data.notifications || [];
+                renderNotifications();
+                
+                // Update notification badge in navbar
+                updateNotificationBadge();
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+                document.getElementById('notifications-container').innerHTML = `
+                    <div class="alert alert-danger">
+                        Error loading notifications: ${error.message || 'Unknown error'}
+                    </div>
+                `;
+            });
+    }
+    
+    function renderNotifications() {
+        const container = document.getElementById('notifications-container');
+        
+        if (notificationsData.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    No notifications found matching the current filters.
+                </div>
+            `;
+            return;
+        }
+        
+        let html = `<div class="list-group">`;
+        
+        for (const notification of notificationsData) {
+            const timestamp = new Date(notification.timestamp).toLocaleString();
+            let badgeClass = 'bg-primary';
+            
+            if (notification.priority === 'HIGH') {
+                badgeClass = 'bg-warning';
+            } else if (notification.priority === 'CRITICAL') {
+                badgeClass = 'bg-danger';
+            } else if (notification.priority === 'LOW') {
+                badgeClass = 'bg-info';
+            }
+            
+            html += `
+                <div class="list-group-item list-group-item-action priority-${notification.priority.toLowerCase()}" 
+                     data-notification-id="${notification.id}" onclick="showNotificationDetails('${notification.id}')">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${notification.title}</h5>
+                        <span class="badge ${badgeClass}">${notification.priority}</span>
+                    </div>
+                    <p class="mb-1">${notification.message}</p>
+                    <small class="text-muted">
+                        ${timestamp} - ${notification.category}
+                    </small>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+    
+    function showNotificationDetails(id) {
+        const notification = notificationsData.find(n => n.id === id);
+        if (!notification) return;
+        
+        const modalContent = document.getElementById('notification-details-content');
+        const timestamp = new Date(notification.timestamp).toLocaleString();
+        
+        // Format additional data as JSON if present
+        let dataHtml = '';
+        if (notification.data && Object.keys(notification.data).length > 0) {
+            dataHtml = `
+                <div class="mt-3">
+                    <h6>Additional Data:</h6>
+                    <pre class="bg-light p-2 rounded"><code>${JSON.stringify(notification.data, null, 2)}</code></pre>
+                </div>
+            `;
+        }
+        
+        // Format channels if present
+        let channelsHtml = '';
+        if (notification.channels && notification.channels.length > 0) {
+            channelsHtml = `
+                <div class="mt-3">
+                    <h6>Sent to Channels:</h6>
+                    <p>${notification.channels.join(', ')}</p>
+                </div>
+            `;
+        }
+        
+        modalContent.innerHTML = `
+            <div>
+                <h4>${notification.title}</h4>
+                <div class="d-flex justify-content-between">
+                    <span class="badge bg-${getPriorityColorClass(notification.priority)}">${notification.priority}</span>
+                    <span class="badge bg-secondary">${notification.category}</span>
+                </div>
+                <p class="mt-3">${notification.message}</p>
+                <p class="text-muted">Received: ${timestamp}</p>
+                <p class="text-muted">Notification ID: ${notification.id}</p>
+                ${channelsHtml}
+                ${dataHtml}
+            </div>
+        `;
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('notificationDetailsModal'));
+        modal.show();
+    }
+    
+    function getPriorityColorClass(priority) {
+        switch (priority) {
+            case 'LOW': return 'info';
+            case 'MEDIUM': return 'primary';
+            case 'HIGH': return 'warning';
+            case 'CRITICAL': return 'danger';
+            default: return 'secondary';
+        }
+    }
+    
+    function loadChannelStatus() {
+        // This would be a real API call in production
+        // For now, we'll use mock data
+        const mockStatus = {
+            EMAIL: { enabled: false, status: "Not configured" },
+            TELEGRAM: { enabled: true, status: "Connected" },
+            SLACK: { enabled: false, status: "Not configured" },
+            WEBHOOK: { enabled: false, status: "Not configured" },
+            CONSOLE: { enabled: true, status: "Active" }
+        };
+        
+        channelStatusData = mockStatus;
+        renderChannelStatus();
+    }
+    
+    function renderChannelStatus() {
+        const container = document.getElementById('channel-status-container');
+        
+        let html = `<div class="row g-3">`;
+        
+        for (const [channel, data] of Object.entries(channelStatusData)) {
+            const statusClass = data.enabled ? 'bg-success' : 'bg-secondary';
+            const btnClass = data.enabled ? 'btn-outline-danger' : 'btn-outline-success';
+            const btnText = data.enabled ? 'Disable' : 'Enable';
+            const btnIcon = data.enabled ? 'fa-ban' : 'fa-check';
+            
+            html += `
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">${channel}</h6>
+                            <span class="badge ${statusClass}">${data.enabled ? 'Enabled' : 'Disabled'}</span>
+                        </div>
+                        <div class="card-body">
+                            <p>${data.status}</p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm ${btnClass}" onclick="toggleChannel('${channel}')">
+                                    <i class="fas ${btnIcon}"></i> ${btnText}
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="configureChannel('${channel}')">
+                                    <i class="fas fa-cog"></i> Configure
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+    
+    function toggleChannel(channel) {
+        const currentStatus = channelStatusData[channel]?.enabled || false;
+        
+        // In a real implementation, this would be an API call
+        // For demo purposes, we'll just toggle the local state
+        channelStatusData[channel].enabled = !currentStatus;
+        channelStatusData[channel].status = !currentStatus ? "Active" : "Disabled";
+        
+        // Update the UI
+        renderChannelStatus();
+        
+        // Show success message
+        showAlert(`${channel} channel ${currentStatus ? 'disabled' : 'enabled'} successfully`, 'success');
+    }
+    
+    function configureChannel(channel) {
+        // In a real implementation, this would open a configuration form
+        // For demo purposes, we'll just show an alert
+        showAlert(`Configuration for ${channel} would be shown here`, 'info');
+    }
+    
+    function loadTemplateDefinitions() {
+        // In a real implementation, this would be an API call
+        // For demo purposes, we'll use mock data
+        templateDefinitions = {
+            "TRADE_SUCCESS": {
+                "parameters": ["trade_id", "profit", "currency"],
+                "defaults": { "currency": "ETH" }
+            },
+            "TRADE_FAILURE": {
+                "parameters": ["trade_id", "reason"],
+                "defaults": {}
+            },
+            "SECURITY_ALERT": {
+                "parameters": ["message"],
+                "defaults": {}
+            },
+            "ERROR": {
+                "parameters": ["message"],
+                "defaults": {}
+            }
+        };
+    }
+    
+    function showTemplateParameters() {
+        const templateName = document.getElementById('template-name').value;
+        const container = document.getElementById('template-parameters-container');
+        
+        if (!templateName) {
+            container.innerHTML = `<p class="text-muted">Select a template to see parameters</p>`;
+            return;
+        }
+        
+        const template = templateDefinitions[templateName];
+        if (!template) {
+            container.innerHTML = `<p class="text-danger">Template definition not found</p>`;
+            return;
+        }
+        
+        let html = `<div class="row g-3">`;
+        
+        for (const param of template.parameters) {
+            const defaultValue = template.defaults[param] || '';
+            
+            html += `
+                <div class="col-md-6">
+                    <label for="param-${param}" class="form-label">${param}</label>
+                    <input type="text" class="form-control" id="param-${param}" 
+                           name="${param}" value="${defaultValue}" required>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+    
+    function sendNotification() {
+        const title = document.getElementById('notification-title').value;
+        const message = document.getElementById('notification-message').value;
+        const category = document.getElementById('notification-category').value;
+        const priority = document.getElementById('notification-priority').value;
+        
+        // Get selected channels
+        const channelsSelect = document.getElementById('notification-channels');
+        const channels = Array.from(channelsSelect.selectedOptions).map(option => option.value);
+        
+        // Parse additional data if provided
+        let data = {};
+        const dataText = document.getElementById('notification-data').value;
+        if (dataText) {
+            try {
+                data = JSON.parse(dataText);
+            } catch (e) {
+                showAlert('Invalid JSON in additional data field', 'danger');
+                return;
+            }
+        }
+        
+        // In a real implementation, this would be an API call
+        // For demo purposes, we'll just log it and add it to our local data
+        console.log('Sending notification:', { title, message, category, priority, channels, data });
+        
+        const notification = {
+            id: `demo-${Date.now()}`,
+            title,
+            message,
+            category,
+            priority,
+            channels: channels.length > 0 ? channels : null,
+            data,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Add to our local data
+        notificationsData.unshift(notification);
+        
+        // Update UI
+        renderNotifications();
+        
+        // Reset form
+        document.getElementById('notification-form').reset();
+        
+        // Collapse form
+        bootstrap.Collapse.getInstance(document.getElementById('sendNotificationForm')).hide();
+        
+        // Show success message
+        showAlert('Notification sent successfully', 'success');
+    }
+    
+    function sendTemplateNotification() {
+        const templateName = document.getElementById('template-name').value;
+        
+        if (!templateName) {
+            showAlert('Please select a template', 'warning');
+            return;
+        }
+        
+        const template = templateDefinitions[templateName];
+        if (!template) {
+            showAlert('Template definition not found', 'danger');
+            return;
+        }
+        
+        // Gather parameter values
+        const templateData = {};
+        
+        for (const param of template.parameters) {
+            const input = document.getElementById(`param-${param}`);
+            if (!input || !input.value) {
+                showAlert(`Please provide a value for ${param}`, 'warning');
+                return;
+            }
+            
+            templateData[param] = input.value;
+        }
+        
+        // In a real implementation, this would be an API call
+        // For demo purposes, we'll just log it
+        console.log('Sending template notification:', { templateName, templateData });
+        
+        // Show success message
+        showAlert('Template notification sent successfully', 'success');
+        
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('notificationTemplateModal')).hide();
+        
+        // Refresh notifications list
+        setTimeout(loadNotifications, 1000);
+    }
+    
+    function markAllAsRead() {
+        // In a real implementation, this would be an API call
+        // For demo purposes, we'll just show a success message
+        showAlert('All notifications marked as read', 'success');
+    }
+</script>
+{% endblock %} 

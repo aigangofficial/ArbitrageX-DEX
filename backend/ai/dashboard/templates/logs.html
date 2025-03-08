@@ -1,0 +1,659 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">System Logs</h5>
+                <div>
+                    <button id="refresh-logs-btn" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button id="clear-logs-btn" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash-alt"></i> Clear Logs
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <form id="log-filter-form" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="log-type-filter" class="form-label">Log Type</label>
+                            <select id="log-type-filter" class="form-select">
+                                <option value="all" selected>All Logs</option>
+                                <option value="main">Main System</option>
+                                <option value="trading">Trading</option>
+                                <option value="security">Security</option>
+                                <option value="notifications">Notifications</option>
+                                <option value="dashboard">Dashboard</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="log-level-filter" class="form-label">Minimum Level</label>
+                            <select id="log-level-filter" class="form-select">
+                                <option value="debug">Debug</option>
+                                <option value="info" selected>Info</option>
+                                <option value="warning">Warning</option>
+                                <option value="error">Error</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="log-search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="log-search" placeholder="Search logs...">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="log-lines" class="form-label">Lines</label>
+                            <select id="log-lines" class="form-select">
+                                <option value="100" selected>100 lines</option>
+                                <option value="500">500 lines</option>
+                                <option value="1000">1000 lines</option>
+                                <option value="5000">5000 lines</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="auto-refresh-toggle">
+                    <label class="form-check-label" for="auto-refresh-toggle">Auto-refresh (5s)</label>
+                </div>
+                
+                <div id="logs-container" class="bg-dark text-light p-3 rounded" style="height: 500px; overflow: auto; font-family: monospace;">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Log File Summary</h5>
+            </div>
+            <div class="card-body">
+                <div id="log-summary-container">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Error Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div id="error-chart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Export Modal -->
+<div class="modal fade" id="exportLogsModal" tabindex="-1" aria-labelledby="exportLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportLogsModalLabel">Export Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="export-logs-form">
+                    <div class="mb-3">
+                        <label for="export-format" class="form-label">Export Format</label>
+                        <select id="export-format" class="form-select">
+                            <option value="text">Plain Text</option>
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="export-date-range" class="form-label">Date Range</label>
+                        <select id="export-date-range" class="form-select">
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="week">Last 7 days</option>
+                            <option value="month">Last 30 days</option>
+                            <option value="all">All time</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="export-logs-btn">Export</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Logs Confirmation Modal -->
+<div class="modal fade" id="clearLogsModal" tabindex="-1" aria-labelledby="clearLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clearLogsModalLabel">Clear Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to clear the logs? This action cannot be undone.</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="clear-all-logs-check">
+                    <label class="form-check-label" for="clear-all-logs-check">
+                        Clear all log files
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-clear-logs-btn">Clear Logs</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let autoRefreshInterval = null;
+    let logs = [];
+    let logSummary = {};
+    let errorData = [];
+    let errorChart;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize error chart
+        initializeErrorChart();
+        
+        // Load logs and summary
+        loadLogs();
+        loadLogSummary();
+        
+        // Set up event listeners
+        setupEventListeners();
+    });
+    
+    function setupEventListeners() {
+        // Filter change events
+        document.getElementById('log-type-filter').addEventListener('change', loadLogs);
+        document.getElementById('log-level-filter').addEventListener('change', loadLogs);
+        document.getElementById('log-lines').addEventListener('change', loadLogs);
+        
+        // Search input
+        const searchInput = document.getElementById('log-search');
+        searchInput.addEventListener('input', debounce(loadLogs, 500));
+        
+        // Refresh button
+        document.getElementById('refresh-logs-btn').addEventListener('click', function() {
+            this.disabled = true;
+            const icon = this.querySelector('i');
+            icon.classList.add('spinning');
+            
+            Promise.all([loadLogs(), loadLogSummary()]).finally(() => {
+                this.disabled = false;
+                icon.classList.remove('spinning');
+            });
+        });
+        
+        // Auto-refresh toggle
+        document.getElementById('auto-refresh-toggle').addEventListener('change', function() {
+            if (this.checked) {
+                // Enable auto-refresh
+                autoRefreshInterval = setInterval(() => {
+                    loadLogs();
+                    loadLogSummary();
+                }, 5000);
+            } else {
+                // Disable auto-refresh
+                if (autoRefreshInterval !== null) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+            }
+        });
+        
+        // Clear logs button
+        document.getElementById('clear-logs-btn').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('clearLogsModal'));
+            modal.show();
+        });
+        
+        // Confirm clear logs button
+        document.getElementById('confirm-clear-logs-btn').addEventListener('click', clearLogs);
+        
+        // Export logs button (in the modal)
+        document.getElementById('export-logs-btn').addEventListener('click', exportLogs);
+    }
+    
+    function initializeErrorChart() {
+        const options = {
+            series: [{
+                name: 'Errors',
+                data: []
+            }],
+            chart: {
+                type: 'bar',
+                height: 300,
+                toolbar: {
+                    show: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                categories: [],
+            },
+            colors: ['#e74c3c']
+        };
+        
+        errorChart = new ApexCharts(document.getElementById("error-chart"), options);
+        errorChart.render();
+    }
+    
+    function loadLogs() {
+        const logType = document.getElementById('log-type-filter').value;
+        const logLevel = document.getElementById('log-level-filter').value;
+        const searchQuery = document.getElementById('log-search').value;
+        const lines = document.getElementById('log-lines').value;
+        
+        const container = document.getElementById('logs-container');
+        
+        // Show loading indicator
+        container.innerHTML = `
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+        
+        // In a real implementation, this would be an API call
+        // For demo purposes, we'll use mock data after a delay
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                // Generate mock log data
+                logs = generateMockLogs(logType, logLevel, lines, searchQuery);
+                
+                // Render logs
+                renderLogs();
+                
+                // Update error chart
+                updateErrorChart();
+                
+                resolve();
+            }, 500);
+        });
+    }
+    
+    function renderLogs() {
+        const container = document.getElementById('logs-container');
+        
+        if (logs.length === 0) {
+            container.innerHTML = `<div class="text-center text-muted">No logs found</div>`;
+            return;
+        }
+        
+        let html = '';
+        
+        for (const log of logs) {
+            let logClass = '';
+            
+            switch (log.level) {
+                case 'DEBUG':
+                    logClass = 'text-secondary';
+                    break;
+                case 'INFO':
+                    logClass = 'text-info';
+                    break;
+                case 'WARNING':
+                    logClass = 'text-warning';
+                    break;
+                case 'ERROR':
+                    logClass = 'text-danger';
+                    break;
+                case 'CRITICAL':
+                    logClass = 'text-danger fw-bold';
+                    break;
+            }
+            
+            html += `<div class="${logClass}">[${log.timestamp}] [${log.level}] [${log.source}] ${log.message}</div>`;
+        }
+        
+        container.innerHTML = html;
+        
+        // Scroll to bottom
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    function loadLogSummary() {
+        const container = document.getElementById('log-summary-container');
+        
+        // In a real implementation, this would be an API call
+        // For demo purposes, we'll use mock data after a delay
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                // Generate mock summary data
+                logSummary = {
+                    files: [
+                        { name: 'arbitragex.log', size: 1024 * 1024 * 2.3, last_modified: '2023-10-15T14:32:15' },
+                        { name: 'notifications.log', size: 1024 * 512, last_modified: '2023-10-15T15:45:22' },
+                        { name: 'security.log', size: 1024 * 1024 * 0.7, last_modified: '2023-10-15T13:12:07' },
+                        { name: 'dashboard.log', size: 1024 * 256, last_modified: '2023-10-15T16:05:33' }
+                    ],
+                    stats: {
+                        total_size: 1024 * 1024 * 3.8,
+                        error_count: 37,
+                        warning_count: 158,
+                        info_count: 1245,
+                        debug_count: 3289
+                    }
+                };
+                
+                // Render summary
+                renderLogSummary();
+                
+                resolve();
+            }, 500);
+        });
+    }
+    
+    function renderLogSummary() {
+        const container = document.getElementById('log-summary-container');
+        
+        let filesHtml = '';
+        
+        for (const file of logSummary.files) {
+            const fileSize = formatFileSize(file.size);
+            const lastModified = new Date(file.last_modified).toLocaleString();
+            
+            filesHtml += `
+                <tr>
+                    <td>${file.name}</td>
+                    <td>${fileSize}</td>
+                    <td>${lastModified}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewLogFile('${file.name}')">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        const totalSize = formatFileSize(logSummary.stats.total_size);
+        
+        container.innerHTML = `
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Total Size:</strong> ${totalSize}</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#exportLogsModal">
+                        <i class="fas fa-file-export"></i> Export Logs
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-danger">Errors: ${logSummary.stats.error_count}</span>
+                        <span class="badge bg-warning">Warnings: ${logSummary.stats.warning_count}</span>
+                        <span class="badge bg-info">Info: ${logSummary.stats.info_count}</span>
+                        <span class="badge bg-secondary">Debug: ${logSummary.stats.debug_count}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Size</th>
+                            <th>Last Modified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filesHtml}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function updateErrorChart() {
+        // Count errors by type
+        const errorCounter = {};
+        
+        for (const log of logs) {
+            if (log.level === 'ERROR' || log.level === 'CRITICAL') {
+                // Extract error type from message
+                const errorType = extractErrorType(log.message);
+                
+                // Count errors by type
+                errorCounter[errorType] = (errorCounter[errorType] || 0) + 1;
+            }
+        }
+        
+        // Convert to array for chart
+        errorData = Object.entries(errorCounter)
+            .map(([type, count]) => ({ type, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5); // Only show top 5
+        
+        // Update chart
+        errorChart.updateOptions({
+            xaxis: {
+                categories: errorData.map(item => item.type)
+            }
+        });
+        
+        errorChart.updateSeries([{
+            name: 'Errors',
+            data: errorData.map(item => item.count)
+        }]);
+    }
+    
+    function extractErrorType(message) {
+        // This is a simplified version - in a real system,
+        // you'd have more sophisticated parsing
+        
+        if (message.includes('Connection')) return 'Connection Error';
+        if (message.includes('Timeout')) return 'Timeout Error';
+        if (message.includes('Authentication')) return 'Auth Error';
+        if (message.includes('Permission')) return 'Permission Error';
+        if (message.includes('API')) return 'API Error';
+        if (message.includes('Database')) return 'DB Error';
+        if (message.includes('Config')) return 'Config Error';
+        
+        return 'Other Error';
+    }
+    
+    function generateMockLogs(logType, logLevel, count, searchQuery) {
+        const result = [];
+        const levelOrder = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'];
+        const minLevelIndex = levelOrder.indexOf(logLevel.toUpperCase());
+        const sources = {
+            'all': ['trading', 'security', 'notifications', 'dashboard', 'system'],
+            'main': ['system'],
+            'trading': ['trading'],
+            'security': ['security'],
+            'notifications': ['notifications'],
+            'dashboard': ['dashboard']
+        };
+        
+        const sourcesToInclude = sources[logType] || sources['all'];
+        
+        // Common log messages
+        const logMessages = {
+            'DEBUG': [
+                'Initializing component',
+                'Processing request',
+                'Connecting to service',
+                'Checking status',
+                'Validating input',
+                'Parsing response'
+            ],
+            'INFO': [
+                'System started successfully',
+                'User logged in',
+                'Configuration loaded',
+                'Service connected',
+                'Task completed',
+                'Process finished'
+            ],
+            'WARNING': [
+                'Slow response time detected',
+                'Retrying failed request',
+                'Resource usage high',
+                'Configuration deprecated',
+                'Using fallback method',
+                'Cache expired'
+            ],
+            'ERROR': [
+                'Connection failed',
+                'Timeout waiting for response',
+                'Authentication failed',
+                'Permission denied',
+                'API request failed',
+                'Database error occurred',
+                'Configuration error'
+            ],
+            'CRITICAL': [
+                'System crash detected',
+                'Database connection lost',
+                'Out of memory error',
+                'Critical security breach',
+                'Data corruption detected',
+                'Unrecoverable error'
+            ]
+        };
+        
+        // Generate random logs
+        for (let i = 0; i < count; i++) {
+            // Random level at or above the minimum level
+            const levelIndex = Math.floor(Math.random() * (levelOrder.length - minLevelIndex)) + minLevelIndex;
+            const level = levelOrder[levelIndex];
+            
+            // Random source from allowed sources
+            const source = sourcesToInclude[Math.floor(Math.random() * sourcesToInclude.length)];
+            
+            // Random message for this level
+            const messages = logMessages[level];
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Random timestamp in the last 24 hours
+            const timestamp = new Date(Date.now() - Math.floor(Math.random() * 24 * 60 * 60 * 1000))
+                .toISOString().replace('T', ' ').replace('Z', '');
+            
+            // Only include if it matches the search query (if any)
+            if (!searchQuery || message.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                source.toLowerCase().includes(searchQuery.toLowerCase())) {
+                result.push({
+                    timestamp,
+                    level,
+                    source,
+                    message: `${message} (id: ${Math.floor(Math.random() * 10000).toString().padStart(4, '0')})`
+                });
+            }
+        }
+        
+        // Sort by timestamp
+        result.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        return result;
+    }
+    
+    function viewLogFile(filename) {
+        // In a real implementation, this would load the specified log file
+        // For demo purposes, we'll just update the filter and reload logs
+        
+        // Map filename to log type
+        let logType = 'all';
+        if (filename === 'arbitragex.log') logType = 'main';
+        if (filename === 'notifications.log') logType = 'notifications';
+        if (filename === 'security.log') logType = 'security';
+        if (filename === 'dashboard.log') logType = 'dashboard';
+        
+        // Update filter
+        document.getElementById('log-type-filter').value = logType;
+        
+        // Reload logs
+        loadLogs();
+        
+        // Scroll to logs container
+        document.getElementById('logs-container').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function clearLogs() {
+        const clearAll = document.getElementById('clear-all-logs-check').checked;
+        const logType = document.getElementById('log-type-filter').value;
+        
+        // In a real implementation, this would call an API to clear logs
+        // For demo purposes, we'll just show a success message
+        
+        let message = clearAll ? 
+            'All log files have been cleared.' : 
+            `Logs of type "${logType}" have been cleared.`;
+        
+        // Hide modal
+        bootstrap.Modal.getInstance(document.getElementById('clearLogsModal')).hide();
+        
+        // Show success message
+        showAlert(message, 'success');
+        
+        // Reload logs and summary
+        loadLogs();
+        loadLogSummary();
+    }
+    
+    function exportLogs() {
+        const format = document.getElementById('export-format').value;
+        const dateRange = document.getElementById('export-date-range').value;
+        
+        // In a real implementation, this would call an API to export logs
+        // For demo purposes, we'll just show a success message
+        
+        // Hide modal
+        bootstrap.Modal.getInstance(document.getElementById('exportLogsModal')).hide();
+        
+        // Show success message
+        showAlert(`Logs exported successfully in ${format.toUpperCase()} format.`, 'success');
+    }
+    
+    // Utility function to debounce input
+    function debounce(func, delay) {
+        let timeout;
+        return function() {
+            const context = this;
+            const args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
+</script>
+{% endblock %} 

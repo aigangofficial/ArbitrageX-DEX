@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-03-07T21:18:53.262374",
+  "runtime_hours": 7.886111111111111e-07,
+  "total_trades": 3,
+  "successful_trades": 3,
+  "success_rate": 1.0,
+  "total_profit_usd": 250.03607324044714,
+  "average_profit_per_trade": 83.34535774681571,
+  "profit_per_hour": 317058775.5074356,
+  "execution_breakdown": {
+    "base_trades": 0,
+    "l2_trades": 0,
+    "flash_trades": 0,
+    "l2_flash_trades": 3
+  },
+  "l2_metrics": {
+    "trades": 0,
+    "successful_trades": 0,
+    "success_rate": 0,
+    "total_profit_usd": 0.0,
+    "average_profit_per_trade": 0,
+    "network_performance": {
+      "arbitrum": {
+        "trades": 3,
+        "successful_trades": 3,
+        "total_profit": 250.03607324044714
+      },
+      "optimism": {
+        "trades": 0,
+        "successful_trades": 0,
+        "total_profit": 0.0
+      },
+      "base": {
+        "trades": 0,
+        "successful_trades": 0,
+        "total_profit": 0.0
+      },
+      "polygon": {
+        "trades": 0,
+        "successful_trades": 0,
+        "total_profit": 0.0
+      }
+    }
+  },
+  "flash_metrics": {
+    "trades": 0,
+    "successful_trades": 0,
+    "success_rate": 0,
+    "total_profit_usd": 0.0,
+    "average_profit_per_trade": 0,
+    "provider_performance": {
+      "aave": {
+        "trades": 0,
+        "successful_trades": 0,
+        "total_profit": 0.0
+      },
+      "uniswap": {
+        "trades": 3,
+        "successful_trades": 3,
+        "total_profit": 250.03607324044714
+      },
+      "balancer": {
+        "trades": 0,
+        "successful_trades": 0,
+        "total_profit": 0.0
+      },
+      "maker": {
+        "trades": 0,
+        "successful_trades": 0,
+        "total_profit": 0.0
+      }
+    }
+  },
+  "l2_flash_metrics": {
+    "trades": 3,
+    "successful_trades": 3,
+    "success_rate": 1.0,
+    "total_profit_usd": 250.03607324044714,
+    "average_profit_per_trade": 83.34535774681571
+  }
+}

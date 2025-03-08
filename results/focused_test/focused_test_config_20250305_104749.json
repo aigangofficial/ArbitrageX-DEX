@@ -1,0 +1,35 @@
+{
+  "timestamp": "20250305_104749",
+  "focus": "mev_protection",
+  "intensity": "high",
+  "duration": 30,
+  "output_dir": "results/focused_test",
+  "debug": false,
+  "networks": [
+    "ethereum",
+    "arbitrum",
+    "polygon"
+  ],
+  "token_pairs": [
+    "WETH-USDC",
+    "WBTC-USDT",
+    "WETH-DAI"
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "sushiswap",
+    "curve"
+  ],
+  "min_trades": 100,
+  "batch_size": 10,
+  "max_workers": 4,
+  "gas_strategy": "medium",
+  "parallel": true,
+  "enable_learning": true,
+  "high_congestion": false,
+  "extreme_volatility": false,
+  "mev_attack_simulation": true,
+  "mev_attack_probability": 0.7,
+  "sandwich_attack_enabled": true,
+  "front_running_enabled": true
+}

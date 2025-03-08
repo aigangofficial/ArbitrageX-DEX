@@ -1,0 +1,497 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">ArbitrageX Dashboard</h5>
+                <div>
+                    <button id="refresh-dashboard-btn" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 border-left-primary shadow">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Profit</div>
+                                        <div id="total-profit" class="h5 mb-0 font-weight-bold">Loading...</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 border-left-success shadow">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Success Rate</div>
+                                        <div id="success-rate" class="h5 mb-0 font-weight-bold">Loading...</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 border-left-info shadow">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Total Trades</div>
+                                        <div id="total-trades" class="h5 mb-0 font-weight-bold">Loading...</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Profit History</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="profit-chart" style="height: 300px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Strategy Distribution</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="strategy-chart" style="height: 300px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Trades</h5>
+                <a href="{{ url_for('trades') }}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Time</th>
+                                <th>Strategy</th>
+                                <th>Profit</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-trades-table">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Notifications</h5>
+                <a href="{{ url_for('notifications') }}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div id="notifications-list">
+                    <p class="text-center">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Launch Trading Bot</h5>
+            </div>
+            <div class="card-body">
+                <form id="launch-bot-form" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="trades-input" class="form-label">Number of Trades</label>
+                        <input type="number" class="form-control" id="trades-input" value="50" min="1" max="1000">
+                    </div>
+                    <div class="col-md-9">
+                        <label class="form-label">Options</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="l2-only">
+                                <label class="form-check-label" for="l2-only">
+                                    Layer 2 Only
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="flash-only">
+                                <label class="form-check-label" for="flash-only">
+                                    Flash Loan Only
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ml-disabled">
+                                <label class="form-check-label" for="ml-disabled">
+                                    Disable ML
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-play me-2"></i> Launch Bot
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize charts
+    let profitChart, strategyChart;
+    
+    function initializeCharts() {
+        // Profit history chart
+        const profitChartOptions = {
+            series: [{
+                name: 'Net Profit',
+                data: [0]
+            }],
+            chart: {
+                type: 'area',
+                height: 300,
+                toolbar: {
+                    show: false
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            xaxis: {
+                type: 'datetime',
+                categories: [new Date().getTime()]
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Profit (ETH)'
+                }
+            },
+            colors: ['#3498db']
+        };
+        
+        profitChart = new ApexCharts(document.querySelector("#profit-chart"), profitChartOptions);
+        profitChart.render();
+        
+        // Strategy distribution chart
+        const strategyChartOptions = {
+            series: [0, 0, 0],
+            chart: {
+                type: 'donut',
+                height: 300
+            },
+            labels: ['L2', 'Flash Loan', 'Combined'],
+            colors: ['#3498db', '#2ecc71', '#9b59b6'],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+        
+        strategyChart = new ApexCharts(document.querySelector("#strategy-chart"), strategyChartOptions);
+        strategyChart.render();
+    }
+    
+    // Load dashboard data
+    function loadDashboardData() {
+        // Fetch metrics
+        fetch('/api/metrics')
+            .then(response => response.json())
+            .then(data => {
+                if (data.metrics) {
+                    // Update metrics cards
+                    document.getElementById('total-profit').textContent = data.metrics.net_profit.toFixed(2) + ' ETH';
+                    document.getElementById('success-rate').textContent = data.metrics.success_rate.toFixed(2) + '%';
+                    document.getElementById('total-trades').textContent = data.metrics.total_trades;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching metrics:', error);
+            });
+        
+        // Fetch trades for chart data
+        fetch('/api/trades')
+            .then(response => response.json())
+            .then(data => {
+                if (data.trades && data.trades.length > 0) {
+                    // Process trades for charts
+                    updateChartsWithTradeData(data.trades);
+                    
+                    // Update recent trades table
+                    updateRecentTradesTable(data.trades.slice(0, 5));
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching trades:', error);
+            });
+        
+        // Fetch notifications
+        fetch('/api/notifications')
+            .then(response => response.json())
+            .then(data => {
+                if (data.notifications) {
+                    // Update notifications list
+                    updateNotificationsList(data.notifications.slice(0, 5));
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+            });
+    }
+    
+    // Update charts with trade data
+    function updateChartsWithTradeData(trades) {
+        // Process profit history data
+        const dates = [];
+        const profits = [];
+        let cumulativeProfit = 0;
+        
+        // Sort trades by timestamp
+        trades.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        // Calculate cumulative profit over time
+        for (const trade of trades) {
+            const date = new Date(trade.timestamp).getTime();
+            cumulativeProfit += trade.net_profit;
+            
+            dates.push(date);
+            profits.push(cumulativeProfit);
+        }
+        
+        // Update profit chart
+        profitChart.updateSeries([{
+            name: 'Net Profit',
+            data: profits
+        }]);
+        
+        profitChart.updateOptions({
+            xaxis: {
+                categories: dates
+            }
+        });
+        
+        // Process strategy distribution data
+        const strategyCounts = {
+            'l2': 0,
+            'flash': 0,
+            'combined': 0
+        };
+        
+        for (const trade of trades) {
+            if (trade.strategy === 'l2') {
+                strategyCounts.l2++;
+            } else if (trade.strategy === 'flash') {
+                strategyCounts.flash++;
+            } else if (trade.strategy === 'ml_enhanced') {
+                strategyCounts.combined++;
+            }
+        }
+        
+        // Update strategy chart
+        strategyChart.updateSeries([
+            strategyCounts.l2,
+            strategyCounts.flash,
+            strategyCounts.combined
+        ]);
+    }
+    
+    // Update recent trades table
+    function updateRecentTradesTable(trades) {
+        const tableBody = document.getElementById('recent-trades-table');
+        
+        if (trades.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No trades found</td></tr>';
+            return;
+        }
+        
+        let html = '';
+        
+        for (const trade of trades) {
+            const timestamp = new Date(trade.timestamp).toLocaleString();
+            const profitClass = trade.net_profit >= 0 ? 'text-success' : 'text-danger';
+            const statusClass = trade.status === 'completed' ? 'badge bg-success' : 'badge bg-warning';
+            
+            html += `
+                <tr>
+                    <td>${trade.id}</td>
+                    <td>${timestamp}</td>
+                    <td>${formatStrategy(trade.strategy)}</td>
+                    <td class="${profitClass}">${trade.net_profit.toFixed(4)} ETH</td>
+                    <td><span class="${statusClass}">${trade.status}</span></td>
+                </tr>
+            `;
+        }
+        
+        tableBody.innerHTML = html;
+    }
+    
+    // Format strategy name for display
+    function formatStrategy(strategy) {
+        switch (strategy) {
+            case 'l2':
+                return 'Layer 2';
+            case 'flash':
+                return 'Flash Loan';
+            case 'ml_enhanced':
+                return 'ML Enhanced';
+            default:
+                return strategy;
+        }
+    }
+    
+    // Update notifications list
+    function updateNotificationsList(notifications) {
+        const container = document.getElementById('notifications-list');
+        
+        if (notifications.length === 0) {
+            container.innerHTML = '<p class="text-center">No notifications found</p>';
+            return;
+        }
+        
+        let html = '<div class="list-group">';
+        
+        for (const notification of notifications) {
+            const timestamp = new Date(notification.timestamp).toLocaleString();
+            let badgeClass = 'bg-primary';
+            
+            if (notification.priority === 'HIGH') {
+                badgeClass = 'bg-warning';
+            } else if (notification.priority === 'CRITICAL') {
+                badgeClass = 'bg-danger';
+            } else if (notification.priority === 'LOW') {
+                badgeClass = 'bg-info';
+            }
+            
+            html += `
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${notification.title}</h5>
+                        <span class="badge ${badgeClass}">${notification.priority}</span>
+                    </div>
+                    <p class="mb-1">${notification.message}</p>
+                    <small class="text-muted">${timestamp} - ${notification.category}</small>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    
+    // Launch bot form handler
+    document.getElementById('launch-bot-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const trades = document.getElementById('trades-input').value;
+        const l2Only = document.getElementById('l2-only').checked;
+        const flashOnly = document.getElementById('flash-only').checked;
+        const mlDisabled = document.getElementById('ml-disabled').checked;
+        
+        fetch('/api/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                trades: parseInt(trades),
+                l2_only: l2Only,
+                flash_only: flashOnly,
+                ml_disabled: mlDisabled
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Bot started successfully', 'success');
+                // Update status
+                checkStatus();
+            } else {
+                showAlert('Failed to start bot: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('Error starting bot: ' + error, 'danger');
+        });
+    });
+    
+    // Refresh dashboard button
+    document.getElementById('refresh-dashboard-btn').addEventListener('click', function() {
+        loadDashboardData();
+        this.disabled = true;
+        setTimeout(() => {
+            this.disabled = false;
+        }, 2000);
+    });
+    
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+        loadDashboardData();
+        
+        // Periodically refresh data
+        setInterval(loadDashboardData, 60000); // every 60 seconds
+    });
+</script>
+{% endblock %} 

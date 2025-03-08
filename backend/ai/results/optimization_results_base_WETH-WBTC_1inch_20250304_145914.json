@@ -1,0 +1,379 @@
+{
+  "timestamp": "2025-03-04 14:59:14",
+  "config": {
+    "network": "base",
+    "token_pair": [
+      "WETH",
+      "WBTC"
+    ],
+    "dex": "1inch",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 43.95661223188421,
+      "confidence": 0.529780647709823,
+      "execution_time": 80.47691264150424,
+      "price_impact": 0.004182064344778446,
+      "slippage_tolerance": 0.004910299044261689,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 70.05760566749808,
+      "confidence": 0.9448763700174021,
+      "execution_time": 155.42750859920938,
+      "price_impact": 0.004303389631707092,
+      "slippage_tolerance": 0.0027077295834212344,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 54.813377960073915,
+      "confidence": 0.5267755590934559,
+      "execution_time": 113.16456304937566,
+      "price_impact": 0.0016714789301813062,
+      "slippage_tolerance": 0.005836124078883199,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 88.41724989405917,
+      "confidence": 0.6397192144759478,
+      "execution_time": 57.68298468355904,
+      "price_impact": 0.0027559234744722588,
+      "slippage_tolerance": 0.005119710631611928,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 136.10214791579602,
+      "confidence": 0.8987666584332417,
+      "execution_time": 158.32159128774933,
+      "price_impact": 0.004934433609607851,
+      "slippage_tolerance": 0.0074625058069765545,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 35.866253313806695,
+      "confidence": 0.529780647709823,
+      "execution_time": 80.47691264150424,
+      "price_impact": 0.004182064344778446,
+      "slippage_tolerance": 0.004910299044261689,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 80.51792278063003,
+      "confidence": 0.9448763700174021,
+      "execution_time": 155.42750859920938,
+      "price_impact": 0.004303389631707092,
+      "slippage_tolerance": 0.0027077295834212344,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 57.046153506137045,
+      "confidence": 0.5267755590934559,
+      "execution_time": 113.16456304937566,
+      "price_impact": 0.0016714789301813062,
+      "slippage_tolerance": 0.005836124078883199,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 104.17931693049385,
+      "confidence": 0.6397192144759478,
+      "execution_time": 57.68298468355904,
+      "price_impact": 0.0027559234744722588,
+      "slippage_tolerance": 0.005119710631611928,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 159.0933286808783,
+      "confidence": 0.8987666584332417,
+      "execution_time": 158.32159128774933,
+      "price_impact": 0.004934433609607851,
+      "slippage_tolerance": 0.0074625058069765545,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 35.866253313806695,
+      "confidence": 0.529780647709823,
+      "execution_time": 80.47691264150424,
+      "price_impact": 0.004182064344778446,
+      "slippage_tolerance": 0.004910299044261689,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 0.5504857445905925,
+      "protection_strategy": "gas_price_bump"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 80.51792278063003,
+      "confidence": 0.9448763700174021,
+      "execution_time": 155.42750859920938,
+      "price_impact": 0.004303389631707092,
+      "slippage_tolerance": 0.0027077295834212344,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.83339303399448,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 57.046153506137045,
+      "confidence": 0.5267755590934559,
+      "execution_time": 113.16456304937566,
+      "price_impact": 0.0016714789301813062,
+      "slippage_tolerance": 0.005836124078883199,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.4102501290314406,
+      "protection_strategy": "gas_price_bump"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 104.17931693049385,
+      "confidence": 0.6397192144759478,
+      "execution_time": 57.68298468355904,
+      "price_impact": 0.0027559234744722588,
+      "slippage_tolerance": 0.005119710631611928,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 4.4417919687153296,
+      "protection_strategy": "gas_price_bump"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 35.866253313806695,
+      "confidence": 0.529780647709823,
+      "execution_time": 80.47691264150424,
+      "price_impact": 0.004182064344778446,
+      "slippage_tolerance": 0.004910299044261689,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 0.5504857445905925,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 22.176901196649442,
+      "gas_used": 112369.43629736986,
+      "gas_cost": 7.476017658869895e-06,
+      "status": "success",
+      "actual_profit": 38.67986091655702,
+      "actual_gas_price": 21.274631181661125,
+      "actual_gas_used": 123043.73017127397,
+      "actual_gas_cost": 7.85312993582905e-06,
+      "net_profit": 38.129367318836486,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 80.51792278063003,
+      "confidence": 0.9448763700174021,
+      "execution_time": 155.42750859920938,
+      "price_impact": 0.004303389631707092,
+      "slippage_tolerance": 0.0027077295834212344,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.83339303399448,
+      "protection_strategy": "time_delay",
+      "gas_price": 30.281935990270373,
+      "gas_used": 275223.7658410097,
+      "gas_cost": 2.5002925380595853e-05,
+      "status": "failed",
+      "actual_profit": 0,
+      "actual_gas_price": 30.448708721540807,
+      "actual_gas_used": 294746.5369007539,
+      "actual_gas_cost": 2.6923954346321807e-05,
+      "net_profit": -2.6923954346321807e-05,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 57.046153506137045,
+      "confidence": 0.5267755590934559,
+      "execution_time": 113.16456304937566,
+      "price_impact": 0.0016714789301813062,
+      "slippage_tolerance": 0.005836124078883199,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.4102501290314406,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 37.71035243832948,
+      "gas_used": 262375.85212278133,
+      "gas_cost": 2.9682857564571307e-05,
+      "status": "success",
+      "actual_profit": 50.395000905582336,
+      "actual_gas_price": 37.180634510636985,
+      "actual_gas_used": 250737.00509010453,
+      "actual_gas_cost": 2.796768283364071e-05,
+      "net_profit": 47.984722808868064,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "base_WETH-WBTC_1inch_1741085954",
+      "network": "base",
+      "token_pair": [
+        "WETH",
+        "WBTC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 104.17931693049385,
+      "confidence": 0.6397192144759478,
+      "execution_time": 57.68298468355904,
+      "price_impact": 0.0027559234744722588,
+      "slippage_tolerance": 0.005119710631611928,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 4.4417919687153296,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 20.46098144214439,
+      "gas_used": 117678.13435492362,
+      "gas_cost": 7.223430369546799e-06,
+      "status": "success",
+      "actual_profit": 100.42075195391746,
+      "actual_gas_price": 19.883994877942833,
+      "actual_gas_used": 106106.70746875551,
+      "actual_gas_cost": 6.32947568347234e-06,
+      "net_profit": 95.97895365572644,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "metrics": {
+    "total_trades": 4,
+    "successful_trades": 3,
+    "success_rate": 0.75,
+    "total_profit": 189.4956137760568,
+    "total_gas_cost": 6.90742427992639e-05,
+    "net_profit": 182.09301685947665,
+    "avg_execution_time": 101.68799224341207
+  }
+}

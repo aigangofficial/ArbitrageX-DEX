@@ -27,6 +27,8 @@ from typing import Dict, List, Optional, Tuple, Union
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.model_selection import train_test_split
+import pickle
 
 # Configure logging
 logging.basicConfig(
@@ -38,6 +40,138 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("FeatureExtractor")
+
+class FeatureSet:
+    """
+    Container class for feature datasets used in model training.
+    Provides a standardized interface for accessing feature data.
+    """
+    
+    def __init__(self, features_df: pd.DataFrame, target_df: pd.DataFrame, metadata: Dict = None):
+        """
+        Initialize a feature set with features and target variables.
+        
+        Args:
+            features_df: DataFrame containing extracted features
+            target_df: DataFrame containing target variables
+            metadata: Optional metadata about the feature set
+        """
+        self.features = features_df
+        self.targets = target_df
+        self.metadata = metadata or {}
+        
+        # Store column information
+        self.feature_columns = list(features_df.columns)
+        self.target_columns = list(target_df.columns)
+        
+        # Track transformations
+        self.is_scaled = False
+        self.scaler = None
+        
+    def get_train_test_split(self, test_size: float = 0.2, random_state: int = 42) -> Tuple:
+        """
+        Split the dataset into training and testing sets.
+        
+        Args:
+            test_size: Proportion of the dataset to include in the test split
+            random_state: Random seed for reproducibility
+            
+        Returns:
+            Tuple of (X_train, X_test, y_train, y_test)
+        """
+        if self.features.empty or self.targets.empty:
+            logger.error("Cannot split empty feature set")
+            return None, None, None, None
+            
+        X_train, X_test, y_train, y_test = train_test_split(
+            self.features, self.targets, test_size=test_size, random_state=random_state
+        )
+        
+        return X_train, X_test, y_train, y_test
+    
+    def scale_features(self, method: str = "standard") -> None:
+        """
+        Scale features using the specified method.
+        
+        Args:
+            method: Scaling method ('standard' or 'minmax')
+        """
+        if self.features.empty:
+            logger.error("Cannot scale empty feature set")
+            return
+            
+        if method == "standard":
+            self.scaler = StandardScaler()
+        elif method == "minmax":
+            self.scaler = MinMaxScaler()
+        else:
+            logger.warning(f"Unknown scaling method: {method}, using StandardScaler")
+            self.scaler = StandardScaler()
+            
+        # Fit and transform
+        scaled_features = pd.DataFrame(
+            self.scaler.fit_transform(self.features),
+            columns=self.features.columns,
+            index=self.features.index
+        )
+        
+        self.features = scaled_features
+        self.is_scaled = True
+        
+    def save(self, features_path: str, targets_path: str) -> None:
+        """
+        Save features and targets to CSV files.
+        
+        Args:
+            features_path: Path to save features CSV
+            targets_path: Path to save targets CSV
+        """
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(features_path), exist_ok=True)
+        os.makedirs(os.path.dirname(targets_path), exist_ok=True)
+        
+        # Save to CSV
+        self.features.to_csv(features_path)
+        self.targets.to_csv(targets_path)
+        
+        # Save scaler if available
+        if self.scaler is not None:
+            scaler_path = os.path.join(os.path.dirname(features_path), "scaler.pkl")
+            with open(scaler_path, 'wb') as f:
+                pickle.dump(self.scaler, f)
+                
+        logger.info(f"Saved feature set to {features_path} and {targets_path}")
+        
+    @classmethod
+    def load(cls, features_path: str, targets_path: str) -> 'FeatureSet':
+        """
+        Load a feature set from CSV files.
+        
+        Args:
+            features_path: Path to features CSV
+            targets_path: Path to targets CSV
+            
+        Returns:
+            FeatureSet object
+        """
+        if not os.path.exists(features_path) or not os.path.exists(targets_path):
+            logger.error(f"Feature files not found: {features_path} or {targets_path}")
+            return None
+            
+        features_df = pd.read_csv(features_path, index_col=0)
+        targets_df = pd.read_csv(targets_path, index_col=0)
+        
+        feature_set = cls(features_df, targets_df)
+        
+        # Load scaler if available
+        scaler_path = os.path.join(os.path.dirname(features_path), "scaler.pkl")
+        if os.path.exists(scaler_path):
+            with open(scaler_path, 'rb') as f:
+                feature_set.scaler = pickle.load(f)
+                feature_set.is_scaled = True
+                
+        logger.info(f"Loaded feature set from {features_path} and {targets_path}")
+        return feature_set
 
 class FeatureExtractor:
     """

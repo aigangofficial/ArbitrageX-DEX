@@ -17,12 +17,7 @@
         "flashLoanFee": "0.0009"
       }
     },
-    "supportedTokens": [
-      "WETH",
-      "USDC",
-      "USDT",
-      "DAI"
-    ]
+    "supportedTokens": ["WETH", "USDC", "USDT", "DAI"]
   },
   "balancer": {
     "networks": {
@@ -35,12 +30,7 @@
         "flashLoanFee": "0.0003"
       }
     },
-    "supportedTokens": [
-      "WETH",
-      "USDC",
-      "USDT",
-      "DAI"
-    ]
+    "supportedTokens": ["WETH", "USDC", "USDT", "DAI"]
   },
   "security": {
     "maxFlashLoanAmount": "1000000000000000000000",

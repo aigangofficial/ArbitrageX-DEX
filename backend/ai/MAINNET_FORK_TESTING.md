@@ -88,4 +88,4 @@ Based on the test results, the following actions may be taken:
 
 ## Conclusion
 
-Mainnet fork testing is a critical component of the ArbitrageX development process, allowing the AI system to be tested and optimized in realistic market conditions without risking actual funds. 
+Mainnet fork testing is a critical component of the ArbitrageX development process, allowing the AI system to be tested and optimized in realistic market conditions without risking actual funds.

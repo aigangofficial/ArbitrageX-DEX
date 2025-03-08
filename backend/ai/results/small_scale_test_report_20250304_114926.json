@@ -1,0 +1,60 @@
+{
+  "timestamp": "2025-03-04 11:49:26",
+  "config": {
+    "network": "ethereum",
+    "token_pair": [
+      "WETH",
+      "USDC"
+    ],
+    "dex": "uniswap_v3",
+    "trade_count": 10,
+    "trade_size": {
+      "eth_amount": 0.1,
+      "usdc_amount": 100
+    },
+    "gas_strategy": "dynamic",
+    "mev_protection": true,
+    "detailed_logging": true,
+    "debug": true,
+    "timestamp": "20250304_114926"
+  },
+  "ai_optimization": {
+    "total_opportunities": 10,
+    "profitable_opportunities": 10,
+    "average_expected_profit": 106.44986689984651,
+    "best_opportunity": {
+      "id": "ethereum_WETH-USDC_uniswap_v3_5_1741074566",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 195.12535979620404,
+      "confidence": 0.529370516695433,
+      "execution_time": 178.6000761841618,
+      "price_impact": 0.002555069122247537,
+      "slippage_tolerance": 0.005284309732461248,
+      "timestamp": "2025-03-04 11:49:26"
+    }
+  },
+  "mev_protection": {
+    "total_trades": 10,
+    "protected_trades": 10,
+    "average_protection_cost": 3.6514751400259824
+  },
+  "gas_estimation": {
+    "total_trades": 10,
+    "average_gas_price": 31.600351119034308,
+    "average_gas_used": 249971.48182968126,
+    "average_gas_cost": 23.59309323924427
+  },
+  "trade_execution": {
+    "total_trades": 10,
+    "successful_trades": 9,
+    "failed_trades": 1,
+    "average_execution_time": 125.39140336351639,
+    "total_profit": 699.8638422949391,
+    "average_profit": 77.76264914388213
+  }
+}

@@ -82,7 +82,10 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     using SafeERC20 for IERC20;
 
     // Execution Mode enum
-    enum ExecutionMode { MAINNET, FORK }
+    enum ExecutionMode {
+        MAINNET,
+        FORK
+    }
 
     // Constants
     uint256 private constant BPS = 10000;
@@ -95,22 +98,22 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
 
     // Approved routers for trading
     mapping(address => bool) public approvedRouters;
-    
+
     // Price impact and slippage limits
     uint256 public maxPriceImpactBps = MAX_PRICE_IMPACT_BPS;
     uint256 public maxSlippageBps = MAX_SLIPPAGE_BPS;
-    
+
     // Minimum profit amount in base tokens (e.g., USDC, ETH)
     uint256 public minProfitAmount;
-    
+
     // MEV Protection
     IMEVProtection public mevProtection;
     bool public useMEVProtection = true;
     mapping(bytes32 => bool) public pendingTransactions;
-    
+
     // Execution Mode
     ExecutionMode public executionMode = ExecutionMode.MAINNET;
-    
+
     // Events
     event ArbitrageExecuted(
         address indexed tokenIn,
@@ -139,7 +142,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     event MEVProtectionContractUpdated(address indexed newProtection);
     event TransactionCommitted(bytes32 indexed commitmentHash);
     event ExecutionModeChanged(ExecutionMode mode);
-    
+
     /**
      * @dev Constructor to initialize the arbitrage executor
      * @param _uniswapRouter Address of the Uniswap V2 router
@@ -155,21 +158,21 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     ) {
         require(_uniswapRouter != address(0), "Invalid Uniswap router");
         require(_sushiswapRouter != address(0), "Invalid SushiSwap router");
-        
+
         UNISWAP_V2_ROUTER = _uniswapRouter;
         SUSHISWAP_V2_ROUTER = _sushiswapRouter;
         minProfitAmount = _minProfitAmount;
-        
+
         // Approve routers
         approvedRouters[_uniswapRouter] = true;
         approvedRouters[_sushiswapRouter] = true;
-        
+
         // Set up MEV protection if provided
         if (_mevProtection != address(0)) {
             mevProtection = IMEVProtection(_mevProtection);
         }
     }
-    
+
     /**
      * @dev Set the MEV protection contract address
      * @param _mevProtection Address of the MEV protection contract
@@ -179,7 +182,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         mevProtection = IMEVProtection(_mevProtection);
         emit MEVProtectionContractUpdated(_mevProtection);
     }
-    
+
     /**
      * @dev Enable or disable MEV protection
      * @param _enabled Whether to enable MEV protection
@@ -188,7 +191,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         useMEVProtection = _enabled;
         emit MEVProtectionEnabled(_enabled);
     }
-    
+
     /**
      * @dev Submit a commitment for an arbitrage transaction to prevent front-running
      * @param tokenIn Address of the input token
@@ -207,28 +210,30 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         if (!useMEVProtection || address(mevProtection) == address(0)) {
             revert MEVProtectionFailed();
         }
-        
+
         // Create commitment hash
-        bytes32 commitmentHash = keccak256(abi.encodePacked(
-            msg.sender,
-            tokenIn,
-            tokenOut,
-            amount,
-            router,
-            secret,
-            mevProtection.getTimeBasedNonce()
-        ));
-        
+        bytes32 commitmentHash = keccak256(
+            abi.encodePacked(
+                msg.sender,
+                tokenIn,
+                tokenOut,
+                amount,
+                router,
+                secret,
+                mevProtection.getTimeBasedNonce()
+            )
+        );
+
         // Submit commitment to MEV protection contract
         mevProtection.submitCommitment(commitmentHash);
-        
+
         // Store pending transaction
         pendingTransactions[commitmentHash] = true;
-        
+
         emit TransactionCommitted(commitmentHash);
         return commitmentHash;
     }
-    
+
     /**
      * @dev Execute an arbitrage trade with MEV protection
      * @param tokenIn Address of the input token
@@ -249,34 +254,36 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         if (!useMEVProtection || address(mevProtection) == address(0)) {
             revert MEVProtectionFailed();
         }
-        
+
         // Verify commitment
         if (!pendingTransactions[commitmentHash]) {
             revert CommitmentRequired();
         }
-        
+
         // Verify the commitment hash matches
-        bytes32 calculatedHash = keccak256(abi.encodePacked(
-            msg.sender,
-            tokenIn,
-            tokenOut,
-            amount,
-            router,
-            secret,
-            mevProtection.getTimeBasedNonce() - 1 // Adjust for the nonce used during commitment
-        ));
-        
+        bytes32 calculatedHash = keccak256(
+            abi.encodePacked(
+                msg.sender,
+                tokenIn,
+                tokenOut,
+                amount,
+                router,
+                secret,
+                mevProtection.getTimeBasedNonce() - 1 // Adjust for the nonce used during commitment
+            )
+        );
+
         if (calculatedHash != commitmentHash) {
             revert("Invalid commitment hash");
         }
-        
+
         // Clear pending transaction
         delete pendingTransactions[commitmentHash];
-        
+
         // Execute the arbitrage
         return _executeArbitrage(tokenIn, tokenOut, amount, router);
     }
-    
+
     /**
      * @dev Execute an arbitrage trade between two tokens
      * @param tokenIn Address of the input token
@@ -290,15 +297,15 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         address tokenOut,
         uint256 amount,
         address router
-    ) external whenNotPaused nonReentrant override returns (uint256) {
+    ) external override whenNotPaused nonReentrant returns (uint256) {
         // If MEV protection is enabled, require a commitment
         if (useMEVProtection && address(mevProtection) != address(0)) {
             revert CommitmentRequired();
         }
-        
+
         return _executeArbitrage(tokenIn, tokenOut, amount, router);
     }
-    
+
     /**
      * @dev Internal function to execute an arbitrage trade
      * @param tokenIn Address of the input token
@@ -315,33 +322,33 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     ) internal returns (uint256) {
         // Validate parameters
         if (!approvedRouters[router]) revert InvalidRouter(router);
-        
+
         // In MAINNET mode, enforce strict token whitelisting
         // In FORK mode, allow non-whitelisted tokens for testing
         if (executionMode == ExecutionMode.MAINNET) {
             if (!whitelistedTokens[tokenIn]) revert InvalidToken(tokenIn);
             if (!whitelistedTokens[tokenOut]) revert InvalidToken(tokenOut);
         }
-        
+
         // Check token balance
         uint256 balanceBefore = IERC20(tokenIn).balanceOf(address(this));
         if (balanceBefore < amount) revert InsufficientBalance(tokenIn, amount, balanceBefore);
-        
+
         // Approve router to spend tokens if needed
         _approveTokenIfNeeded(tokenIn, router, amount);
-        
+
         // Create path for the swap
         address[] memory path = new address[](2);
         path[0] = tokenIn;
         path[1] = tokenOut;
-        
+
         // Get expected return to calculate slippage
         uint256[] memory amountsOut = IUniswapV2Router02(router).getAmountsOut(amount, path);
         uint256 expectedOut = amountsOut[1];
-        
+
         // Execute the trade
         uint256 amountOut = _executeTrade(router, path, amount, expectedOut);
-        
+
         // Verify profit based on execution mode
         // In FORK mode, we can relax profit requirements for testing
         if (executionMode == ExecutionMode.MAINNET) {
@@ -350,13 +357,13 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
             // In FORK mode, still ensure the trade is not a loss, but allow smaller profits
             if (amountOut < amount) revert InsufficientProfit(amountOut, amount);
         }
-        
+
         // Emit event
         emit ArbitrageExecuted(tokenIn, tokenOut, amount, amountOut, router, amountOut - amount);
-        
+
         return amountOut;
     }
-    
+
     /**
      * @dev Execute a trade using a specific router
      * @param router Address of the router to use
@@ -370,27 +377,27 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         address[] calldata path,
         uint256 amountIn,
         uint256 minAmountOut
-    ) external whenNotPaused nonReentrant override returns (uint256) {
+    ) external override whenNotPaused nonReentrant returns (uint256) {
         // Validate parameters
         if (!approvedRouters[router]) revert InvalidRouter(router);
         if (path.length < 2) revert InvalidPath(path.length);
-        
+
         // Validate tokens in path
         for (uint256 i = 0; i < path.length; i++) {
             if (!whitelistedTokens[path[i]]) revert InvalidToken(path[i]);
         }
-        
+
         // Check token balance
         uint256 balanceBefore = IERC20(path[0]).balanceOf(address(this));
         if (balanceBefore < amountIn) revert InsufficientBalance(path[0], amountIn, balanceBefore);
-        
+
         // Approve router to spend tokens if needed
         _approveTokenIfNeeded(path[0], router, amountIn);
 
         // Execute the trade
         return _executeTrade(router, path, amountIn, minAmountOut);
     }
-    
+
     /**
      * @dev Internal function to execute a trade
      * @param router Address of the router to use
@@ -407,36 +414,38 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     ) internal returns (uint256) {
         // Get balance before trade
         uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(address(this));
-        
+
         // Calculate minimum amount out with slippage protection
-        uint256 minOut = minAmountOut * (BPS - maxSlippageBps) / BPS;
-        
+        uint256 minOut = (minAmountOut * (BPS - maxSlippageBps)) / BPS;
+
         // Execute swap
         uint256[] memory amounts;
-        try IUniswapV2Router02(router).swapExactTokensForTokens(
-            amountIn,
-            minOut,
-            path,
-            address(this),
-            block.timestamp + 300 // 5 minute deadline
-        ) returns (uint256[] memory _amounts) {
+        try
+            IUniswapV2Router02(router).swapExactTokensForTokens(
+                amountIn,
+                minOut,
+                path,
+                address(this),
+                block.timestamp + 300 // 5 minute deadline
+            )
+        returns (uint256[] memory _amounts) {
             amounts = _amounts;
         } catch {
             revert TradeExecutionFailed(router, path[0], path[path.length - 1]);
         }
-        
+
         // Get balance after trade
         uint256 balanceAfter = IERC20(path[path.length - 1]).balanceOf(address(this));
         uint256 amountOut = balanceAfter - balanceBefore;
-        
+
         // Check for slippage
         if (amountOut < minOut) {
             revert SlippageTooHigh(minAmountOut, amountOut, maxSlippageBps);
         }
-        
+
         return amountOut;
     }
-    
+
     /**
      * @dev Get the expected return for a trade between two tokens
      * @param tokenA First token in the pair
@@ -458,16 +467,22 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
 
         // Get expected return from first DEX
         address firstRouter = useFirstDexFirst ? UNISWAP_V2_ROUTER : SUSHISWAP_V2_ROUTER;
-        uint256[] memory amountsOutFirst = IUniswapV2Router02(firstRouter).getAmountsOut(amountIn, path);
-        
+        uint256[] memory amountsOutFirst = IUniswapV2Router02(firstRouter).getAmountsOut(
+            amountIn,
+            path
+        );
+
         // Get expected return from second DEX
         address secondRouter = useFirstDexFirst ? SUSHISWAP_V2_ROUTER : UNISWAP_V2_ROUTER;
-        uint256[] memory amountsOutSecond = IUniswapV2Router02(secondRouter).getAmountsOut(amountIn, path);
-        
+        uint256[] memory amountsOutSecond = IUniswapV2Router02(secondRouter).getAmountsOut(
+            amountIn,
+            path
+        );
+
         // Return the better rate
         return amountsOutFirst[1] > amountsOutSecond[1] ? amountsOutFirst[1] : amountsOutSecond[1];
     }
-    
+
     /**
      * @dev Calculate potential profit from cross-DEX arbitrage
      * @param tokenA First token in the pair
@@ -485,42 +500,47 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         address[] memory path = new address[](2);
         path[0] = tokenA;
         path[1] = tokenB;
-        
+
         // Get expected returns from both DEXes for first swap (A -> B)
-        uint256[] memory uniswapAmounts = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(amountIn, path);
-        uint256[] memory sushiswapAmounts = IUniswapV2Router02(SUSHISWAP_V2_ROUTER).getAmountsOut(amountIn, path);
-        
+        uint256[] memory uniswapAmounts = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(
+            amountIn,
+            path
+        );
+        uint256[] memory sushiswapAmounts = IUniswapV2Router02(SUSHISWAP_V2_ROUTER).getAmountsOut(
+            amountIn,
+            path
+        );
+
         // Determine which DEX offers better rates for the first swap
         useUniswapFirst = uniswapAmounts[1] > sushiswapAmounts[1];
         uint256 expectedFirstOut = useUniswapFirst ? uniswapAmounts[1] : sushiswapAmounts[1];
-        
+
         // Reverse the path for the second swap (B -> A)
         address[] memory reversePath = new address[](2);
         reversePath[0] = tokenB;
         reversePath[1] = tokenA;
-        
+
         // Get expected return for second swap
         address secondRouter = useUniswapFirst ? SUSHISWAP_V2_ROUTER : UNISWAP_V2_ROUTER;
-        uint256[] memory secondSwapAmounts = IUniswapV2Router02(secondRouter).getAmountsOut(expectedFirstOut, reversePath);
+        uint256[] memory secondSwapAmounts = IUniswapV2Router02(secondRouter).getAmountsOut(
+            expectedFirstOut,
+            reversePath
+        );
         uint256 expectedSecondOut = secondSwapAmounts[1];
-        
+
         // Calculate potential profit
         potentialProfit = expectedSecondOut > amountIn ? expectedSecondOut - amountIn : 0;
-        
+
         return (potentialProfit, useUniswapFirst);
     }
-    
+
     /**
      * @dev Approve a token for a router if not already approved
      * @param token Address of the token to approve
      * @param router Address of the router to approve for
      * @param amount Amount to approve
      */
-    function _approveTokenIfNeeded(
-        address token,
-        address router,
-        uint256 amount
-    ) internal {
+    function _approveTokenIfNeeded(address token, address router, uint256 amount) internal {
         uint256 allowance = IERC20(token).allowance(address(this), router);
         if (allowance < amount) {
             IERC20(token).safeApprove(router, 0);
@@ -528,17 +548,17 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
             emit TokenApproved(token, router, type(uint256).max);
         }
     }
-    
+
     /**
      * @dev Set the minimum profit amount required for trades
      * @param _minProfitAmount New minimum profit amount
      */
-    function setMinProfitAmount(uint256 _minProfitAmount) external onlyOwner override {
+    function setMinProfitAmount(uint256 _minProfitAmount) external override onlyOwner {
         uint256 oldAmount = minProfitAmount;
         minProfitAmount = _minProfitAmount;
         emit MinProfitAmountUpdated(oldAmount, _minProfitAmount);
     }
-    
+
     /**
      * @dev Set the maximum price impact in basis points
      * @param _maxPriceImpactBps New maximum price impact
@@ -549,7 +569,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         maxPriceImpactBps = _maxPriceImpactBps;
         emit PriceImpactLimitUpdated(oldLimit, _maxPriceImpactBps);
     }
-    
+
     /**
      * @dev Set the maximum slippage in basis points
      * @param _maxSlippageBps New maximum slippage
@@ -560,7 +580,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         maxSlippageBps = _maxSlippageBps;
         emit SlippageLimitUpdated(oldLimit, _maxSlippageBps);
     }
-    
+
     /**
      * @dev Approve or revoke a router for trading
      * @param router Address of the router
@@ -571,7 +591,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         approvedRouters[router] = approved;
         emit RouterApprovalChanged(router, approved);
     }
-    
+
     /**
      * @dev Check if a router is approved for trading
      * @param router Address of the router to check
@@ -580,7 +600,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     function isApprovedRouter(address router) external view override returns (bool) {
         return approvedRouters[router];
     }
-    
+
     /**
      * @dev Emergency withdraw tokens from the contract
      * @param token Address of the token to withdraw
@@ -591,21 +611,21 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         address token,
         uint256 amount,
         address recipient
-    ) external onlyOwner override {
+    ) external override onlyOwner {
         require(recipient != address(0), "Invalid recipient");
-        
+
         if (token == address(0)) {
             // Withdraw ETH
             (bool success, ) = recipient.call{value: amount}("");
             require(success, "ETH transfer failed");
         } else {
             // Withdraw ERC20
-        IERC20(token).safeTransfer(recipient, amount);
+            IERC20(token).safeTransfer(recipient, amount);
         }
-        
+
         emit EmergencyWithdrawal(token, amount, recipient);
     }
-    
+
     /**
      * @dev Execute a parameter change after timelock period
      * @param parameter Name of the parameter to change
@@ -617,7 +637,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     ) external override onlyOwner timelocked(keccak256(abi.encodePacked(parameter))) {
         _executeParameterChange(parameter, newValue);
     }
-    
+
     /**
      * @dev Execute arbitrage between Uniswap and SushiSwap
      * @param tokenA First token in the pair
@@ -633,108 +653,121 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         // Validate tokens
         if (!whitelistedTokens[tokenA]) revert InvalidToken(tokenA);
         if (!whitelistedTokens[tokenB]) revert InvalidToken(tokenB);
-        
+
         // Check token balance
         uint256 balanceBefore = IERC20(tokenA).balanceOf(address(this));
         if (balanceBefore < amountIn) revert InsufficientBalance(tokenA, amountIn, balanceBefore);
-        
+
         // Create path for the swap
         address[] memory path = new address[](2);
         path[0] = tokenA;
         path[1] = tokenB;
-        
+
         // Get expected returns from both DEXes
-        uint256[] memory uniswapAmounts = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(amountIn, path);
-        uint256[] memory sushiswapAmounts = IUniswapV2Router02(SUSHISWAP_V2_ROUTER).getAmountsOut(amountIn, path);
-        
+        uint256[] memory uniswapAmounts = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(
+            amountIn,
+            path
+        );
+        uint256[] memory sushiswapAmounts = IUniswapV2Router02(SUSHISWAP_V2_ROUTER).getAmountsOut(
+            amountIn,
+            path
+        );
+
         // Determine which DEX offers better rates for the first swap
         bool useUniswapFirst = uniswapAmounts[1] > sushiswapAmounts[1];
         address firstRouter = useUniswapFirst ? UNISWAP_V2_ROUTER : SUSHISWAP_V2_ROUTER;
         address secondRouter = useUniswapFirst ? SUSHISWAP_V2_ROUTER : UNISWAP_V2_ROUTER;
-        
+
         // Approve routers to spend tokens if needed
         _approveTokenIfNeeded(tokenA, firstRouter, amountIn);
-        
+
         // Execute first swap (A -> B)
         uint256 expectedFirstOut = useUniswapFirst ? uniswapAmounts[1] : sushiswapAmounts[1];
-        uint256 minFirstOut = expectedFirstOut * (BPS - maxSlippageBps) / BPS;
-        
+        uint256 minFirstOut = (expectedFirstOut * (BPS - maxSlippageBps)) / BPS;
+
         // Get balance before first trade
         uint256 tokenBBalanceBefore = IERC20(tokenB).balanceOf(address(this));
-        
+
         // Execute first swap
-        try IUniswapV2Router02(firstRouter).swapExactTokensForTokens(
-            amountIn,
-            minFirstOut,
-            path,
-            address(this),
-            block.timestamp + 300 // 5 minute deadline
-        ) returns (uint256[] memory) {
+        try
+            IUniswapV2Router02(firstRouter).swapExactTokensForTokens(
+                amountIn,
+                minFirstOut,
+                path,
+                address(this),
+                block.timestamp + 300 // 5 minute deadline
+            )
+        returns (uint256[] memory) {
             // Success
         } catch {
             revert TradeExecutionFailed(firstRouter, tokenA, tokenB);
         }
-        
+
         // Calculate amount received from first swap
         uint256 tokenBBalanceAfter = IERC20(tokenB).balanceOf(address(this));
         uint256 tokenBReceived = tokenBBalanceAfter - tokenBBalanceBefore;
-        
+
         // Check for slippage on first swap
         if (tokenBReceived < minFirstOut) {
             revert SlippageTooHigh(expectedFirstOut, tokenBReceived, maxSlippageBps);
         }
-        
+
         // Reverse the path for the second swap (B -> A)
         address[] memory reversePath = new address[](2);
         reversePath[0] = tokenB;
         reversePath[1] = tokenA;
-        
+
         // Approve second router
         _approveTokenIfNeeded(tokenB, secondRouter, tokenBReceived);
-        
+
         // Get expected return for second swap
-        uint256[] memory secondSwapAmounts = IUniswapV2Router02(secondRouter).getAmountsOut(tokenBReceived, reversePath);
+        uint256[] memory secondSwapAmounts = IUniswapV2Router02(secondRouter).getAmountsOut(
+            tokenBReceived,
+            reversePath
+        );
         uint256 expectedSecondOut = secondSwapAmounts[1];
-        uint256 minSecondOut = expectedSecondOut * (BPS - maxSlippageBps) / BPS;
-        
+        uint256 minSecondOut = (expectedSecondOut * (BPS - maxSlippageBps)) / BPS;
+
         // Get balance before second trade
         uint256 tokenABalanceBefore = IERC20(tokenA).balanceOf(address(this));
-        
+
         // Execute second swap
-        try IUniswapV2Router02(secondRouter).swapExactTokensForTokens(
-            tokenBReceived,
-            minSecondOut,
-            reversePath,
-            address(this),
-            block.timestamp + 300 // 5 minute deadline
-        ) returns (uint256[] memory) {
+        try
+            IUniswapV2Router02(secondRouter).swapExactTokensForTokens(
+                tokenBReceived,
+                minSecondOut,
+                reversePath,
+                address(this),
+                block.timestamp + 300 // 5 minute deadline
+            )
+        returns (uint256[] memory) {
             // Success
         } catch {
             revert TradeExecutionFailed(secondRouter, tokenB, tokenA);
         }
-        
+
         // Calculate final amount and profit
         uint256 tokenABalanceAfter = IERC20(tokenA).balanceOf(address(this));
         uint256 tokenAReceived = tokenABalanceAfter - tokenABalanceBefore;
         uint256 profit = tokenAReceived > amountIn ? tokenAReceived - amountIn : 0;
-        
+
         // Verify profit
         if (profit < minProfitAmount) revert InsufficientProfit(profit, minProfitAmount);
-        
+
         // Emit event
         emit CrossDEXArbitrageExecuted(
-            tokenA, 
-            tokenB, 
-            amountIn, 
-            tokenAReceived, 
+            tokenA,
+            tokenB,
+            amountIn,
+            tokenAReceived,
             firstRouter,
             secondRouter,
             profit
         );
-        
+
         return profit;
     }
-    
+
     /**
      * @dev Internal implementation of parameter change
      * @param parameter Name of the parameter to change
@@ -765,7 +798,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
             revert("Invalid parameter");
         }
     }
-    
+
     /**
      * @dev Set the execution mode (MAINNET or FORK)
      * @param _mode The execution mode to set
@@ -774,7 +807,7 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
         executionMode = _mode;
         emit ExecutionModeChanged(_mode);
     }
-    
+
     /**
      * @dev Get the current execution mode
      * @return The current execution mode
@@ -782,14 +815,14 @@ contract ArbitrageExecutor is IArbitrageExecutor, SecurityAdmin {
     function getExecutionMode() external view returns (ExecutionMode) {
         return executionMode;
     }
-    
+
     /**
      * @dev Modifier to adjust behavior based on execution mode
      */
     modifier executionModeAware() {
         _;
     }
-    
+
     /**
      * @dev Receive ETH
      */

@@ -1,0 +1,331 @@
+{
+  "timestamp": "2025-03-04 14:59:14",
+  "config": {
+    "network": "arbitrum",
+    "token_pair": [
+      "WETH",
+      "USDC"
+    ],
+    "dex": "1inch",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 113.05272174167065,
+      "confidence": 0.6246843841948646,
+      "execution_time": 80.94310836051827,
+      "price_impact": 0.003437922836441289,
+      "slippage_tolerance": 0.0075683784083412494,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 16.265347637522968,
+      "confidence": 0.8375575908424422,
+      "execution_time": 83.07793031791843,
+      "price_impact": 0.003840565266030069,
+      "slippage_tolerance": 0.008753049814687192,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 153.93501619273042,
+      "confidence": 0.6505709482565035,
+      "execution_time": 118.97575850669614,
+      "price_impact": 0.004518460802829382,
+      "slippage_tolerance": 0.002482833929007106,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 73.15921764447887,
+      "confidence": 0.5490837783322182,
+      "execution_time": 84.52909105889202,
+      "price_impact": 0.003446963325785934,
+      "slippage_tolerance": 0.004625680762714589,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 103.0744898768235,
+      "confidence": 0.5325584180299527,
+      "execution_time": 140.29390107673657,
+      "price_impact": 0.0016307252807217934,
+      "slippage_tolerance": 0.00453381454720432,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 92.00281151851237,
+      "confidence": 0.6246843841948646,
+      "execution_time": 80.94310836051827,
+      "price_impact": 0.003437922836441289,
+      "slippage_tolerance": 0.0075683784083412494,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 16.525643048848014,
+      "confidence": 0.8375575908424422,
+      "execution_time": 83.07793031791843,
+      "price_impact": 0.003840565266030069,
+      "slippage_tolerance": 0.008753049814687192,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 137.57070529299983,
+      "confidence": 0.6505709482565035,
+      "execution_time": 118.97575850669614,
+      "price_impact": 0.004518460802829382,
+      "slippage_tolerance": 0.002482833929007106,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 59.43590209119307,
+      "confidence": 0.5490837783322182,
+      "execution_time": 84.52909105889202,
+      "price_impact": 0.003446963325785934,
+      "slippage_tolerance": 0.004625680762714589,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 120.99196241949687,
+      "confidence": 0.5325584180299527,
+      "execution_time": 140.29390107673657,
+      "price_impact": 0.0016307252807217934,
+      "slippage_tolerance": 0.00453381454720432,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 137.57070529299983,
+      "confidence": 0.6505709482565035,
+      "execution_time": 118.97575850669614,
+      "price_impact": 0.004518460802829382,
+      "slippage_tolerance": 0.002482833929007106,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 5.500403023487548,
+      "protection_strategy": "gas_price_bump"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 59.43590209119307,
+      "confidence": 0.5490837783322182,
+      "execution_time": 84.52909105889202,
+      "price_impact": 0.003446963325785934,
+      "slippage_tolerance": 0.004625680762714589,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.6426773236518906,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 120.99196241949687,
+      "confidence": 0.5325584180299527,
+      "execution_time": 140.29390107673657,
+      "price_impact": 0.0016307252807217934,
+      "slippage_tolerance": 0.00453381454720432,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 5.277261996904551,
+      "protection_strategy": "private_tx"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 137.57070529299983,
+      "confidence": 0.6505709482565035,
+      "execution_time": 118.97575850669614,
+      "price_impact": 0.004518460802829382,
+      "slippage_tolerance": 0.002482833929007106,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 5.500403023487548,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 33.093161432799306,
+      "gas_used": 164841.63866755945,
+      "gas_cost": 1.6365392877818152e-05,
+      "status": "success",
+      "actual_profit": 112.2083536202457,
+      "actual_gas_price": 30.49977725126223,
+      "actual_gas_used": 152379.25643589074,
+      "actual_gas_cost": 1.3942600137022903e-05,
+      "net_profit": 106.70793665415802,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 59.43590209119307,
+      "confidence": 0.5490837783322182,
+      "execution_time": 84.52909105889202,
+      "price_impact": 0.003446963325785934,
+      "slippage_tolerance": 0.004625680762714589,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.6426773236518906,
+      "protection_strategy": "private_tx",
+      "gas_price": 25.441068405521637,
+      "gas_used": 294652.69247439614,
+      "gas_cost": 2.2488837915336727e-05,
+      "status": "success",
+      "actual_profit": 64.03556632610983,
+      "actual_gas_price": 26.82837362549346,
+      "actual_gas_used": 312883.7483583327,
+      "actual_gas_cost": 2.5182486306906678e-05,
+      "net_profit": 62.39286381997163,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WETH-USDC_1inch_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "1inch",
+      "expected_profit": 120.99196241949687,
+      "confidence": 0.5325584180299527,
+      "execution_time": 140.29390107673657,
+      "price_impact": 0.0016307252807217934,
+      "slippage_tolerance": 0.00453381454720432,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 5.277261996904551,
+      "protection_strategy": "private_tx",
+      "gas_price": 35.35558841479304,
+      "gas_used": 105552.04914235506,
+      "gas_cost": 1.1195564417445343e-05,
+      "status": "success",
+      "actual_profit": 135.0026766104038,
+      "actual_gas_price": 35.40572397061268,
+      "actual_gas_used": 110615.5310577607,
+      "actual_gas_cost": 1.1749268878481428e-05,
+      "net_profit": 129.72540286423038,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "metrics": {
+    "total_trades": 3,
+    "successful_trades": 3,
+    "success_rate": 1.0,
+    "total_profit": 311.2465965567593,
+    "total_gas_cost": 5.087435532241101e-05,
+    "net_profit": 298.82620333836,
+    "avg_execution_time": 114.59958354744158
+  }
+}

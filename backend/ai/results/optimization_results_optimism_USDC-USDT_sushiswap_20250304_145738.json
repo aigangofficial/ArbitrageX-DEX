@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-03-04 14:57:38",
+  "config": {
+    "network": "optimism",
+    "token_pair": [
+      "USDC",
+      "USDT"
+    ],
+    "dex": "sushiswap",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 113.22531845456587,
+      "confidence": 0.6304993276498925,
+      "execution_time": 84.36708781996552,
+      "price_impact": 0.00444491652975853,
+      "slippage_tolerance": 0.008641554368355394,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 142.31619525595934,
+      "confidence": 0.8578428116161654,
+      "execution_time": 136.4969995041725,
+      "price_impact": 0.0032081828115724568,
+      "slippage_tolerance": 0.009071502764932439,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 70.64519654803175,
+      "confidence": 0.7912737749509111,
+      "execution_time": 177.10256197820598,
+      "price_impact": 0.001614831176912301,
+      "slippage_tolerance": 0.0030166253770825403,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 33.59662462482986,
+      "confidence": 0.9423200785075512,
+      "execution_time": 147.93188995415255,
+      "price_impact": 0.002641037519884988,
+      "slippage_tolerance": 0.008262997891389297,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 85.44416253463592,
+      "confidence": 0.6251397578528134,
+      "execution_time": 114.72396916127258,
+      "price_impact": 0.0019919488423940195,
+      "slippage_tolerance": 0.0055157710898679655,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 101.16044035709294,
+      "confidence": 0.6304993276498925,
+      "execution_time": 84.36708781996552,
+      "price_impact": 0.00444491652975853,
+      "slippage_tolerance": 0.008641554368355394,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 115.90902580920036,
+      "confidence": 0.8578428116161654,
+      "execution_time": 136.4969995041725,
+      "price_impact": 0.0032081828115724568,
+      "slippage_tolerance": 0.009071502764932439,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 84.03359991314721,
+      "confidence": 0.7912737749509111,
+      "execution_time": 177.10256197820598,
+      "price_impact": 0.001614831176912301,
+      "slippage_tolerance": 0.0030166253770825403,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 29.579815605270877,
+      "confidence": 0.9423200785075512,
+      "execution_time": 147.93188995415255,
+      "price_impact": 0.002641037519884988,
+      "slippage_tolerance": 0.008262997891389297,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 81.0358903650756,
+      "confidence": 0.6251397578528134,
+      "execution_time": 114.72396916127258,
+      "price_impact": 0.0019919488423940195,
+      "slippage_tolerance": 0.0055157710898679655,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 101.16044035709294,
+      "confidence": 0.6304993276498925,
+      "execution_time": 84.36708781996552,
+      "price_impact": 0.00444491652975853,
+      "slippage_tolerance": 0.008641554368355394,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 2.554140465016015,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 115.90902580920036,
+      "confidence": 0.8578428116161654,
+      "execution_time": 136.4969995041725,
+      "price_impact": 0.0032081828115724568,
+      "slippage_tolerance": 0.009071502764932439,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.097955959268304,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 84.03359991314721,
+      "confidence": 0.7912737749509111,
+      "execution_time": 177.10256197820598,
+      "price_impact": 0.001614831176912301,
+      "slippage_tolerance": 0.0030166253770825403,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.129285941002207,
+      "protection_strategy": "gas_price_bump"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 29.579815605270877,
+      "confidence": 0.9423200785075512,
+      "execution_time": 147.93188995415255,
+      "price_impact": 0.002641037519884988,
+      "slippage_tolerance": 0.008262997891389297,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 1.1193640591123626,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 81.0358903650756,
+      "confidence": 0.6251397578528134,
+      "execution_time": 114.72396916127258,
+      "price_impact": 0.0019919488423940195,
+      "slippage_tolerance": 0.0055157710898679655,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.675500080389148,
+      "protection_strategy": "flashbots"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 101.16044035709294,
+      "confidence": 0.6304993276498925,
+      "execution_time": 84.36708781996552,
+      "price_impact": 0.00444491652975853,
+      "slippage_tolerance": 0.008641554368355394,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 2.554140465016015,
+      "protection_strategy": "backrunning",
+      "gas_price": 38.550957491256426,
+      "gas_used": 358546.4484625154,
+      "gas_cost": 4.146692667995818e-05,
+      "status": "success",
+      "actual_profit": 115.9567297745979,
+      "actual_gas_price": 39.556304180568645,
+      "actual_gas_used": 347985.12669361505,
+      "actual_gas_cost": 4.1295016565419064e-05,
+      "net_profit": 113.40254801456531,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 115.90902580920036,
+      "confidence": 0.8578428116161654,
+      "execution_time": 136.4969995041725,
+      "price_impact": 0.0032081828115724568,
+      "slippage_tolerance": 0.009071502764932439,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.097955959268304,
+      "protection_strategy": "backrunning",
+      "gas_price": 34.91558301915392,
+      "gas_used": 145322.4249481257,
+      "gas_cost": 1.5222051578463146e-05,
+      "status": "success",
+      "actual_profit": 93.49458201110909,
+      "actual_gas_price": 32.77181151172049,
+      "actual_gas_used": 148060.63185331246,
+      "actual_gas_cost": 1.4556645358208987e-05,
+      "net_profit": 88.39661149519543,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 84.03359991314721,
+      "confidence": 0.7912737749509111,
+      "execution_time": 177.10256197820598,
+      "price_impact": 0.001614831176912301,
+      "slippage_tolerance": 0.0030166253770825403,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.129285941002207,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 22.54705003348001,
+      "gas_used": 254246.2442034711,
+      "gas_cost": 1.719750836664012e-05,
+      "status": "success",
+      "actual_profit": 85.35274571641851,
+      "actual_gas_price": 22.019905073483635,
+      "actual_gas_used": 278410.5594772606,
+      "actual_gas_cost": 1.8391722273434245e-05,
+      "net_profit": 82.22344138369402,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 29.579815605270877,
+      "confidence": 0.9423200785075512,
+      "execution_time": 147.93188995415255,
+      "price_impact": 0.002641037519884988,
+      "slippage_tolerance": 0.008262997891389297,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 1.1193640591123626,
+      "protection_strategy": "flashbots",
+      "gas_price": 27.755148741204735,
+      "gas_used": 151468.96020425274,
+      "gas_cost": 1.2612130560433965e-05,
+      "status": "success",
+      "actual_profit": 24.121993534998815,
+      "actual_gas_price": 26.475495948200304,
+      "actual_gas_used": 137246.49658283548,
+      "actual_gas_cost": 1.0901007192550644e-05,
+      "net_profit": 23.002618574879257,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "optimism_USDC-USDT_sushiswap_1741085858",
+      "network": "optimism",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "sushiswap",
+      "expected_profit": 81.0358903650756,
+      "confidence": 0.6251397578528134,
+      "execution_time": 114.72396916127258,
+      "price_impact": 0.0019919488423940195,
+      "slippage_tolerance": 0.0055157710898679655,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 3.675500080389148,
+      "protection_strategy": "flashbots",
+      "gas_price": 35.45468880285655,
+      "gas_used": 143883.15336327013,
+      "gas_cost": 1.5303997279405276e-05,
+      "status": "success",
+      "actual_profit": 83.02563374788969,
+      "actual_gas_price": 38.08408627070295,
+      "actual_gas_used": 142381.87603064033,
+      "actual_gas_cost": 1.6267450950406315e-05,
+      "net_profit": 79.3501174000496,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "metrics": {
+    "total_trades": 5,
+    "successful_trades": 5,
+    "success_rate": 1.0,
+    "total_profit": 401.951684785014,
+    "total_gas_cost": 0.00010141184234001925,
+    "net_profit": 386.3753368683836,
+    "avg_execution_time": 132.1245016835538
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "networks": [
+    "ethereum",
+    "arbitrum",
+    "polygon",
+    "optimism",
+    "bsc",
+    "avalanche",
+    "fantom"
+  ],
+  "token_pairs": [
+    [
+      "WETH",
+      "USDC"
+    ],
+    [
+      "WBTC",
+      "DAI"
+    ],
+    [
+      "ETH",
+      "DAI"
+    ],
+    [
+      "WETH",
+      "USDT"
+    ],
+    [
+      "WBTC",
+      "USDC"
+    ],
+    [
+      "LINK",
+      "ETH"
+    ],
+    [
+      "UNI",
+      "ETH"
+    ],
+    [
+      "AAVE",
+      "ETH"
+    ],
+    [
+      "MATIC",
+      "USDC"
+    ],
+    [
+      "AVAX",
+      "USDC"
+    ]
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "sushiswap",
+    "curve",
+    "balancer",
+    "pancakeswap",
+    "quickswap",
+    "trader_joe"
+  ],
+  "min_trades": 1000,
+  "batch_size": 100,
+  "max_workers": 32,
+  "parallel": true,
+  "enable_learning": true,
+  "gas_strategy": "dynamic",
+  "output_dir": "backend/ai/results/stress_test",
+  "debug": false,
+  "stress_test": true,
+  "high_congestion": true,
+  "extreme_volatility": true,
+  "mev_attack_simulation": true,
+  "timestamp": "20250305_103125"
+}

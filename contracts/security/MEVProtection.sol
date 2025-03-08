@@ -15,23 +15,23 @@ contract MEVProtection is Ownable, ReentrancyGuard {
     mapping(bytes32 => bool) public pendingCommitments;
     mapping(bytes32 => uint256) public commitmentTimestamps;
     mapping(bytes32 => bool) public usedCommitments;
-    
+
     // Private mempool integration
     address public flashbotsRelayer;
     bool public usePrivateMempool = true;
-    
+
     // Transaction bundling parameters
     uint256 public minBundleSize = 1;
     uint256 public maxBundleSize = 10;
     mapping(bytes32 => uint256) public bundleNonces;
-    
+
     // Events
     event CommitmentSubmitted(bytes32 indexed commitmentHash, uint256 revealBlock);
     event CommitmentRevealed(bytes32 indexed commitmentHash, address indexed sender);
     event PrivateMempoolToggled(bool enabled);
     event FlashbotsRelayerUpdated(address indexed newRelayer);
     event BundleExecuted(bytes32 indexed bundleId, uint256 size);
-    
+
     // Custom errors
     error InvalidCommitment();
     error CommitmentAlreadyUsed();
@@ -40,13 +40,13 @@ contract MEVProtection is Ownable, ReentrancyGuard {
     error UnauthorizedRelayer();
     error InvalidBundleSize();
     error BundleExecutionFailed();
-    
+
     constructor(address _flashbotsRelayer) {
         if (_flashbotsRelayer != address(0)) {
             flashbotsRelayer = _flashbotsRelayer;
         }
     }
-    
+
     /**
      * @dev Submit a commitment hash for a future transaction to prevent front-running
      * @param commitmentHash Hash of the transaction parameters and a secret
@@ -54,13 +54,13 @@ contract MEVProtection is Ownable, ReentrancyGuard {
     function submitCommitment(bytes32 commitmentHash) external {
         if (pendingCommitments[commitmentHash]) revert InvalidCommitment();
         if (usedCommitments[commitmentHash]) revert CommitmentAlreadyUsed();
-        
+
         pendingCommitments[commitmentHash] = true;
         commitmentTimestamps[commitmentHash] = block.number;
-        
+
         emit CommitmentSubmitted(commitmentHash, block.number + commitRevealDelay);
     }
-    
+
     /**
      * @dev Reveal and execute a previously committed transaction
      * @param secret The secret used in the commitment
@@ -71,21 +71,22 @@ contract MEVProtection is Ownable, ReentrancyGuard {
         bytes calldata transactionData
     ) external nonReentrant returns (bool) {
         bytes32 commitmentHash = keccak256(abi.encodePacked(secret, transactionData, msg.sender));
-        
+
         if (!pendingCommitments[commitmentHash]) revert InvalidCommitment();
-        if (block.number < commitmentTimestamps[commitmentHash] + commitRevealDelay) revert CommitmentNotReady();
-        
+        if (block.number < commitmentTimestamps[commitmentHash] + commitRevealDelay)
+            revert CommitmentNotReady();
+
         // Mark commitment as used
         pendingCommitments[commitmentHash] = false;
         usedCommitments[commitmentHash] = true;
-        
+
         emit CommitmentRevealed(commitmentHash, msg.sender);
-        
+
         // Execute the transaction
         (bool success, ) = address(this).call(transactionData);
         return success;
     }
-    
+
     /**
      * @dev Verify if a transaction is coming from the authorized Flashbots relayer
      */
@@ -93,7 +94,7 @@ contract MEVProtection is Ownable, ReentrancyGuard {
         if (usePrivateMempool && msg.sender != flashbotsRelayer) revert UnauthorizedRelayer();
         _;
     }
-    
+
     /**
      * @dev Update the Flashbots relayer address
      * @param _newRelayer New relayer address
@@ -103,7 +104,7 @@ contract MEVProtection is Ownable, ReentrancyGuard {
         flashbotsRelayer = _newRelayer;
         emit FlashbotsRelayerUpdated(_newRelayer);
     }
-    
+
     /**
      * @dev Toggle the use of private mempool
      * @param _enabled Whether to use private mempool
@@ -112,7 +113,7 @@ contract MEVProtection is Ownable, ReentrancyGuard {
         usePrivateMempool = _enabled;
         emit PrivateMempoolToggled(_enabled);
     }
-    
+
     /**
      * @dev Set the commit-reveal delay in blocks
      * @param _blocks Number of blocks to wait
@@ -120,7 +121,7 @@ contract MEVProtection is Ownable, ReentrancyGuard {
     function setCommitRevealDelay(uint256 _blocks) external onlyOwner {
         commitRevealDelay = _blocks;
     }
-    
+
     /**
      * @dev Execute a bundle of transactions atomically to prevent sandwich attacks
      * @param targets Array of target addresses
@@ -133,29 +134,29 @@ contract MEVProtection is Ownable, ReentrancyGuard {
         bytes[] calldata datas
     ) external onlyFlashbotsRelayer nonReentrant returns (bool) {
         uint256 bundleSize = targets.length;
-        
+
         if (bundleSize < minBundleSize || bundleSize > maxBundleSize) revert InvalidBundleSize();
         if (bundleSize != values.length || bundleSize != datas.length) revert InvalidBundleSize();
-        
+
         bytes32 bundleId = keccak256(abi.encode(targets, values, block.number));
         bundleNonces[bundleId] = block.number;
-        
+
         bool allSuccess = true;
         for (uint256 i = 0; i < bundleSize; i++) {
             (bool success, ) = targets[i].call{value: values[i]}(datas[i]);
             allSuccess = allSuccess && success;
         }
-        
+
         if (!allSuccess) revert BundleExecutionFailed();
-        
+
         emit BundleExecuted(bundleId, bundleSize);
         return true;
     }
-    
+
     /**
      * @dev Calculate a time-based nonce to prevent transaction reordering
      */
     function getTimeBasedNonce() public view returns (uint256) {
         return block.timestamp * 1000 + block.number;
     }
-} 
+}

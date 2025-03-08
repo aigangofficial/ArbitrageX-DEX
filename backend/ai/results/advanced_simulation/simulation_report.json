@@ -1,0 +1,124 @@
+{
+  "simulation_period": {
+    "start_date": "2024-12-07",
+    "end_date": "2025-03-07",
+    "total_days": 91
+  },
+  "overall_metrics": {
+    "total_trades": 356,
+    "successful_trades": 284,
+    "success_rate": 79.7752808988764,
+    "total_profit_usd": -14559.926286263886,
+    "avg_profit_per_day_usd": -159.99918995894382
+  },
+  "ml_metrics": {
+    "total_model_updates": 66,
+    "total_strategy_adaptations": 66,
+    "avg_prediction_accuracy": 95,
+    "initial_prediction_accuracy": 65.705,
+    "final_prediction_accuracy": 95,
+    "accuracy_improvement": 29.295
+  },
+  "monthly_breakdown": {
+    "2024-12": {
+      "trades": 3017,
+      "successful_trades": 2336,
+      "net_profit_usd": -134285.47446307587,
+      "gas_cost_usd": 85337.624125,
+      "model_updates": 525,
+      "strategy_adaptations": 525,
+      "prediction_accuracy": 84.72346947529896,
+      "days": 25,
+      "avg_profit_per_day": -5371.418978523035,
+      "success_rate": 77.42790851839575
+    },
+    "2025-01": {
+      "trades": 7096,
+      "successful_trades": 5410,
+      "net_profit_usd": -297046.3125068224,
+      "gas_cost_usd": 198693.1298749999,
+      "model_updates": 1289,
+      "strategy_adaptations": 1289,
+      "prediction_accuracy": 94.59680068860543,
+      "days": 31,
+      "avg_profit_per_day": -9582.139113123303,
+      "success_rate": 76.24013528748591
+    },
+    "2025-02": {
+      "trades": 8632,
+      "successful_trades": 6739,
+      "net_profit_usd": -351348.8606489065,
+      "gas_cost_usd": 241644.03837500006,
+      "model_updates": 1590,
+      "strategy_adaptations": 1590,
+      "prediction_accuracy": 95.0,
+      "days": 28,
+      "avg_profit_per_day": -12548.173594603804,
+      "success_rate": 78.06997219647822
+    },
+    "2025-03": {
+      "trades": 2444,
+      "successful_trades": 1941,
+      "net_profit_usd": -99768.48656606248,
+      "gas_cost_usd": 68238.50675000002,
+      "model_updates": 455,
+      "strategy_adaptations": 455,
+      "prediction_accuracy": 95.0,
+      "days": 7,
+      "avg_profit_per_day": -14252.640938008926,
+      "success_rate": 79.4189852700491
+    }
+  },
+  "top_profitable_pairs": [
+    {
+      "pair": "WETH-DAI",
+      "trades": 64,
+      "successful_trades": 51,
+      "net_profit_usd": -1548.1245303241046
+    },
+    {
+      "pair": "WETH-USDC",
+      "trades": 71,
+      "successful_trades": 55,
+      "net_profit_usd": -1698.854725307971
+    },
+    {
+      "pair": "LINK-USDC",
+      "trades": 76,
+      "successful_trades": 68,
+      "net_profit_usd": -1902.8380294822646
+    },
+    {
+      "pair": "WBTC-DAI",
+      "trades": 72,
+      "successful_trades": 56,
+      "net_profit_usd": -3538.591828218364
+    },
+    {
+      "pair": "WBTC-USDC",
+      "trades": 73,
+      "successful_trades": 54,
+      "net_profit_usd": -3893.5991729311754
+    }
+  ],
+  "top_profitable_dexes": [
+    {
+      "dex": "curve",
+      "trades": 172,
+      "successful_trades": 128,
+      "net_profit_usd": -2808.4123972411044
+    },
+    {
+      "dex": "balancer",
+      "trades": 167,
+      "successful_trades": 137,
+      "net_profit_usd": -3035.646953288734
+    },
+    {
+      "dex": "sushiswap",
+      "trades": 180,
+      "successful_trades": 145,
+      "net_profit_usd": -3296.389825133668
+    }
+  ]
+}

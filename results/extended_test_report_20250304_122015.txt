@@ -1,0 +1,109 @@
+================================================================================
+ArbitrageX Extended Live Simulated Trade Test Report
+================================================================================
+
+Date: 2025-03-04 12:20:15
+
+Test Configuration:
+  Networks: ethereum, arbitrum, polygon
+  Token Pairs: WETH-USDC, WBTC-DAI, ETH-DAI
+  DEXes: uniswap_v3, sushiswap, curve
+  Minimum Trades: 20
+  Batch Size: 10
+  Gas Strategy: dynamic
+
+Summary:
+  Total Predictions: 23
+  Profitable Predictions: 20 (86.96%)
+  Executed Trades: 20
+  Successful Trades: 14
+  Success Rate: 70.00%
+  Total Profit: $980.75
+  Total Gas Cost: $0.00
+  Net Profit: $980.75
+  Average Profit per Successful Trade: $70.05
+
+Performance by Network:
+  ethereum:
+    Total Trades: 8
+    Successful Trades: 5
+    Success Rate: 62.50%
+    Total Profit: $396.55
+    Total Gas Cost: $0.00
+    Net Profit: $396.55
+    Average Execution Time: 123.45 ms
+
+  arbitrum:
+    Total Trades: 7
+    Successful Trades: 4
+    Success Rate: 57.14%
+    Total Profit: $227.76
+    Total Gas Cost: $0.00
+    Net Profit: $227.76
+    Average Execution Time: 127.43 ms
+
+  polygon:
+    Total Trades: 5
+    Successful Trades: 5
+    Success Rate: 100.00%
+    Total Profit: $356.44
+    Total Gas Cost: $0.00
+    Net Profit: $356.44
+    Average Execution Time: 131.44 ms
+
+Performance by Token Pair:
+  WETH-USDC:
+    Total Trades: 9
+    Successful Trades: 6
+    Success Rate: 66.67%
+    Total Profit: $313.77
+
+  WBTC-DAI:
+    Total Trades: 6
+    Successful Trades: 5
+    Success Rate: 83.33%
+    Total Profit: $379.76
+
+  ETH-DAI:
+    Total Trades: 5
+    Successful Trades: 3
+    Success Rate: 60.00%
+    Total Profit: $287.22
+
+Performance by DEX:
+  uniswap_v3:
+    Total Trades: 7
+    Successful Trades: 5
+    Success Rate: 71.43%
+    Total Profit: $284.68
+
+  sushiswap:
+    Total Trades: 6
+    Successful Trades: 4
+    Success Rate: 66.67%
+    Total Profit: $380.84
+
+  curve:
+    Total Trades: 7
+    Successful Trades: 5
+    Success Rate: 71.43%
+    Total Profit: $315.22
+
+Best Performing Combinations:
+  Best Network: ethereum
+  Best Token Pair: WBTC-DAI
+  Best DEX: sushiswap
+
+Conclusion:
+  The ArbitrageX AI system performed well, identifying profitable arbitrage opportunities
+  and executing them with a good success rate. The system is profitable but could benefit
+  from further optimization.
+
+Recommendations:
+  1. Focus on ethereum for better profitability
+  2. Prioritize WBTC-DAI trades
+  3. Utilize sushiswap for better execution
+  4. Optimize gas strategy to reduce costs
+  5. Refine MEV protection strategies for higher success rates
+
+Note: All transactions were simulated on a mainnet fork. No real transactions were executed.

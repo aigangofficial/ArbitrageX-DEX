@@ -112,4 +112,4 @@ Despite the current lack of profitable predictions, the comprehensive data colle
 
 ---
 
-*This analysis is based on mainnet fork testing conducted on March 1, 2025. Market conditions and system performance may vary over time.* 
+_This analysis is based on mainnet fork testing conducted on March 1, 2025. Market conditions and system performance may vary over time._

@@ -1,0 +1,881 @@
+{% extends "base.html" %}
+
+{% block title %}Power Control - ArbitrageX{% endblock %}
+
+{% block head %}
+<style>
+    .power-control-card {
+        transition: all 0.3s ease;
+    }
+    
+    .power-control-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    }
+    
+    .status-card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .status-card.running {
+        border-color: #28a745;
+    }
+    
+    .status-card.paused {
+        border-color: #ffc107;
+    }
+    
+    .status-card.stopped {
+        border-color: #dc3545;
+    }
+    
+    .status-header {
+        padding: 15px;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+    }
+    
+    .status-header.running {
+        background-color: #28a745;
+    }
+    
+    .status-header.paused {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .status-header.stopped {
+        background-color: #dc3545;
+    }
+    
+    .giant-switch {
+        width: 120px;
+        height: 60px;
+    }
+    
+    .giant-switch .power-slider:before {
+        height: 52px;
+        width: 52px;
+        left: 4px;
+        bottom: 4px;
+    }
+    
+    .giant-switch .power-switch:checked + .power-slider:before {
+        transform: translateX(60px);
+    }
+    
+    .status-badge {
+        font-size: 1.2rem;
+        padding: 8px 16px;
+    }
+
+    .uptime-display {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    .status-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    .history-item {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }
+    
+    .quick-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .quick-action-btn {
+        min-width: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-0">Power Control</h1>
+        <p class="text-muted">Manage the execution state of your trading bot</p>
+    </div>
+</div>
+
+<!-- Main Power Control Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm status-card" id="main-status-card">
+            <div class="status-header" id="status-header">
+                <span id="status-title">CHECKING STATUS...</span>
+            </div>
+            <div class="card-body text-center">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <i id="status-icon" class="fas fa-question-circle status-icon"></i>
+                        </div>
+                        <h2 id="status-text" class="h3 mb-0">Checking Status...</h2>
+                        <p class="text-muted" id="status-since">Please wait...</p>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="power-switch-container giant-switch mx-auto mb-3">
+                            <input type="checkbox" id="power-toggle" class="power-switch">
+                            <span class="power-slider"></span>
+                        </div>
+                        <h3 class="power-status" id="power-status-text">POWER</h3>
+                        <p class="text-muted">Toggle to turn the bot ON or OFF</p>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="uptime-display mb-2" id="uptime-display">00:00:00</div>
+                        <p class="text-muted">Total Uptime</p>
+                        <div class="quick-actions">
+                            <button id="quick-start-btn" class="btn btn-success quick-action-btn">
+                                <i class="fas fa-play me-1"></i> Start
+                            </button>
+                            <button id="quick-pause-btn" class="btn btn-warning quick-action-btn">
+                                <i class="fas fa-pause me-1"></i> Pause
+                            </button>
+                            <button id="quick-resume-btn" class="btn btn-info quick-action-btn">
+                                <i class="fas fa-play me-1"></i> Resume
+                            </button>
+                            <button id="quick-stop-btn" class="btn btn-danger quick-action-btn">
+                                <i class="fas fa-stop me-1"></i> Stop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Details -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h4 mb-4">System Information</h2>
+                
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Current Status
+                        <span id="detail-status" class="badge bg-secondary">Unknown</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Running Since
+                        <span id="detail-running-since">-</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Last Started
+                        <span id="detail-last-started">-</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Last Paused
+                        <span id="detail-last-paused">-</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Last Stopped
+                        <span id="detail-last-stopped">-</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Current Mode
+                        <span id="detail-mode" class="badge bg-info">-</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Active Strategy
+                        <span id="detail-strategy">-</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Status History</h2>
+                
+                <div id="status-history">
+                    <!-- Status history entries will be added here -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading status history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bot Control Options -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">Advanced Control Options</h2>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card power-control-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-cogs fa-3x mb-3 text-primary"></i>
+                                <h5 class="card-title">Strategy Selection</h5>
+                                <p class="card-text">Choose which trading strategy to use when starting the bot.</p>
+                                <select id="strategy-select" class="form-select mb-3">
+                                    <option value="ml_enhanced">ML-Enhanced</option>
+                                    <option value="combined">Combined</option>
+                                    <option value="l2">Layer 2</option>
+                                    <option value="flash">Flash Loan</option>
+                                    <option value="mev_protected">MEV-Protected</option>
+                                </select>
+                                <button id="apply-strategy-btn" class="btn btn-primary">
+                                    Apply Strategy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card power-control-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-3x mb-3 text-success"></i>
+                                <h5 class="card-title">Schedule Operation</h5>
+                                <p class="card-text">Set a schedule for automated start and stop times.</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Start Time</label>
+                                    <input type="time" id="schedule-start" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Stop Time</label>
+                                    <input type="time" id="schedule-stop" class="form-control">
+                                </div>
+                                <button id="apply-schedule-btn" class="btn btn-success">
+                                    Apply Schedule
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card power-control-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-shield-alt fa-3x mb-3 text-danger"></i>
+                                <h5 class="card-title">Emergency Controls</h5>
+                                <p class="card-text">Emergency options for critical situations.</p>
+                                <button id="emergency-stop-btn" class="btn btn-danger mb-2 w-100">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Emergency Stop
+                                </button>
+                                <button id="cancel-all-trades-btn" class="btn btn-warning mb-2 w-100">
+                                    <i class="fas fa-ban me-1"></i> Cancel All Trades
+                                </button>
+                                <button id="restart-services-btn" class="btn btn-info mb-2 w-100">
+                                    <i class="fas fa-sync me-1"></i> Restart Services
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let botStatus = 'unknown';
+    let uptimeInterval;
+    let startTime = null;
+    let historyData = [];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the page
+        loadBotStatus();
+        loadStatusHistory();
+        
+        // Power toggle event
+        document.getElementById('power-toggle').addEventListener('change', function() {
+            if (this.checked) {
+                startBot();
+            } else {
+                stopBot();
+            }
+        });
+        
+        // Quick action buttons
+        document.getElementById('quick-start-btn').addEventListener('click', startBot);
+        document.getElementById('quick-pause-btn').addEventListener('click', pauseBot);
+        document.getElementById('quick-resume-btn').addEventListener('click', resumeBot);
+        document.getElementById('quick-stop-btn').addEventListener('click', stopBot);
+        
+        // Advanced control buttons
+        document.getElementById('apply-strategy-btn').addEventListener('click', applyStrategy);
+        document.getElementById('apply-schedule-btn').addEventListener('click', applySchedule);
+        document.getElementById('emergency-stop-btn').addEventListener('click', emergencyStop);
+        document.getElementById('cancel-all-trades-btn').addEventListener('click', cancelAllTrades);
+        document.getElementById('restart-services-btn').addEventListener('click', restartServices);
+        
+        // Set up auto-refresh
+        setInterval(loadBotStatus, 10000); // Refresh every 10 seconds
+    });
+    
+    async function loadBotStatus() {
+        try {
+            const response = await fetch('/api/status');
+            const data = await response.json();
+            
+            if (data.success) {
+                updateStatusDisplay(data);
+            } else {
+                showAlert('Failed to load bot status: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading bot status:', error);
+            showAlert('Error loading bot status', 'danger');
+        }
+    }
+    
+    function updateStatusDisplay(data) {
+        const previousStatus = botStatus;
+        botStatus = data.status;
+        
+        // Update power toggle
+        const powerToggle = document.getElementById('power-toggle');
+        powerToggle.checked = (botStatus === 'running' || botStatus === 'paused');
+        
+        // Update status card and header
+        const statusCard = document.getElementById('main-status-card');
+        const statusHeader = document.getElementById('status-header');
+        const statusTitle = document.getElementById('status-title');
+        const statusIcon = document.getElementById('status-icon');
+        const statusText = document.getElementById('status-text');
+        const statusSince = document.getElementById('status-since');
+        
+        // Remove all status classes
+        statusCard.classList.remove('running', 'paused', 'stopped');
+        statusHeader.classList.remove('running', 'paused', 'stopped');
+        
+        // Update detail status badge
+        const detailStatus = document.getElementById('detail-status');
+        detailStatus.textContent = botStatus.toUpperCase();
+        detailStatus.className = 'badge';
+        
+        // Show/hide appropriate quick action buttons
+        document.getElementById('quick-start-btn').style.display = (botStatus !== 'running') ? 'inline-block' : 'none';
+        document.getElementById('quick-pause-btn').style.display = (botStatus === 'running') ? 'inline-block' : 'none';
+        document.getElementById('quick-resume-btn').style.display = (botStatus === 'paused') ? 'inline-block' : 'none';
+        document.getElementById('quick-stop-btn').style.display = (botStatus === 'running' || botStatus === 'paused') ? 'inline-block' : 'none';
+        
+        if (botStatus === 'running') {
+            statusCard.classList.add('running');
+            statusHeader.classList.add('running');
+            statusTitle.textContent = 'RUNNING';
+            statusIcon.className = 'fas fa-play-circle status-icon text-success';
+            statusText.textContent = 'Bot is actively running';
+            detailStatus.classList.add('bg-success');
+            
+            // Start or continue uptime counter
+            if (!startTime) {
+                startTime = new Date();
+                document.getElementById('detail-running-since').textContent = startTime.toLocaleString();
+                startUptimeCounter();
+            }
+            
+            // Set running since time
+            if (data.running_since) {
+                statusSince.textContent = `Running since ${formatDateRelative(data.running_since)}`;
+                document.getElementById('detail-running-since').textContent = new Date(data.running_since).toLocaleString();
+            } else {
+                statusSince.textContent = 'Running since just now';
+            }
+            
+            // Add to history if status changed
+            if (previousStatus !== 'running') {
+                addToStatusHistory('Started', 'success');
+                document.getElementById('detail-last-started').textContent = new Date().toLocaleString();
+            }
+        } else if (botStatus === 'paused') {
+            statusCard.classList.add('paused');
+            statusHeader.classList.add('paused');
+            statusTitle.textContent = 'PAUSED';
+            statusIcon.className = 'fas fa-pause-circle status-icon text-warning';
+            statusText.textContent = 'Bot is temporarily paused';
+            detailStatus.classList.add('bg-warning');
+            
+            // Stop uptime counter if running
+            if (uptimeInterval) {
+                clearInterval(uptimeInterval);
+                uptimeInterval = null;
+            }
+            
+            // Set paused since time
+            if (data.paused_since) {
+                statusSince.textContent = `Paused since ${formatDateRelative(data.paused_since)}`;
+            } else {
+                statusSince.textContent = 'Paused since just now';
+            }
+            
+            // Add to history if status changed
+            if (previousStatus !== 'paused') {
+                addToStatusHistory('Paused', 'warning');
+                document.getElementById('detail-last-paused').textContent = new Date().toLocaleString();
+            }
+        } else {
+            statusCard.classList.add('stopped');
+            statusHeader.classList.add('stopped');
+            statusTitle.textContent = 'STOPPED';
+            statusIcon.className = 'fas fa-stop-circle status-icon text-danger';
+            statusText.textContent = 'Bot is currently stopped';
+            detailStatus.classList.add('bg-danger');
+            
+            // Reset uptime counter
+            if (uptimeInterval) {
+                clearInterval(uptimeInterval);
+                uptimeInterval = null;
+            }
+            startTime = null;
+            document.getElementById('uptime-display').textContent = '00:00:00';
+            
+            // Set stopped since time
+            if (data.stopped_since) {
+                statusSince.textContent = `Stopped since ${formatDateRelative(data.stopped_since)}`;
+            } else {
+                statusSince.textContent = 'Stopped since just now';
+            }
+            
+            // Add to history if status changed
+            if (previousStatus !== 'stopped' && previousStatus !== 'unknown') {
+                addToStatusHistory('Stopped', 'danger');
+                document.getElementById('detail-last-stopped').textContent = new Date().toLocaleString();
+            }
+        }
+        
+        // Update mode and strategy
+        if (data.mode) {
+            const detailMode = document.getElementById('detail-mode');
+            detailMode.textContent = data.mode.toUpperCase();
+            if (data.mode === 'mainnet') {
+                detailMode.className = 'badge bg-danger';
+            } else {
+                detailMode.className = 'badge bg-info';
+            }
+        }
+        
+        if (data.strategy) {
+            document.getElementById('detail-strategy').textContent = data.strategy;
+            document.getElementById('strategy-select').value = data.strategy;
+        }
+    }
+    
+    function startUptimeCounter() {
+        if (uptimeInterval) {
+            clearInterval(uptimeInterval);
+        }
+        
+        uptimeInterval = setInterval(() => {
+            if (!startTime) return;
+            
+            const now = new Date();
+            const diff = Math.floor((now - startTime) / 1000);
+            
+            const hours = Math.floor(diff / 3600).toString().padStart(2, '0');
+            const minutes = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+            const seconds = Math.floor(diff % 60).toString().padStart(2, '0');
+            
+            document.getElementById('uptime-display').textContent = `${hours}:${minutes}:${seconds}`;
+        }, 1000);
+    }
+    
+    function formatDateRelative(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffSeconds < 60) {
+            return 'just now';
+        } else if (diffSeconds < 3600) {
+            const minutes = Math.floor(diffSeconds / 60);
+            return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        } else if (diffSeconds < 86400) {
+            const hours = Math.floor(diffSeconds / 3600);
+            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        } else {
+            const days = Math.floor(diffSeconds / 86400);
+            return `${days} day${days > 1 ? 's' : ''} ago`;
+        }
+    }
+    
+    async function loadStatusHistory() {
+        try {
+            const response = await fetch('/api/power/history');
+            const data = await response.json();
+            
+            if (data.success) {
+                historyData = data.history;
+                renderStatusHistory();
+            } else {
+                showAlert('Failed to load status history: ' + data.message, 'danger');
+                document.getElementById('status-history').innerHTML = '<div class="alert alert-warning">Failed to load status history</div>';
+            }
+        } catch (error) {
+            console.error('Error loading status history:', error);
+            document.getElementById('status-history').innerHTML = '<div class="alert alert-danger">Error loading status history</div>';
+        }
+    }
+    
+    function renderStatusHistory() {
+        const historyContainer = document.getElementById('status-history');
+        
+        if (historyData.length === 0) {
+            historyContainer.innerHTML = '<div class="alert alert-info">No status changes recorded yet</div>';
+            return;
+        }
+        
+        historyContainer.innerHTML = '';
+        
+        // Display most recent 10 entries
+        const recentHistory = historyData.slice(0, 10);
+        
+        recentHistory.forEach(entry => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            let statusBadge;
+            switch (entry.status) {
+                case 'started':
+                    statusBadge = '<span class="badge bg-success">STARTED</span>';
+                    break;
+                case 'paused':
+                    statusBadge = '<span class="badge bg-warning">PAUSED</span>';
+                    break;
+                case 'resumed':
+                    statusBadge = '<span class="badge bg-info">RESUMED</span>';
+                    break;
+                case 'stopped':
+                    statusBadge = '<span class="badge bg-danger">STOPPED</span>';
+                    break;
+                default:
+                    statusBadge = `<span class="badge bg-secondary">${entry.status.toUpperCase()}</span>`;
+            }
+            
+            historyItem.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <div>
+                        ${statusBadge}
+                        <span class="ms-2">${entry.message || ''}</span>
+                    </div>
+                    <small class="text-muted">${new Date(entry.timestamp).toLocaleString()}</small>
+                </div>
+            `;
+            
+            historyContainer.appendChild(historyItem);
+        });
+    }
+    
+    function addToStatusHistory(status, type) {
+        const newEntry = {
+            status: status.toLowerCase(),
+            message: `Bot ${status.toLowerCase()}`,
+            timestamp: new Date().toISOString()
+        };
+        
+        historyData.unshift(newEntry);
+        renderStatusHistory();
+        
+        // Also send to server
+        fetch('/api/power/record-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newEntry)
+        }).catch(error => {
+            console.error('Error recording status:', error);
+        });
+    }
+    
+    async function startBot() {
+        try {
+            const response = await fetch('/api/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    strategy: document.getElementById('strategy-select').value
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('Bot started successfully', 'success');
+                loadBotStatus();
+            } else {
+                showAlert('Failed to start bot: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            console.error('Error starting bot:', error);
+            showAlert('Error starting bot', 'danger');
+        }
+    }
+    
+    async function pauseBot() {
+        try {
+            const response = await fetch('/api/pause', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('Bot paused successfully', 'success');
+                loadBotStatus();
+            } else {
+                showAlert('Failed to pause bot: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            console.error('Error pausing bot:', error);
+            showAlert('Error pausing bot', 'danger');
+        }
+    }
+    
+    async function resumeBot() {
+        try {
+            const response = await fetch('/api/resume', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('Bot resumed successfully', 'success');
+                loadBotStatus();
+            } else {
+                showAlert('Failed to resume bot: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            console.error('Error resuming bot:', error);
+            showAlert('Error resuming bot', 'danger');
+        }
+    }
+    
+    async function stopBot() {
+        try {
+            const response = await fetch('/api/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('Bot stopped successfully', 'success');
+                loadBotStatus();
+            } else {
+                showAlert('Failed to stop bot: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            console.error('Error stopping bot:', error);
+            showAlert('Error stopping bot', 'danger');
+        }
+    }
+    
+    function applyStrategy() {
+        const strategy = document.getElementById('strategy-select').value;
+        
+        fetch('/api/power/set-strategy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ strategy: strategy })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(`Strategy set to ${strategy}`, 'success');
+                document.getElementById('detail-strategy').textContent = strategy;
+            } else {
+                showAlert('Failed to set strategy: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error setting strategy:', error);
+            showAlert('Error setting strategy', 'danger');
+        });
+    }
+    
+    function applySchedule() {
+        const startTime = document.getElementById('schedule-start').value;
+        const stopTime = document.getElementById('schedule-stop').value;
+        
+        if (!startTime || !stopTime) {
+            showAlert('Please set both start and stop times', 'warning');
+            return;
+        }
+        
+        fetch('/api/power/schedule', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                start_time: startTime, 
+                stop_time: stopTime 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Schedule applied successfully', 'success');
+            } else {
+                showAlert('Failed to apply schedule: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error applying schedule:', error);
+            showAlert('Error applying schedule', 'danger');
+        });
+    }
+    
+    function emergencyStop() {
+        if (confirm('Are you sure you want to execute an emergency stop? This will immediately halt all trading operations.')) {
+            fetch('/api/power/emergency-stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Emergency stop executed successfully', 'success');
+                    loadBotStatus();
+                    addToStatusHistory('Emergency Stop', 'danger');
+                } else {
+                    showAlert('Failed to execute emergency stop: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error executing emergency stop:', error);
+                showAlert('Error executing emergency stop', 'danger');
+            });
+        }
+    }
+    
+    function cancelAllTrades() {
+        if (confirm('Are you sure you want to cancel all active trades? This cannot be undone.')) {
+            fetch('/api/power/cancel-trades', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('All trades cancelled successfully', 'success');
+                    addToStatusHistory('Trades Cancelled', 'warning');
+                } else {
+                    showAlert('Failed to cancel trades: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error cancelling trades:', error);
+                showAlert('Error cancelling trades', 'danger');
+            });
+        }
+    }
+    
+    function restartServices() {
+        if (confirm('Are you sure you want to restart all services? This may take a few moments.')) {
+            fetch('/api/power/restart-services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Services restarting, please wait...', 'success');
+                    addToStatusHistory('Services Restarting', 'info');
+                    
+                    // Reload status after a delay to allow services to restart
+                    setTimeout(loadBotStatus, 5000);
+                } else {
+                    showAlert('Failed to restart services: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error restarting services:', error);
+                showAlert('Error restarting services', 'danger');
+            });
+        }
+    }
+    
+    function showAlert(message, type) {
+        const alertsContainer = document.createElement('div');
+        alertsContainer.className = 'position-fixed top-0 end-0 p-3';
+        alertsContainer.style.zIndex = '5000';
+        alertsContainer.id = 'alerts-container';
+        
+        const existingContainer = document.getElementById('alerts-container');
+        const container = existingContainer || alertsContainer;
+        
+        if (!existingContainer) {
+            document.body.appendChild(container);
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = `toast align-items-center text-white bg-${type} border-0`;
+        alert.role = 'alert';
+        alert.ariaLive = 'assertive';
+        alert.ariaAtomic = 'true';
+        
+        alert.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        container.appendChild(alert);
+        
+        const bsAlert = new bootstrap.Toast(alert, { delay: 5000 });
+        bsAlert.show();
+        
+        alert.addEventListener('hidden.bs.toast', function() {
+            container.removeChild(alert);
+            if (container.children.length === 0 && container.id === 'alerts-container') {
+                document.body.removeChild(container);
+            }
+        });
+    }
+</script>
+{% endblock %} 

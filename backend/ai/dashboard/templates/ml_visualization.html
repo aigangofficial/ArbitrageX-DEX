@@ -1,0 +1,784 @@
+{% extends "base.html" %}
+
+{% block title %}ML Bot Learning - ArbitrageX{% endblock %}
+
+{% block head %}
+<style>
+    /* Special styles for ML visualization page */
+    .highlight-new {
+        animation: highlight-fade 3s;
+    }
+
+    @keyframes highlight-fade {
+        0% { background-color: rgba(25, 135, 84, 0.2); }
+        100% { background-color: transparent; }
+    }
+
+    .learning-stat-card {
+        transition: all 0.3s ease;
+    }
+    
+    .learning-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    }
+    
+    .progress-bar.bg-success.animating {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+    
+    .environment-indicator {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    
+    .environment-mainnet {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .environment-forked {
+        background-color: #0dcaf0;
+        color: #212529;
+    }
+    
+    /* Chart container styles */
+    #learning-curve-chart {
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">ML Bot Learning Visualization</h1>
+        <p class="text-muted">Monitor how the trading bot's machine learning models evolve and make decisions.</p>
+    </div>
+</div>
+
+<!-- ML Model Overview Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">ML Models Overview</h2>
+                
+                <div class="row">
+                    <!-- Reinforcement Learning Model -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-primary h-100">
+                            <div class="card-header bg-primary text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Reinforcement Learning</h5>
+                                    <span class="badge bg-light text-primary" id="rl-version">v1.0.0</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <span class="text-muted">Status:</span>
+                                    <span class="badge bg-success" id="rl-status">Active</span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="text-muted">Accuracy:</span>
+                                    <div class="progress">
+                                        <div id="rl-accuracy" class="progress-bar bg-primary" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="text-muted">Training Environment:</span>
+                                    <span class="badge bg-info" id="rl-environment">Forked Mainnet</span>
+                                </div>
+                                <div class="mb-0">
+                                    <span class="text-muted">Last Updated:</span>
+                                    <span id="rl-last-updated">2023-10-25 14:30:45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Price Impact Prediction Model -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-success h-100">
+                            <div class="card-header bg-success text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Price Impact Prediction</h5>
+                                    <span class="badge bg-light text-success" id="pip-version">v2.1.3</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <span class="text-muted">Status:</span>
+                                    <span class="badge bg-success" id="pip-status">Active</span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="text-muted">Accuracy:</span>
+                                    <div class="progress">
+                                        <div id="pip-accuracy" class="progress-bar bg-success" role="progressbar" style="width: 82%;" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100">82%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="text-muted">Training Environment:</span>
+                                    <span class="badge bg-info" id="pip-environment">Forked Mainnet</span>
+                                </div>
+                                <div class="mb-0">
+                                    <span class="text-muted">Last Updated:</span>
+                                    <span id="pip-last-updated">2023-10-24 09:15:22</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Volatility Tracking Model -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-warning h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Volatility Tracking</h5>
+                                    <span class="badge bg-light text-warning" id="vt-version">v1.5.2</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <span class="text-muted">Status:</span>
+                                    <span class="badge bg-success" id="vt-status">Active</span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="text-muted">Accuracy:</span>
+                                    <div class="progress">
+                                        <div id="vt-accuracy" class="progress-bar bg-warning" role="progressbar" style="width: 68%;" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100">68%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="text-muted">Training Environment:</span>
+                                    <span class="badge bg-info" id="vt-environment">Forked Mainnet</span>
+                                </div>
+                                <div class="mb-0">
+                                    <span class="text-muted">Last Updated:</span>
+                                    <span id="vt-last-updated">2023-10-23 16:42:37</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real-Time Learning Updates -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 mb-0">Real-Time Learning Updates</h2>
+                    <div>
+                        <button id="pause-updates-btn" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-pause me-1"></i>Pause Updates
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table" id="ml-events-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Model</th>
+                                <th>Environment</th>
+                                <th>Event Type</th>
+                                <th>Description</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ml-events-body">
+                            <!-- ML events will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="loading-events" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading ML events...</p>
+                </div>
+                
+                <div id="no-events" class="alert alert-info" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>No ML events found.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forked Mainnet Training Display -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 mb-0">Forked Mainnet Training</h2>
+                    <div>
+                        <select id="model-selector" class="form-select form-select-sm">
+                            <option value="all">All Models</option>
+                            <option value="reinforcement_learning">Reinforcement Learning</option>
+                            <option value="price_impact_prediction">Price Impact Prediction</option>
+                            <option value="volatility_tracking">Volatility Tracking</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Learning Curve Chart -->
+                    <div class="col-md-8 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Learning Curve</h5>
+                                <div id="learning-curve-chart" style="height: 350px;">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading chart data...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Training Statistics -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Training Statistics</h5>
+                                <div id="training-stats" class="mt-3">
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Training Episodes:</span>
+                                        <span id="training-episodes">2,457</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Successful Trades:</span>
+                                        <span id="successful-trades">1,892</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Failed Trades:</span>
+                                        <span id="failed-trades">565</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Success Rate:</span>
+                                        <span id="success-rate-training">77.0%</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Avg. Reward:</span>
+                                        <span id="avg-reward">0.042 ETH</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Exploration Rate:</span>
+                                        <span id="exploration-rate">0.15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ML-Based Execution Adjustments -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-4">ML-Based Execution Adjustments</h2>
+                
+                <div class="table-responsive">
+                    <table class="table" id="adjustments-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Environment</th>
+                                <th>Trade ID</th>
+                                <th>Original Strategy</th>
+                                <th>ML Adjustment</th>
+                                <th>Reason</th>
+                                <th>Outcome</th>
+                                <th>Improvement</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adjustments-body">
+                            <!-- Adjustments will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="loading-adjustments" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading ML adjustments...</p>
+                </div>
+                
+                <div id="no-adjustments" class="alert alert-info" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>No ML-based adjustments found.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the page
+        loadMLModelsOverview();
+        loadMLEvents();
+        loadTrainingData();
+        loadExecutionAdjustments();
+        
+        // Set up event listeners
+        document.getElementById('pause-updates-btn').addEventListener('click', togglePauseUpdates);
+        document.getElementById('model-selector').addEventListener('change', function() {
+            loadTrainingData();
+        });
+        
+        // Set up real-time updates via Socket.IO
+        setupRealtimeUpdates();
+    });
+    
+    let pauseUpdates = false;
+    let learningCurveChart = null;
+    
+    async function loadMLModelsOverview() {
+        try {
+            const response = await fetch('/api/ml/models/overview');
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update Reinforcement Learning model
+                updateModelCard('rl', data.models.reinforcement_learning);
+                
+                // Update Price Impact Prediction model
+                updateModelCard('pip', data.models.price_impact_prediction);
+                
+                // Update Volatility Tracking model
+                updateModelCard('vt', data.models.volatility_tracking);
+            } else {
+                showAlert('Failed to load ML models overview: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading ML models overview:', error);
+            showAlert('Error loading ML models overview', 'danger');
+        }
+    }
+    
+    function updateModelCard(prefix, modelData) {
+        // Update version
+        document.getElementById(`${prefix}-version`).textContent = modelData.version;
+        
+        // Update status
+        const statusElement = document.getElementById(`${prefix}-status`);
+        statusElement.textContent = modelData.status;
+        statusElement.className = `badge bg-${modelData.status === 'Active' ? 'success' : 'warning'}`;
+        
+        // Update accuracy
+        const accuracyElement = document.getElementById(`${prefix}-accuracy`);
+        accuracyElement.style.width = `${modelData.accuracy}%`;
+        accuracyElement.textContent = `${modelData.accuracy}%`;
+        accuracyElement.setAttribute('aria-valuenow', modelData.accuracy);
+        
+        // Update environment
+        const environmentElement = document.getElementById(`${prefix}-environment`);
+        environmentElement.textContent = modelData.environment;
+        environmentElement.className = `badge bg-${modelData.environment === 'Mainnet' ? 'danger' : 'info'}`;
+        
+        // Update last updated timestamp
+        document.getElementById(`${prefix}-last-updated`).textContent = modelData.last_updated;
+    }
+    
+    function togglePauseUpdates() {
+        pauseUpdates = !pauseUpdates;
+        const pauseBtn = document.getElementById('pause-updates-btn');
+        
+        if (pauseUpdates) {
+            pauseBtn.innerHTML = '<i class="fas fa-play me-1"></i>Resume Updates';
+            pauseBtn.classList.remove('btn-outline-secondary');
+            pauseBtn.classList.add('btn-outline-primary');
+        } else {
+            pauseBtn.innerHTML = '<i class="fas fa-pause me-1"></i>Pause Updates';
+            pauseBtn.classList.remove('btn-outline-primary');
+            pauseBtn.classList.add('btn-outline-secondary');
+            
+            // Immediately fetch new events
+            loadMLEvents();
+        }
+    }
+    
+    async function loadMLEvents() {
+        if (pauseUpdates) return;
+        
+        const eventsBody = document.getElementById('ml-events-body');
+        document.getElementById('loading-events').style.display = 'block';
+        document.getElementById('no-events').style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/ml/events');
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.events.length === 0) {
+                    document.getElementById('no-events').style.display = 'block';
+                } else {
+                    eventsBody.innerHTML = '';
+                    
+                    data.events.forEach(event => {
+                        const isForked = event.environment === 'Forked Mainnet';
+                        
+                        let impactBadge = '';
+                        if (event.impact === 'High') {
+                            impactBadge = '<span class="badge bg-danger">High</span>';
+                        } else if (event.impact === 'Medium') {
+                            impactBadge = '<span class="badge bg-warning">Medium</span>';
+                        } else {
+                            impactBadge = '<span class="badge bg-info">Low</span>';
+                        }
+                        
+                        eventsBody.innerHTML += `
+                            <tr>
+                                <td>${new Date(event.timestamp).toLocaleString()}</td>
+                                <td>${event.model}</td>
+                                <td><span class="badge bg-${isForked ? 'info' : 'danger'}">${event.environment}</span></td>
+                                <td>${event.event_type}</td>
+                                <td>${event.description}</td>
+                                <td>${impactBadge}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else {
+                showAlert('Failed to load ML events: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading ML events:', error);
+            showAlert('Error loading ML events', 'danger');
+        } finally {
+            document.getElementById('loading-events').style.display = 'none';
+        }
+    }
+    
+    async function loadTrainingData() {
+        const model = document.getElementById('model-selector').value;
+        const chartContainer = document.getElementById('learning-curve-chart');
+        chartContainer.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Loading chart data...</p></div>';
+        
+        try {
+            const response = await fetch(`/api/ml/training?model=${model}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update training statistics
+                document.getElementById('training-episodes').textContent = data.stats.episodes.toLocaleString();
+                document.getElementById('successful-trades').textContent = data.stats.successful_trades.toLocaleString();
+                document.getElementById('failed-trades').textContent = data.stats.failed_trades.toLocaleString();
+                document.getElementById('success-rate-training').textContent = data.stats.success_rate;
+                document.getElementById('avg-reward').textContent = data.stats.avg_reward;
+                document.getElementById('exploration-rate').textContent = data.stats.exploration_rate;
+                
+                // Render learning curve chart
+                renderLearningCurveChart(data.learning_curve);
+            } else {
+                showAlert('Failed to load training data: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading training data:', error);
+            showAlert('Error loading training data', 'danger');
+        }
+    }
+    
+    function renderLearningCurveChart(learningCurveData) {
+        const chartElement = document.getElementById('learning-curve-chart');
+        chartElement.innerHTML = '';
+        
+        const series = [];
+        const models = Object.keys(learningCurveData);
+        
+        models.forEach(model => {
+            // Accuracy data
+            series.push({
+                name: `${model} - Accuracy`,
+                data: learningCurveData[model].map(point => {
+                    return {
+                        x: point.episode,
+                        y: point.accuracy
+                    };
+                }),
+                type: 'line'
+            });
+            
+            // Reward data (on secondary y-axis)
+            series.push({
+                name: `${model} - Reward`,
+                data: learningCurveData[model].map(point => {
+                    return {
+                        x: point.episode,
+                        y: point.reward
+                    };
+                }),
+                type: 'line',
+                yaxis: 2
+            });
+        });
+        
+        const options = {
+            series: series,
+            chart: {
+                type: 'line',
+                height: 350,
+                animations: {
+                    enabled: false
+                },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    }
+                }
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {
+                title: {
+                    text: 'Training Episodes'
+                }
+            },
+            yaxis: [
+                {
+                    title: {
+                        text: 'Accuracy (%)'
+                    },
+                    min: 0,
+                    max: 100
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'Reward (ETH)'
+                    }
+                }
+            ],
+            legend: {
+                position: 'top'
+            },
+            tooltip: {
+                shared: true,
+                intersect: false
+            }
+        };
+        
+        if (learningCurveChart) {
+            learningCurveChart.destroy();
+        }
+        
+        learningCurveChart = new ApexCharts(chartElement, options);
+        learningCurveChart.render();
+    }
+    
+    async function loadExecutionAdjustments() {
+        const adjustmentsBody = document.getElementById('adjustments-body');
+        document.getElementById('loading-adjustments').style.display = 'block';
+        document.getElementById('no-adjustments').style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/ml/adjustments');
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.adjustments.length === 0) {
+                    document.getElementById('no-adjustments').style.display = 'block';
+                } else {
+                    adjustmentsBody.innerHTML = '';
+                    
+                    data.adjustments.forEach(adjustment => {
+                        const isForked = adjustment.environment === 'Forked Mainnet';
+                        const isPositive = parseFloat(adjustment.improvement.replace('%', '')) > 0;
+                        
+                        adjustmentsBody.innerHTML += `
+                            <tr>
+                                <td>${new Date(adjustment.timestamp).toLocaleString()}</td>
+                                <td><span class="badge bg-${isForked ? 'info' : 'danger'}">${adjustment.environment}</span></td>
+                                <td>${adjustment.trade_id}</td>
+                                <td>${adjustment.original_strategy}</td>
+                                <td>${adjustment.ml_adjustment}</td>
+                                <td>${adjustment.reason}</td>
+                                <td><span class="badge bg-${adjustment.outcome === 'Success' ? 'success' : 'danger'}">${adjustment.outcome}</span></td>
+                                <td><span class="${isPositive ? 'text-success' : 'text-danger'}">${adjustment.improvement}</span></td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else {
+                showAlert('Failed to load execution adjustments: ' + data.error, 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading execution adjustments:', error);
+            showAlert('Error loading execution adjustments', 'danger');
+        } finally {
+            document.getElementById('loading-adjustments').style.display = 'none';
+        }
+    }
+    
+    function setupRealtimeUpdates() {
+        socket.on('ml_event', function(data) {
+            if (!pauseUpdates) {
+                // Add the new event to the top of the table
+                const eventsBody = document.getElementById('ml-events-body');
+                const isForked = data.environment === 'Forked Mainnet';
+                
+                let impactBadge = '';
+                if (data.impact === 'High') {
+                    impactBadge = '<span class="badge bg-danger">High</span>';
+                } else if (data.impact === 'Medium') {
+                    impactBadge = '<span class="badge bg-warning">Medium</span>';
+                } else {
+                    impactBadge = '<span class="badge bg-info">Low</span>';
+                }
+                
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${new Date(data.timestamp).toLocaleString()}</td>
+                    <td>${data.model}</td>
+                    <td><span class="badge bg-${isForked ? 'info' : 'danger'}">${data.environment}</span></td>
+                    <td>${data.event_type}</td>
+                    <td>${data.description}</td>
+                    <td>${impactBadge}</td>
+                `;
+                
+                // Add a highlight effect
+                newRow.className = 'highlight-new';
+                
+                // Insert at the top
+                if (eventsBody.firstChild) {
+                    eventsBody.insertBefore(newRow, eventsBody.firstChild);
+                } else {
+                    eventsBody.appendChild(newRow);
+                }
+                
+                // Remove highlight after animation
+                setTimeout(function() {
+                    newRow.className = '';
+                }, 3000);
+                
+                // Hide the "no events" message if it's showing
+                document.getElementById('no-events').style.display = 'none';
+            }
+        });
+        
+        socket.on('ml_adjustment', function(data) {
+            if (!pauseUpdates) {
+                // Add the new adjustment to the table
+                const adjustmentsBody = document.getElementById('adjustments-body');
+                const isForked = data.environment === 'Forked Mainnet';
+                const isPositive = parseFloat(data.improvement.replace('%', '')) > 0;
+                
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${new Date(data.timestamp).toLocaleString()}</td>
+                    <td><span class="badge bg-${isForked ? 'info' : 'danger'}">${data.environment}</span></td>
+                    <td>${data.trade_id}</td>
+                    <td>${data.original_strategy}</td>
+                    <td>${data.ml_adjustment}</td>
+                    <td>${data.reason}</td>
+                    <td><span class="badge bg-${data.outcome === 'Success' ? 'success' : 'danger'}">${data.outcome}</span></td>
+                    <td><span class="${isPositive ? 'text-success' : 'text-danger'}">${data.improvement}</span></td>
+                `;
+                
+                // Add a highlight effect
+                newRow.className = 'highlight-new';
+                
+                // Insert at the top
+                if (adjustmentsBody.firstChild) {
+                    adjustmentsBody.insertBefore(newRow, adjustmentsBody.firstChild);
+                } else {
+                    adjustmentsBody.appendChild(newRow);
+                }
+                
+                // Remove highlight after animation
+                setTimeout(function() {
+                    newRow.className = '';
+                }, 3000);
+                
+                // Hide the "no adjustments" message if it's showing
+                document.getElementById('no-adjustments').style.display = 'none';
+            }
+        });
+        
+        // Subscribe to ML events
+        socket.emit('subscribe', {topic: 'ml_events'});
+        socket.emit('subscribe', {topic: 'ml_adjustments'});
+    }
+    
+    function showAlert(message, type) {
+        const alertsContainer = document.createElement('div');
+        alertsContainer.className = 'position-fixed top-0 end-0 p-3';
+        alertsContainer.style.zIndex = '5000';
+        alertsContainer.id = 'alerts-container';
+        
+        const existingContainer = document.getElementById('alerts-container');
+        const container = existingContainer || alertsContainer;
+        
+        if (!existingContainer) {
+            document.body.appendChild(container);
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = `toast align-items-center text-white bg-${type} border-0`;
+        alert.role = 'alert';
+        alert.ariaLive = 'assertive';
+        alert.ariaAtomic = 'true';
+        
+        alert.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        container.appendChild(alert);
+        
+        const bsAlert = new bootstrap.Toast(alert, { delay: 5000 });
+        bsAlert.show();
+        
+        alert.addEventListener('hidden.bs.toast', function() {
+            container.removeChild(alert);
+            if (container.children.length === 0 && container.id === 'alerts-container') {
+                document.body.removeChild(container);
+            }
+        });
+    }
+</script>
+{% endblock %} 

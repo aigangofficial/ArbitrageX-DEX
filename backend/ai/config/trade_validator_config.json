@@ -1,0 +1,59 @@
+{
+  "min_profit_threshold": 12.0,
+  "min_profit_percentage": 0.75,
+  "max_gas_cost_percentage": 35.0,
+  "max_slippage_tolerance": 2.5,
+  "min_liquidity_score": 0.7,
+  "min_historical_success_rate": 0.65,
+  "max_front_running_risk": 0.6,
+  "max_network_congestion": 0.75,
+  "validation_history_limit": 1000,
+  "enable_strict_mode": false,
+  "enable_adaptive_thresholds": true,
+  "enable_detailed_logging": true,
+  "enable_ml_validation": false,
+  "enable_validation_cache": true,
+  "validation_cache_ttl": 60,
+  "enable_portfolio_based_thresholds": true,
+  "enable_ab_testing": false,
+  "ml_success_probability_threshold": 0.6,
+  "max_bridge_fee_percentage": 30.0,
+  "max_bridge_time": 600,
+  "min_bridge_reliability": 0.95,
+  "network_specific_settings": {
+    "ethereum": {
+      "min_profit_threshold": 15.0,
+      "max_gas_cost_percentage": 30.0
+    },
+    "arbitrum": {
+      "min_profit_threshold": 10.0,
+      "max_gas_cost_percentage": 40.0
+    },
+    "polygon": {
+      "min_profit_threshold": 8.0,
+      "max_gas_cost_percentage": 45.0
+    },
+    "bsc": {
+      "min_profit_threshold": 9.0,
+      "max_gas_cost_percentage": 42.0
+    }
+  },
+  "token_pair_specific_settings": {
+    "WETH-USDC": {
+      "min_liquidity_score": 0.8,
+      "min_historical_success_rate": 0.7
+    },
+    "WBTC-USDT": {
+      "min_liquidity_score": 0.75,
+      "min_historical_success_rate": 0.68
+    }
+  },
+  "dex_specific_settings": {
+    "uniswap_v3": {
+      "max_slippage_tolerance": 2.0
+    },
+    "sushiswap": {
+      "max_slippage_tolerance": 2.8
+    }
+  }
+} 

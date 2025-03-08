@@ -1,0 +1,36 @@
+{
+  "networks": [
+    "ethereum"
+  ],
+  "token_pairs": [
+    [
+      "WETH",
+      "USDC"
+    ],
+    [
+      "WBTC",
+      "USDC"
+    ],
+    [
+      "ETH",
+      "DAI"
+    ]
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "sushiswap"
+  ],
+  "min_trades": 100,
+  "batch_size": 20,
+  "max_workers": 8,
+  "parallel": true,
+  "enable_learning": true,
+  "gas_strategy": "dynamic",
+  "output_dir": "backend/ai/results/focused_test",
+  "debug": false,
+  "stress_test": true,
+  "high_congestion": true,
+  "extreme_volatility": true,
+  "mev_attack_simulation": true,
+  "timestamp": "20250305_103353"
+}

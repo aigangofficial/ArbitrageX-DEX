@@ -79,4 +79,4 @@ Based on our accomplishments and findings, we've identified the following next s
 
 ## Conclusion
 
-The development of ArbitrageX has made significant progress, particularly in building a robust testing infrastructure that allows for comprehensive evaluation of the AI system's performance. While current tests show that profitability is challenged by gas costs, we've identified clear paths for optimization and improvement. The multi-pair testing system provides a solid foundation for ongoing development and refinement of the ArbitrageX system. 
+The development of ArbitrageX has made significant progress, particularly in building a robust testing infrastructure that allows for comprehensive evaluation of the AI system's performance. While current tests show that profitability is challenged by gas costs, we've identified clear paths for optimization and improvement. The multi-pair testing system provides a solid foundation for ongoing development and refinement of the ArbitrageX system.

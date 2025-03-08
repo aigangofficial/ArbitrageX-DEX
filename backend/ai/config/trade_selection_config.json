@@ -52,20 +52,9 @@
   "mongodb_uri": "mongodb://localhost:27017/",
   "mongodb_db": "arbitragex",
   "mongodb_collection": "trade_history",
-  "networks": [
-    "polygon",
-    "arbitrum"
-  ],
-  "tokens": [
-    "WETH",
-    "USDC",
-    "DAI"
-  ],
-  "dexes": [
-    "uniswap_v3",
-    "balancer",
-    "curve"
-  ],
+  "networks": ["polygon", "arbitrum"],
+  "tokens": ["WETH", "USDC", "DAI"],
+  "dexes": ["uniswap_v3", "balancer", "curve"],
   "thresholds": {
     "min_profit_usd": 20,
     "min_profit_after_gas_percentage": 70,

@@ -40,11 +40,7 @@ interface IArbitrageExecutor {
 
     function setMinProfitAmount(uint256 _minProfitAmount) external;
 
-    function emergencyWithdraw(
-        address token,
-        uint256 amount,
-        address recipient
-    ) external;
+    function emergencyWithdraw(address token, uint256 amount, address recipient) external;
 
     function isApprovedRouter(address router) external view returns (bool);
 }

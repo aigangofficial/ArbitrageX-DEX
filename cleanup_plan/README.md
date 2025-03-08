@@ -33,6 +33,7 @@ chmod +x cleanup_script.sh
 ```
 
 The script will:
+
 - Create a backup of files before deletion
 - Add `artifacts/` to `.gitignore` if needed
 - Identify unique test cases in duplicate test files
@@ -71,4 +72,4 @@ npm test
 
 ## Contact
 
-If you encounter any issues during the cleanup process, please contact the project maintainer. 
+If you encounter any issues during the cleanup process, please contact the project maintainer.

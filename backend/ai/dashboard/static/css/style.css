@@ -1,0 +1,396 @@
+/* ArbitrageX Dashboard Styles */
+
+/* Global Styles */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    --success-color: #2ecc71;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --gray-color: #6c757d;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+main {
+    flex: 1;
+}
+
+/* Status Indicator */
+.status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background-color: #ccc;
+}
+
+.status-active {
+    background-color: #28a745;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
+    animation: pulse 2s infinite;
+}
+
+.status-inactive {
+    background-color: #dc3545;
+}
+
+.status-paused {
+    background-color: #ffc107;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
+}
+
+.status-unknown {
+    background-color: #6c757d;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+/* Card Styles */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 0.75rem 1.25rem;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Border Left Cards */
+.border-left-primary {
+    border-left: 0.25rem solid var(--primary-color) !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid var(--success-color) !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid var(--info-color) !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid var(--warning-color) !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid var(--danger-color) !important;
+}
+
+/* Text Styles */
+.text-xs {
+    font-size: 0.7rem;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table th {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background-color: #27ae60;
+    border-color: #27ae60;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
+/* Navbar Styles */
+.navbar-dark.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Status Bar */
+#status-bar {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Notification Badge */
+#notification-badge {
+    position: relative;
+    top: -8px;
+    right: -5px;
+    font-size: 0.6rem;
+}
+
+/* Chart Containers */
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* Animation for Refresh Button */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-sync-alt.spinning {
+    animation: spin 1s linear infinite;
+}
+
+/* List Group Styles */
+.list-group-item {
+    border-left: 3px solid transparent;
+}
+
+.list-group-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Notification Priority Colors */
+.list-group-item.priority-low {
+    border-left-color: var(--info-color);
+}
+
+.list-group-item.priority-medium {
+    border-left-color: var(--primary-color);
+}
+
+.list-group-item.priority-high {
+    border-left-color: var(--warning-color);
+}
+
+.list-group-item.priority-critical {
+    border-left-color: var(--danger-color);
+}
+
+/* Footer Styles */
+footer {
+    background-color: var(--light-color);
+    border-top: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Add styles for network status indicators */
+.live-mode {
+    /* Subtle red border to indicate live mode */
+    border-top: 3px solid #dc3545;
+}
+
+/* Network mode badges */
+#network-mode-indicator {
+    font-size: 0.65rem;
+    font-weight: bold;
+    vertical-align: top;
+    margin-left: 5px;
+    animation: pulse 2s infinite;
+}
+
+/* Pulse animation for the live badge */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Trade log environment indicators */
+.trade-environment-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.environment-mainnet {
+    background-color: #dc3545;
+    box-shadow: 0 0 5px #dc3545;
+}
+
+.environment-fork {
+    background-color: #17a2b8;
+    box-shadow: 0 0 5px #17a2b8;
+}
+
+/* Status overlay */
+#bot-status-overlay {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    z-index: 1050;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.status-badge.running {
+    background-color: rgba(40, 167, 69, 0.9);
+}
+
+.status-badge.paused {
+    background-color: rgba(255, 193, 7, 0.9);
+    color: #212529;
+}
+
+.status-badge.stopped {
+    background-color: rgba(220, 53, 69, 0.9);
+}
+
+/* Live mode border */
+body.live-mode {
+    border: 4px solid #dc3545;
+    min-height: 100vh;
+}
+
+/* Power switch styles */
+.power-switch-container {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.power-switch {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.power-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.power-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.power-switch:checked + .power-slider {
+    background-color: #28a745;
+}
+
+.power-switch:focus + .power-slider {
+    box-shadow: 0 0 1px #28a745;
+}
+
+.power-switch:checked + .power-slider:before {
+    transform: translateX(26px);
+}
+
+.power-status {
+    font-weight: bold;
+    margin-left: 8px;
+} 

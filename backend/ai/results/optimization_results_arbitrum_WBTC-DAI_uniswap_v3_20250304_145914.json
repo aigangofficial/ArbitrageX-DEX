@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-03-04 14:59:14",
+  "config": {
+    "network": "arbitrum",
+    "token_pair": [
+      "WBTC",
+      "DAI"
+    ],
+    "dex": "uniswap_v3",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 120.47611612964555,
+      "confidence": 0.642855870630223,
+      "execution_time": 88.31966932574944,
+      "price_impact": 0.001877035079946247,
+      "slippage_tolerance": 0.007729659328928517,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 60.66927709371139,
+      "confidence": 0.6301174038295956,
+      "execution_time": 155.0311367790952,
+      "price_impact": 0.0039037269350698047,
+      "slippage_tolerance": 0.005032808532321382,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 91.54343573493917,
+      "confidence": 0.6717528720808821,
+      "execution_time": 61.77525906553284,
+      "price_impact": 0.004669801191382994,
+      "slippage_tolerance": 0.0024741481785162753,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 166.00899275740093,
+      "confidence": 0.9446382854255129,
+      "execution_time": 79.62411076856174,
+      "price_impact": 0.0038449759754771596,
+      "slippage_tolerance": 0.0036809938368852265,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 87.60330412542898,
+      "confidence": 0.7714785189846548,
+      "execution_time": 169.0422544090988,
+      "price_impact": 0.003552134385445113,
+      "slippage_tolerance": 0.009814948284468907,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 141.5103702660281,
+      "confidence": 0.642855870630223,
+      "execution_time": 88.31966932574944,
+      "price_impact": 0.001877035079946247,
+      "slippage_tolerance": 0.007729659328928517,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 58.468494192722154,
+      "confidence": 0.6301174038295956,
+      "execution_time": 155.0311367790952,
+      "price_impact": 0.0039037269350698047,
+      "slippage_tolerance": 0.005032808532321382,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 76.56829590647672,
+      "confidence": 0.6717528720808821,
+      "execution_time": 61.77525906553284,
+      "price_impact": 0.004669801191382994,
+      "slippage_tolerance": 0.0024741481785162753,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 196.04928595920197,
+      "confidence": 0.9446382854255129,
+      "execution_time": 79.62411076856174,
+      "price_impact": 0.0038449759754771596,
+      "slippage_tolerance": 0.0036809938368852265,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 102.66047973481375,
+      "confidence": 0.7714785189846548,
+      "execution_time": 169.0422544090988,
+      "price_impact": 0.003552134385445113,
+      "slippage_tolerance": 0.009814948284468907,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 141.5103702660281,
+      "confidence": 0.642855870630223,
+      "execution_time": 88.31966932574944,
+      "price_impact": 0.001877035079946247,
+      "slippage_tolerance": 0.007729659328928517,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 3.600007292943739,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 58.468494192722154,
+      "confidence": 0.6301174038295956,
+      "execution_time": 155.0311367790952,
+      "price_impact": 0.0039037269350698047,
+      "slippage_tolerance": 0.005032808532321382,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.8316128704339953,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 76.56829590647672,
+      "confidence": 0.6717528720808821,
+      "execution_time": 61.77525906553284,
+      "price_impact": 0.004669801191382994,
+      "slippage_tolerance": 0.0024741481785162753,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 0.1754934607045665,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 196.04928595920197,
+      "confidence": 0.9446382854255129,
+      "execution_time": 79.62411076856174,
+      "price_impact": 0.0038449759754771596,
+      "slippage_tolerance": 0.0036809938368852265,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.8594744543184958,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 102.66047973481375,
+      "confidence": 0.7714785189846548,
+      "execution_time": 169.0422544090988,
+      "price_impact": 0.003552134385445113,
+      "slippage_tolerance": 0.009814948284468907,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 3.212990513321995,
+      "protection_strategy": "gas_price_bump"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 141.5103702660281,
+      "confidence": 0.642855870630223,
+      "execution_time": 88.31966932574944,
+      "price_impact": 0.001877035079946247,
+      "slippage_tolerance": 0.007729659328928517,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 3.600007292943739,
+      "protection_strategy": "time_delay",
+      "gas_price": 31.791250606825294,
+      "gas_used": 141383.6737481525,
+      "gas_cost": 1.3484291411523428e-05,
+      "status": "success",
+      "actual_profit": 160.82492772246405,
+      "actual_gas_price": 30.58456301993492,
+      "actual_gas_used": 134833.95040325727,
+      "actual_gas_cost": 1.2371512360005604e-05,
+      "net_profit": 157.22490805800797,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 58.468494192722154,
+      "confidence": 0.6301174038295956,
+      "execution_time": 155.0311367790952,
+      "price_impact": 0.0039037269350698047,
+      "slippage_tolerance": 0.005032808532321382,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 2.8316128704339953,
+      "protection_strategy": "time_delay",
+      "gas_price": 39.8777673129652,
+      "gas_used": 228444.0021515122,
+      "gas_cost": 2.7329510285521573e-05,
+      "status": "success",
+      "actual_profit": 53.316965524369444,
+      "actual_gas_price": 43.04063821954026,
+      "actual_gas_used": 246223.54016245293,
+      "actual_gas_cost": 3.179285493979974e-05,
+      "net_profit": 50.48532086108051,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 76.56829590647672,
+      "confidence": 0.6717528720808821,
+      "execution_time": 61.77525906553284,
+      "price_impact": 0.004669801191382994,
+      "slippage_tolerance": 0.0024741481785162753,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 0.1754934607045665,
+      "protection_strategy": "time_delay",
+      "gas_price": 29.922505781092838,
+      "gas_used": 104987.94997371465,
+      "gas_cost": 9.424507620100688e-06,
+      "status": "failed",
+      "actual_profit": 0,
+      "actual_gas_price": 31.494167346793773,
+      "actual_gas_used": 98229.78632502984,
+      "actual_gas_cost": 9.280995986880853e-06,
+      "net_profit": -9.280995986880853e-06,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 196.04928595920197,
+      "confidence": 0.9446382854255129,
+      "execution_time": 79.62411076856174,
+      "price_impact": 0.0038449759754771596,
+      "slippage_tolerance": 0.0036809938368852265,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 1.8594744543184958,
+      "protection_strategy": "flashbots",
+      "gas_price": 30.795916617357324,
+      "gas_used": 315448.90416727395,
+      "gas_cost": 2.914361444931633e-05,
+      "status": "success",
+      "actual_profit": 225.37261449455323,
+      "actual_gas_price": 28.613955179375722,
+      "actual_gas_used": 290834.5203672711,
+      "actual_gas_cost": 2.4965777791212993e-05,
+      "net_profit": 223.51311507445695,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "arbitrum_WBTC-DAI_uniswap_v3_1741085954",
+      "network": "arbitrum",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 102.66047973481375,
+      "confidence": 0.7714785189846548,
+      "execution_time": 169.0422544090988,
+      "price_impact": 0.003552134385445113,
+      "slippage_tolerance": 0.009814948284468907,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 3.212990513321995,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 20.532731016646682,
+      "gas_used": 365820.77593009843,
+      "gas_cost": 2.2533898777421068e-05,
+      "status": "success",
+      "actual_profit": 122.10065191885373,
+      "actual_gas_price": 19.73999049041494,
+      "actual_gas_used": 378206.59445894574,
+      "actual_gas_cost": 2.2397383734095422e-05,
+      "net_profit": 118.887639008148,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "metrics": {
+    "total_trades": 5,
+    "successful_trades": 4,
+    "success_rate": 0.8,
+    "total_profit": 561.6151596602405,
+    "total_gas_cost": 0.00010080852481199462,
+    "net_profit": 550.1109737206974,
+    "avg_execution_time": 110.75848606960763
+  }
+}

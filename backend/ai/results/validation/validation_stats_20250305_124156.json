@@ -1,0 +1,80 @@
+{
+  "total_validations": 8,
+  "passed_validations": 4,
+  "failed_validations": 4,
+  "failure_reasons": {
+    "Expected profit ($8.00) below threshold ($10.00)": 1,
+    "Gas cost percentage (66.67%) exceeds threshold (30.00%)": 1,
+    "Expected slippage (4.00%) exceeds tolerance (2.50%)": 1,
+    "Gas cost percentage (88.89%) exceeds threshold (42.00%)": 1,
+    "Expected slippage (5.00%) exceeds tolerance (2.50%)": 1
+  },
+  "validation_history": [
+    {
+      "trade_id": "good_trade_1",
+      "timestamp": "2025-03-05T12:41:56.827405",
+      "is_valid": true,
+      "validation_score": 100.0,
+      "failure_reasons": []
+    },
+    {
+      "trade_id": "low_profit_trade",
+      "timestamp": "2025-03-05T12:41:56.827528",
+      "is_valid": false,
+      "validation_score": 70.0,
+      "failure_reasons": [
+        "Expected profit ($8.00) below threshold ($10.00)"
+      ]
+    },
+    {
+      "trade_id": "high_gas_trade",
+      "timestamp": "2025-03-05T12:41:56.827631",
+      "is_valid": false,
+      "validation_score": 75.0,
+      "failure_reasons": [
+        "Gas cost percentage (66.67%) exceeds threshold (30.00%)"
+      ]
+    },
+    {
+      "trade_id": "high_slippage_trade",
+      "timestamp": "2025-03-05T12:41:56.827725",
+      "is_valid": false,
+      "validation_score": 80.0,
+      "failure_reasons": [
+        "Expected slippage (4.00%) exceeds tolerance (2.50%)"
+      ]
+    },
+    {
+      "trade_id": "low_liquidity_trade",
+      "timestamp": "2025-03-05T12:41:56.827814",
+      "is_valid": true,
+      "validation_score": 85.0,
+      "failure_reasons": []
+    },
+    {
+      "trade_id": "high_front_running_trade",
+      "timestamp": "2025-03-05T12:41:56.827902",
+      "is_valid": true,
+      "validation_score": 85.0,
+      "failure_reasons": []
+    },
+    {
+      "trade_id": "high_congestion_trade",
+      "timestamp": "2025-03-05T12:41:56.827990",
+      "is_valid": true,
+      "validation_score": 90.0,
+      "failure_reasons": []
+    },
+    {
+      "trade_id": "extremely_risky_trade",
+      "timestamp": "2025-03-05T12:41:56.828076",
+      "is_valid": false,
+      "validation_score": 5.0,
+      "failure_reasons": [
+        "Gas cost percentage (88.89%) exceeds threshold (42.00%)",
+        "Expected slippage (5.00%) exceeds tolerance (2.50%)"
+      ]
+    }
+  ],
+  "threshold_adjustments": []
+}

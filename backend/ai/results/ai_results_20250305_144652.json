@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-03-05 14:46:52",
+  "config": {
+    "mode": "mainnet_fork",
+    "fork_url": "http://localhost:8545",
+    "fork_block_number": "18000000",
+    "networks": [
+      "ethereum"
+    ],
+    "tokens": {
+      "ethereum": [
+        "WETH",
+        "USDC",
+        "DAI",
+        "USDT",
+        "WBTC",
+        "LINK"
+      ]
+    },
+    "dexes": {
+      "ethereum": [
+        "uniswap_v3",
+        "sushiswap",
+        "curve",
+        "balancer"
+      ]
+    },
+    "gas_price_multiplier": 1.1,
+    "slippage_tolerance": 0.005,
+    "execution_timeout_ms": 5000,
+    "simulation_only": true,
+    "log_level": "INFO"
+  },
+  "opportunities": [
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_0_1741171612",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 193.75796124447,
+      "confidence": 0.5507826806417033,
+      "execution_time": 111.42995805829338,
+      "price_impact": 0.0010895564098136372,
+      "slippage_tolerance": 0.0010443493838553715,
+      "timestamp": "2025-03-05 14:46:52"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_1_1741171612",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 57.893788542348965,
+      "confidence": 0.6292216041238616,
+      "execution_time": 144.85382734896774,
+      "price_impact": 0.0017065250357014613,
+      "slippage_tolerance": 0.008507151472828194,
+      "timestamp": "2025-03-05 14:46:52"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_2_1741171612",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 69.83842584376642,
+      "confidence": 0.8582375982680339,
+      "execution_time": 136.41512232161168,
+      "price_impact": 0.0021779177719360564,
+      "slippage_tolerance": 0.00801272528529388,
+      "timestamp": "2025-03-05 14:46:52"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_3_1741171612",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 194.70421858071086,
+      "confidence": 0.9622414362789722,
+      "execution_time": 185.7069748489658,
+      "price_impact": 0.00484957201218015,
+      "slippage_tolerance": 0.009121450855028353,
+      "timestamp": "2025-03-05 14:46:52"
+    },
+    {
+      "id": "ethereum_WETH-USDC_uniswap_v3_4_1741171612",
+      "network": "ethereum",
+      "token_pair": [
+        "WETH",
+        "USDC"
+      ],
+      "dex": "uniswap_v3",
+      "expected_profit": 60.53465363147364,
+      "confidence": 0.9001627616713191,
+      "execution_time": 116.08027807222224,
+      "price_impact": 0.0011131303405437576,
+      "slippage_tolerance": 0.0022344614893956777,
+      "timestamp": "2025-03-05 14:46:52"
+    }
+  ]
+}

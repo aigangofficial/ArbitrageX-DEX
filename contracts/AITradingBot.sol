@@ -50,7 +50,7 @@ contract AITradingBot is Ownable, ReentrancyGuard, Pausable {
     ) Ownable() ReentrancyGuard() Pausable() {
         if (_minTradeAmount > _maxTradeAmount) revert InvalidParameters("min > max");
         if (_minProfitBps == 0) revert InvalidParameters("zero profit threshold");
-        
+
         arbitrageExecutor = IArbitrageExecutor(_arbitrageExecutor);
         securityAdmin = SecurityAdmin(_securityAdmin);
         minTradeAmount = _minTradeAmount;
@@ -108,15 +108,17 @@ contract AITradingBot is Ownable, ReentrancyGuard, Pausable {
         path[0] = tokenIn;
         path[1] = tokenOut;
 
-        try arbitrageExecutor.executeArbitrage(
-            tokenIn,
-            tokenOut,
-            amount,
-            arbitrageExecutor.UNISWAP_V2_ROUTER()
-        ) returns (uint256 actualProfit) {
+        try
+            arbitrageExecutor.executeArbitrage(
+                tokenIn,
+                tokenOut,
+                amount,
+                arbitrageExecutor.UNISWAP_V2_ROUTER()
+            )
+        returns (uint256 actualProfit) {
             // Reset approval
             IERC20(tokenIn).forceApprove(address(arbitrageExecutor), 0);
-            
+
             emit TradeExecuted(tokenIn, tokenOut, amount, actualProfit);
         } catch Error(string memory reason) {
             // Reset approval on failure

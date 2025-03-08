@@ -1,0 +1,63 @@
+{
+  "simulation": {
+    "initial_capital_usd": 50.0,
+    "min_trades": 10,
+    "max_trades": 20,
+    "simulation_time": 300,
+    "use_historical_data": true,
+    "enable_learning": true,
+    "flash_loan_enabled": true,
+    "timestamp": "20250305_112425"
+  },
+  "networks": [
+    "ethereum",
+    "arbitrum",
+    "polygon"
+  ],
+  "token_pairs": [
+    [
+      "WETH",
+      "USDC"
+    ],
+    [
+      "WBTC",
+      "USDT"
+    ],
+    [
+      "ETH",
+      "DAI"
+    ]
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "sushiswap",
+    "curve"
+  ],
+  "fork": {
+    "block_number": "latest",
+    "url": "http://localhost:8546"
+  },
+  "gas": {
+    "initial_strategy": "dynamic",
+    "min_gas_price_gwei": 10,
+    "max_gas_price_gwei": 200,
+    "gas_price_adjustment_threshold": 0.05
+  },
+  "slippage": {
+    "initial_tolerance": 0.005,
+    "min_tolerance": 0.001,
+    "max_tolerance": 0.03,
+    "adjustment_threshold": 0.02
+  },
+  "risk": {
+    "initial_risk_level": "medium",
+    "min_profit_threshold_usd": 1.0,
+    "max_loss_per_trade_usd": 5.0,
+    "max_total_loss_usd": 25.0
+  },
+  "flash_loan": {
+    "min_amount_usd": 1000,
+    "max_amount_usd": 100000,
+    "fee_percentage": 0.0009
+  }
+}

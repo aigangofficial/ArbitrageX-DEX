@@ -13,5 +13,11 @@
   "slippage_tolerance": 0.005,
   "execution_timeout_ms": 5000,
   "simulation_only": true,
-  "log_level": "INFO"
+  "log_level": "INFO",
+  "week_simulation": {
+    "enabled": true,
+    "accelerated_time": true,
+    "track_ml_adaptation": true,
+    "save_detailed_metrics": true
+  }
 }

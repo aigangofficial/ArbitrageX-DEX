@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-03-04 14:57:38",
+  "config": {
+    "network": "polygon",
+    "token_pair": [
+      "ETH",
+      "DAI"
+    ],
+    "dex": "curve",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 193.13467709431507,
+      "confidence": 0.5711613322609663,
+      "execution_time": 178.50019464878133,
+      "price_impact": 0.0010648041213667044,
+      "slippage_tolerance": 0.004228621259331824,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 67.46777678259956,
+      "confidence": 0.8745368292240825,
+      "execution_time": 173.79339314896487,
+      "price_impact": 0.004223693795938573,
+      "slippage_tolerance": 0.007270888957287813,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 177.83280462738475,
+      "confidence": 0.5209902270690481,
+      "execution_time": 89.86727298055105,
+      "price_impact": 0.003476529135040445,
+      "slippage_tolerance": 0.002042830220150676,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 186.87622877258676,
+      "confidence": 0.9422358865764773,
+      "execution_time": 81.32705861661064,
+      "price_impact": 0.0034872921305707217,
+      "slippage_tolerance": 0.009737061697312414,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 91.2395125955613,
+      "confidence": 0.5693804478709822,
+      "execution_time": 74.35261407569729,
+      "price_impact": 0.003765247076532557,
+      "slippage_tolerance": 0.00795525856357134,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 205.5685049993312,
+      "confidence": 0.5711613322609663,
+      "execution_time": 178.50019464878133,
+      "price_impact": 0.0010648041213667044,
+      "slippage_tolerance": 0.004228621259331824,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 55.53829950096336,
+      "confidence": 0.8745368292240825,
+      "execution_time": 173.79339314896487,
+      "price_impact": 0.004223693795938573,
+      "slippage_tolerance": 0.007270888957287813,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 144.262467552552,
+      "confidence": 0.5209902270690481,
+      "execution_time": 89.86727298055105,
+      "price_impact": 0.003476529135040445,
+      "slippage_tolerance": 0.002042830220150676,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 223.831355511402,
+      "confidence": 0.9422358865764773,
+      "execution_time": 81.32705861661064,
+      "price_impact": 0.0034872921305707217,
+      "slippage_tolerance": 0.009737061697312414,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 103.20671699578979,
+      "confidence": 0.5693804478709822,
+      "execution_time": 74.35261407569729,
+      "price_impact": 0.003765247076532557,
+      "slippage_tolerance": 0.00795525856357134,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 205.5685049993312,
+      "confidence": 0.5711613322609663,
+      "execution_time": 178.50019464878133,
+      "price_impact": 0.0010648041213667044,
+      "slippage_tolerance": 0.004228621259331824,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 7.407219123453116,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 55.53829950096336,
+      "confidence": 0.8745368292240825,
+      "execution_time": 173.79339314896487,
+      "price_impact": 0.004223693795938573,
+      "slippage_tolerance": 0.007270888957287813,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.7897437592297197,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 144.262467552552,
+      "confidence": 0.5209902270690481,
+      "execution_time": 89.86727298055105,
+      "price_impact": 0.003476529135040445,
+      "slippage_tolerance": 0.002042830220150676,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.594769352768536,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 223.831355511402,
+      "confidence": 0.9422358865764773,
+      "execution_time": 81.32705861661064,
+      "price_impact": 0.0034872921305707217,
+      "slippage_tolerance": 0.009737061697312414,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 8.743637426398704,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 103.20671699578979,
+      "confidence": 0.5693804478709822,
+      "execution_time": 74.35261407569729,
+      "price_impact": 0.003765247076532557,
+      "slippage_tolerance": 0.00795525856357134,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 2.4524183571995533,
+      "protection_strategy": "backrunning"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 205.5685049993312,
+      "confidence": 0.5711613322609663,
+      "execution_time": 178.50019464878133,
+      "price_impact": 0.0010648041213667044,
+      "slippage_tolerance": 0.004228621259331824,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 7.407219123453116,
+      "protection_strategy": "backrunning",
+      "gas_price": 31.108176518040537,
+      "gas_used": 234620.8781181326,
+      "gas_cost": 2.189588307394963e-05,
+      "status": "success",
+      "actual_profit": 188.60445424217508,
+      "actual_gas_price": 29.79810167524114,
+      "actual_gas_used": 233476.77711889456,
+      "actual_gas_cost": 2.0871494230189303e-05,
+      "net_profit": 181.19721424722775,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 55.53829950096336,
+      "confidence": 0.8745368292240825,
+      "execution_time": 173.79339314896487,
+      "price_impact": 0.004223693795938573,
+      "slippage_tolerance": 0.007270888957287813,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 0.7897437592297197,
+      "protection_strategy": "flashbots",
+      "gas_price": 28.22727838117721,
+      "gas_used": 262415.223904244,
+      "gas_cost": 2.2221802729812132e-05,
+      "status": "success",
+      "actual_profit": 59.673490894257476,
+      "actual_gas_price": 30.607530189888887,
+      "actual_gas_used": 263655.124954103,
+      "actual_gas_cost": 2.4209496590254904e-05,
+      "net_profit": 58.88372292553117,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 144.262467552552,
+      "confidence": 0.5209902270690481,
+      "execution_time": 89.86727298055105,
+      "price_impact": 0.003476529135040445,
+      "slippage_tolerance": 0.002042830220150676,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 5.594769352768536,
+      "protection_strategy": "flashbots",
+      "gas_price": 35.58846108977256,
+      "gas_used": 374079.1863348011,
+      "gas_cost": 3.9938707702109544e-05,
+      "status": "success",
+      "actual_profit": 137.39382491922922,
+      "actual_gas_price": 37.622170905468394,
+      "actual_gas_used": 370022.0724507338,
+      "actual_gas_cost": 4.1763100945611346e-05,
+      "net_profit": 131.79901380335974,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 223.831355511402,
+      "confidence": 0.9422358865764773,
+      "execution_time": 81.32705861661064,
+      "price_impact": 0.0034872921305707217,
+      "slippage_tolerance": 0.009737061697312414,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 8.743637426398704,
+      "protection_strategy": "flashbots",
+      "gas_price": 26.77655600618001,
+      "gas_used": 183194.96841188392,
+      "gas_cost": 1.4715990995193562e-05,
+      "status": "success",
+      "actual_profit": 183.2043394522722,
+      "actual_gas_price": 25.551293672319165,
+      "actual_gas_used": 165720.16052918564,
+      "actual_gas_cost": 1.270309346731529e-05,
+      "net_profit": 174.46068932278004,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    },
+    {
+      "opportunity_id": "polygon_ETH-DAI_curve_1741085858",
+      "network": "polygon",
+      "token_pair": [
+        "ETH",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 103.20671699578979,
+      "confidence": 0.5693804478709822,
+      "execution_time": 74.35261407569729,
+      "price_impact": 0.003765247076532557,
+      "slippage_tolerance": 0.00795525856357134,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:57:38",
+      "mev_protected": true,
+      "protection_cost": 2.4524183571995533,
+      "protection_strategy": "backrunning",
+      "gas_price": 29.7410185568964,
+      "gas_used": 376562.11206906603,
+      "gas_cost": 3.3598022288610586e-05,
+      "status": "success",
+      "actual_profit": 87.90250964141921,
+      "actual_gas_price": 31.581519209558916,
+      "actual_gas_used": 362701.10069589136,
+      "actual_gas_cost": 3.436395533686637e-05,
+      "net_profit": 85.45005692026433,
+      "execution_timestamp": "2025-03-04 14:57:38"
+    }
+  ],
+  "metrics": {
+    "total_trades": 5,
+    "successful_trades": 5,
+    "success_rate": 1.0,
+    "total_profit": 656.7786191493532,
+    "total_gas_cost": 0.0001339111405702372,
+    "net_profit": 631.7906972191631,
+    "avg_execution_time": 119.56810669412103
+  }
+}

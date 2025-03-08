@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - ArbitrageX Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/light-theme.css') }}" id="theme-css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Navigation sidebar included from base template -->
+    {% include 'sidebar.html' %}
+
+    <div class="content">
+        <div class="container-fluid p-4">
+            <h1 class="mb-4">Dashboard Settings</h1>
+            
+            <!-- Settings Tabs -->
+            <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications-settings" type="button" role="tab" aria-controls="notifications-settings" aria-selected="false">Notifications</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="false">Security</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="trading-tab" data-bs-toggle="tab" data-bs-target="#trading" type="button" role="tab" aria-controls="trading" aria-selected="false">Trading</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab" aria-controls="advanced" aria-selected="false">Advanced</button>
+                </li>
+            </ul>
+            
+            <!-- Settings Content -->
+            <div class="tab-content" id="settingsTabContent">
+                <!-- General Settings -->
+                <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Dashboard Appearance</h5>
+                            <form id="generalSettingsForm">
+                                <div class="mb-3">
+                                    <label for="themeSelect" class="form-label">Theme</label>
+                                    <select class="form-select" id="themeSelect">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="system">System Default</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="refreshInterval" class="form-label">Dashboard Refresh Interval (seconds)</label>
+                                    <input type="number" class="form-control" id="refreshInterval" min="5" max="300" value="30">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dateFormat" class="form-label">Date Format</label>
+                                    <select class="form-select" id="dateFormat">
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="timeFormat" class="form-label">Time Format</label>
+                                    <select class="form-select" id="timeFormat">
+                                        <option value="12h">12-hour (AM/PM)</option>
+                                        <option value="24h">24-hour</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="showWelcomeScreen" checked>
+                                    <label class="form-check-label" for="showWelcomeScreen">Show welcome screen on startup</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save General Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="tab-pane fade" id="notifications-settings" role="tabpanel" aria-labelledby="notifications-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Notification Preferences</h5>
+                            <form id="notificationSettingsForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Notification Channels</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                        <label class="form-check-label" for="emailNotifications">Email</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="telegramNotifications" checked>
+                                        <label class="form-check-label" for="telegramNotifications">Telegram</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="slackNotifications">
+                                        <label class="form-check-label" for="slackNotifications">Slack</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="browserNotifications" checked>
+                                        <label class="form-check-label" for="browserNotifications">Browser</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Notification Types</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="tradeNotifications" checked>
+                                        <label class="form-check-label" for="tradeNotifications">Trade Executions</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="errorNotifications" checked>
+                                        <label class="form-check-label" for="errorNotifications">System Errors</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="securityNotifications" checked>
+                                        <label class="form-check-label" for="securityNotifications">Security Alerts</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="profitNotifications" checked>
+                                        <label class="form-check-label" for="profitNotifications">Profit Milestones</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="notificationPriority" class="form-label">Minimum Notification Priority</label>
+                                    <select class="form-select" id="notificationPriority">
+                                        <option value="low">Low (All notifications)</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High (Important only)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="emailAddress" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="emailAddress" placeholder="your@email.com">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="telegramChatId" class="form-label">Telegram Chat ID</label>
+                                    <input type="text" class="form-control" id="telegramChatId">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="slackWebhook" class="form-label">Slack Webhook URL</label>
+                                    <input type="text" class="form-control" id="slackWebhook">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Settings -->
+                <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Security Settings</h5>
+                            <form id="securitySettingsForm">
+                                <div class="mb-3">
+                                    <label for="sessionTimeout" class="form-label">Session Timeout (minutes)</label>
+                                    <input type="number" class="form-control" id="sessionTimeout" min="5" max="1440" value="60">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="ipWhitelist" class="form-label">IP Whitelist (comma separated)</label>
+                                    <input type="text" class="form-control" id="ipWhitelist" placeholder="127.0.0.1, 192.168.1.0/24">
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="enable2FA">
+                                    <label class="form-check-label" for="enable2FA">Enable Two-Factor Authentication</label>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="apiTokenExpiry" class="form-label">API Token Expiry (days)</label>
+                                    <input type="number" class="form-control" id="apiTokenExpiry" min="1" max="365" value="30">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-warning" id="regenerateApiToken">Regenerate API Token</button>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" id="currentPassword">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <input type="password" class="form-control" id="newPassword">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirmPassword">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Security Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trading Settings -->
+                <div class="tab-pane fade" id="trading" role="tabpanel" aria-labelledby="trading-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Trading Configuration</h5>
+                            <form id="tradingSettingsForm">
+                                <div class="mb-3">
+                                    <label for="defaultStrategy" class="form-label">Default Trading Strategy</label>
+                                    <select class="form-select" id="defaultStrategy">
+                                        <option value="basic">Basic Arbitrage</option>
+                                        <option value="ml_enhanced" selected>ML Enhanced</option>
+                                        <option value="flash_loan">Flash Loan Arbitrage</option>
+                                        <option value="combined">Combined Strategy</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="maxTradeSize" class="form-label">Maximum Trade Size (ETH)</label>
+                                    <input type="number" class="form-control" id="maxTradeSize" min="0.01" step="0.01" value="1.0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="dailyTradeLimit" class="form-label">Daily Trading Limit (ETH)</label>
+                                    <input type="number" class="form-control" id="dailyTradeLimit" min="0.1" step="0.1" value="10.0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="minProfitThreshold" class="form-label">Minimum Profit Threshold (%)</label>
+                                    <input type="number" class="form-control" id="minProfitThreshold" min="0.1" step="0.1" value="0.5">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="gasPrice" class="form-label">Maximum Gas Price (Gwei)</label>
+                                    <input type="number" class="form-control" id="gasPrice" min="1" value="50">
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="autoAdjustGas" checked>
+                                    <label class="form-check-label" for="autoAdjustGas">Auto-adjust gas price</label>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="enableMEVProtection" checked>
+                                    <label class="form-check-label" for="enableMEVProtection">Enable MEV Protection</label>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="slippageTolerance" class="form-label">Slippage Tolerance (%)</label>
+                                    <input type="number" class="form-control" id="slippageTolerance" min="0.1" step="0.1" value="1.0">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Trading Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Settings -->
+                <div class="tab-pane fade" id="advanced" role="tabpanel" aria-labelledby="advanced-tab">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Advanced Configuration</h5>
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Warning: These settings are for advanced users only. Incorrect configuration may affect system performance.
+                            </div>
+                            <form id="advancedSettingsForm">
+                                <div class="mb-3">
+                                    <label for="logLevel" class="form-label">Log Level</label>
+                                    <select class="form-select" id="logLevel">
+                                        <option value="debug">Debug</option>
+                                        <option value="info" selected>Info</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="error">Error</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="maxConcurrentTasks" class="form-label">Maximum Concurrent Tasks</label>
+                                    <input type="number" class="form-control" id="maxConcurrentTasks" min="1" max="100" value="10">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="rpcEndpoints" class="form-label">RPC Endpoints (JSON format)</label>
+                                    <textarea class="form-control" id="rpcEndpoints" rows="4" placeholder='{"ethereum": "https://mainnet.infura.io/v3/YOUR_KEY", "arbitrum": "https://arb1.arbitrum.io/rpc"}'></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="customApiKeys" class="form-label">Custom API Keys (JSON format)</label>
+                                    <textarea class="form-control" id="customApiKeys" rows="4" placeholder='{"infura": "YOUR_INFURA_KEY", "etherscan": "YOUR_ETHERSCAN_KEY"}'></textarea>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="enableDebugMode">
+                                    <label class="form-check-label" for="enableDebugMode">Enable Debug Mode</label>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="backupInterval" class="form-label">Database Backup Interval (hours)</label>
+                                    <input type="number" class="form-control" id="backupInterval" min="1" max="168" value="24">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-warning" id="resetToDefaults">Reset to Default Settings</button>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Advanced Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal fade" id="resetConfirmModal" tabindex="-1" aria-labelledby="resetConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetConfirmModalLabel">Confirm Reset</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to reset all settings to their default values? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmReset">Reset All Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Saved Toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="settingsSavedToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <small>Just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Settings saved successfully!
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            // Load saved settings
+            loadSettings();
+            
+            // Theme switcher
+            $('#themeSelect').change(function() {
+                const theme = $(this).val();
+                if (theme === 'dark') {
+                    $('#theme-css').attr('href', "{{ url_for('static', filename='css/dark-theme.css') }}");
+                } else {
+                    $('#theme-css').attr('href', "{{ url_for('static', filename='css/light-theme.css') }}");
+                }
+                // Save theme preference
+                localStorage.setItem('theme', theme);
+            });
+            
+            // Form submissions
+            $('#generalSettingsForm, #notificationSettingsForm, #securitySettingsForm, #tradingSettingsForm, #advancedSettingsForm').submit(function(e) {
+                e.preventDefault();
+                
+                // In a real app, you would save the settings to the server here
+                // For now, we'll just show a success toast
+                saveSettings($(this));
+                
+                // Show toast
+                const toast = new bootstrap.Toast(document.getElementById('settingsSavedToast'));
+                toast.show();
+            });
+            
+            // Reset to defaults button
+            $('#resetToDefaults').click(function() {
+                $('#resetConfirmModal').modal('show');
+            });
+            
+            // Confirm reset
+            $('#confirmReset').click(function() {
+                resetSettings();
+                $('#resetConfirmModal').modal('hide');
+                
+                // Show toast
+                const toast = new bootstrap.Toast(document.getElementById('settingsSavedToast'));
+                $('.toast-body').text('Settings reset to defaults!');
+                toast.show();
+            });
+            
+            // Regenerate API token
+            $('#regenerateApiToken').click(function() {
+                // In a real app, you would call an API to regenerate the token
+                alert('API token regenerated! New token: ' + generateMockToken());
+            });
+            
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+        
+        // Mock function to load settings
+        function loadSettings() {
+            // In a real app, you would load settings from the server
+            // For now, we'll just use localStorage or defaults
+            
+            // General settings
+            $('#themeSelect').val(localStorage.getItem('theme') || 'light');
+            $('#refreshInterval').val(localStorage.getItem('refreshInterval') || 30);
+            $('#dateFormat').val(localStorage.getItem('dateFormat') || 'MM/DD/YYYY');
+            $('#timeFormat').val(localStorage.getItem('timeFormat') || '12h');
+            $('#showWelcomeScreen').prop('checked', localStorage.getItem('showWelcomeScreen') !== 'false');
+            
+            // Apply theme
+            if (localStorage.getItem('theme') === 'dark') {
+                $('#theme-css').attr('href', "{{ url_for('static', filename='css/dark-theme.css') }}");
+            }
+            
+            // Other settings would be loaded similarly
+        }
+        
+        // Mock function to save settings
+        function saveSettings(form) {
+            // In a real app, you would save settings to the server
+            // For now, we'll just use localStorage
+            
+            // Save all form inputs to localStorage
+            form.find('input, select, textarea').each(function() {
+                const input = $(this);
+                const id = input.attr('id');
+                
+                if (input.attr('type') === 'checkbox') {
+                    localStorage.setItem(id, input.prop('checked'));
+                } else {
+                    localStorage.setItem(id, input.val());
+                }
+            });
+        }
+        
+        // Mock function to reset settings
+        function resetSettings() {
+            // Clear localStorage
+            localStorage.clear();
+            
+            // Reload the page to apply defaults
+            location.reload();
+        }
+        
+        // Mock function to generate a token
+        function generateMockToken() {
+            return 'arb_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
+    </script>
+</body>
+</html> 

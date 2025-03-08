@@ -1,0 +1,293 @@
+{
+  "simulation": {
+    "timestamp": "20250305_112514",
+    "duration_seconds": 38.496092319488525,
+    "initial_capital_usd": 50.0,
+    "final_capital_usd": 209.0107295260695,
+    "profit_usd": 159.0107295260695,
+    "roi_percentage": 318.02145905213905,
+    "trades_executed": 13,
+    "successful_trades": 8,
+    "failed_trades": 5,
+    "success_rate_percentage": 61.53846153846154,
+    "total_profit_usd": 181.27098784687513,
+    "total_loss_usd": 22.260258320805633,
+    "net_profit_usd": 159.0107295260695,
+    "total_gas_fees_usd": 119.12383910285003,
+    "flash_loans_used": 9,
+    "flash_loan_fees_usd": 39.803650495619564
+  },
+  "config": {
+    "simulation": {
+      "initial_capital_usd": 50.0,
+      "min_trades": 10,
+      "max_trades": 20,
+      "simulation_time": 300,
+      "use_historical_data": true,
+      "enable_learning": true,
+      "flash_loan_enabled": true,
+      "timestamp": "20250305_112514"
+    },
+    "networks": [
+      "ethereum",
+      "arbitrum",
+      "polygon"
+    ],
+    "token_pairs": [
+      [
+        "WETH",
+        "USDC"
+      ],
+      [
+        "WBTC",
+        "USDT"
+      ],
+      [
+        "ETH",
+        "DAI"
+      ]
+    ],
+    "dexes": [
+      "uniswap_v3",
+      "sushiswap",
+      "curve"
+    ],
+    "fork": {
+      "block_number": "latest",
+      "url": "http://localhost:8546"
+    },
+    "gas": {
+      "initial_strategy": "dynamic",
+      "min_gas_price_gwei": 10,
+      "max_gas_price_gwei": 200,
+      "gas_price_adjustment_threshold": 0.05
+    },
+    "slippage": {
+      "initial_tolerance": 0.005,
+      "min_tolerance": 0.001,
+      "max_tolerance": 0.03,
+      "adjustment_threshold": 0.02
+    },
+    "risk": {
+      "initial_risk_level": "medium",
+      "min_profit_threshold_usd": 1.0,
+      "max_loss_per_trade_usd": 5.0,
+      "max_total_loss_usd": 25.0
+    },
+    "flash_loan": {
+      "min_amount_usd": 1000,
+      "max_amount_usd": 100000,
+      "fee_percentage": 0.0009
+    }
+  },
+  "trade_history": [
+    {
+      "id": "trade_1",
+      "timestamp": 1741159514.983016,
+      "network": "ethereum",
+      "token_pair": "WBTC-USDT",
+      "source_dex": "sushiswap",
+      "target_dex": "uniswap_v3",
+      "amount_in_usd": 2188.7909932283847,
+      "estimated_profit_usd": 49.076219604644066,
+      "gas_cost_usd": 1.3148121217626398,
+      "flash_loan_fee_usd": 1.9699118939055462,
+      "net_profit_usd": 45.79149558897588,
+      "is_profitable": true,
+      "is_successful": true,
+      "execution_time_ms": 1019.911566266854
+    },
+    {
+      "id": "trade_2",
+      "timestamp": 1741159517.0990841,
+      "network": "arbitrum",
+      "token_pair": "WETH-USDC",
+      "source_dex": "uniswap_v3",
+      "target_dex": "curve",
+      "amount_in_usd": 5726.168508860091,
+      "estimated_profit_usd": 10.291172531689286,
+      "gas_cost_usd": 11.835870111479135,
+      "flash_loan_fee_usd": 0.0,
+      "net_profit_usd": -1.5446975797898492,
+      "is_profitable": false,
+      "is_successful": false,
+      "execution_time_ms": 4842.351400566627
+    },
+    {
+      "id": "trade_3",
+      "timestamp": 1741159519.287503,
+      "network": "arbitrum",
+      "token_pair": "WBTC-USDT",
+      "source_dex": "uniswap_v3",
+      "target_dex": "sushiswap",
+      "amount_in_usd": 1938.1403299900433,
+      "estimated_profit_usd": 43.068619326844605,
+      "gas_cost_usd": 2.2602583208056335,
+      "flash_loan_fee_usd": 0.0,
+      "net_profit_usd": 40.80836100603897,
+      "is_profitable": true,
+      "is_successful": false,
+      "execution_time_ms": 1612.1305181811153
+    },
+    {
+      "id": "trade_4",
+      "timestamp": 1741159521.919759,
+      "network": "arbitrum",
+      "token_pair": "WETH-USDC",
+      "source_dex": "curve",
+      "target_dex": "uniswap_v3",
+      "amount_in_usd": 2317.324806923756,
+      "estimated_profit_usd": 15.49541488822676,
+      "gas_cost_usd": 6.493187847892907,
+      "flash_loan_fee_usd": 2.0855923262313802,
+      "net_profit_usd": 6.916634714102473,
+      "is_profitable": true,
+      "is_successful": true,
+      "execution_time_ms": 1774.6365925847963
+    },
+    {
+      "id": "trade_5",
+      "timestamp": 1741159526.228779,
+      "network": "arbitrum",
+      "token_pair": "WETH-USDC",
+      "source_dex": "curve",
+      "target_dex": "uniswap_v3",
+      "amount_in_usd": 7525.495370844825,
+      "estimated_profit_usd": 44.912285611807704,
+      "gas_cost_usd": 18.07554871355722,
+      "flash_loan_fee_usd": 6.772945833760342,
+      "net_profit_usd": 20.06379106449014,
+      "is_profitable": true,
+      "is_successful": true,
+      "execution_time_ms": 3876.282755513323
+    },
+    {
+      "id": "trade_6",
+      "timestamp": 1741159530.216314,
+      "network": "ethereum",
+      "token_pair": "ETH-DAI",
+      "source_dex": "uniswap_v3",
+      "target_dex": "sushiswap",
+      "amount_in_usd": 3089.212778473689,
+      "estimated_profit_usd": 32.84449559931498,
+      "gas_cost_usd": 2.245128580729791,
+      "flash_loan_fee_usd": 0.0,
+      "net_profit_usd": 30.59936701858519,
+      "is_profitable": true,
+      "is_successful": true,
+      "execution_time_ms": 4449.995244462613
+    },
+    {
+      "id": "trade_7",
+      "timestamp": 1741159532.6911418,
+      "network": "polygon",
+      "token_pair": "WETH-USDC",
+      "source_dex": "uniswap_v3",
+      "target_dex": "curve",
+      "amount_in_usd": 1047.2166224226708,
+      "estimated_profit_usd": 40.80140244612446,
+      "gas_cost_usd": 9.375237622958286,
+      "flash_loan_fee_usd": 0.9424949601804037,
+      "net_profit_usd": 30.48366986298577,
+      "is_profitable": true,
+      "is_successful": true,
+      "execution_time_ms": 1476.4602873108581
+    },
+    {
+      "id": "trade_8",
+      "timestamp": 1741159536.991214,
+      "network": "arbitrum",
+      "token_pair": "WBTC-USDT",
+      "source_dex": "sushiswap",
+      "target_dex": "curve",
+      "amount_in_usd": 6868.798452818156,
+      "estimated_profit_usd": 0.45320157781418846,
+      "gas_cost_usd": 14.022256594109093,
+      "flash_loan_fee_usd": 6.18191860753634,
+      "net_profit_usd": -19.750973623831243,
+      "is_profitable": false,
+      "is_successful": false,
+      "execution_time_ms": 132.70356042869523
+    },
+    {
+      "id": "trade_9",
+      "timestamp": 1741159539.489006,
+      "network": "ethereum",
+      "token_pair": "WETH-USDC",
+      "source_dex": "uniswap_v3",
+      "target_dex": "sushiswap",
+      "amount_in_usd": 8094.69274766814,
+      "estimated_profit_usd": 41.81223555825429,
+      "gas_cost_usd": 7.435349646338745,
+      "flash_loan_fee_usd": 7.285223472901326,
+      "net_profit_usd": 27.091662439014218,
+      "is_profitable": true,
+      "is_successful": false,
+      "execution_time_ms": 3963.6920511860544
+    },
+    {
+      "id": "trade_10",
+      "timestamp": 1741159541.59147,
+      "network": "ethereum",
+      "token_pair": "ETH-DAI",
+      "source_dex": "curve",
+      "target_dex": "uniswap_v3",
+      "amount_in_usd": 8057.525481262075,
+      "estimated_profit_usd": 42.32442446301447,
+      "gas_cost_usd": 12.391384339469752,
+      "flash_loan_fee_usd": 7.251772933135867,
+      "net_profit_usd": 22.681267190408853,
+      "is_profitable": true,
+      "is_successful": true,
+      "execution_time_ms": 1760.0593770888793
+    },
+    {
+      "id": "trade_11",
+      "timestamp": 1741159542.764821,
+      "network": "arbitrum",
+      "token_pair": "ETH-DAI",
+      "source_dex": "uniswap_v3",
+      "target_dex": "curve",
+      "amount_in_usd": 2067.274831771824,
+      "estimated_profit_usd": 11.0854796902577,
+      "gas_cost_usd": 9.84955751029121,
+      "flash_loan_fee_usd": 1.8605473485946418,
+      "net_profit_usd": -0.6246251686281517,
+      "is_profitable": false,
+      "is_successful": true,
+      "execution_time_ms": 1909.4047287497958
+    },
+    {
+      "id": "trade_12",
+      "timestamp": 1741159546.621166,
+      "network": "arbitrum",
+      "token_pair": "WETH-USDC",
+      "source_dex": "curve",
+      "target_dex": "uniswap_v3",
+      "amount_in_usd": 2257.074136479415,
+      "estimated_profit_usd": 35.00815148078731,
+      "gas_cost_usd": 9.648763904832352,
+      "flash_loan_fee_usd": 0.0,
+      "net_profit_usd": 25.359387575954962,
+      "is_profitable": true,
+      "is_successful": true,
+      "execution_time_ms": 3392.602591418102
+    },
+    {
+      "id": "trade_13",
+      "timestamp": 1741159549.4749172,
+      "network": "polygon",
+      "token_pair": "WETH-USDC",
+      "source_dex": "uniswap_v3",
+      "target_dex": "sushiswap",
+      "amount_in_usd": 6059.159021526348,
+      "estimated_profit_usd": 15.543913667977122,
+      "gas_cost_usd": 14.176483788623255,
+      "flash_loan_fee_usd": 5.453243119373713,
+      "net_profit_usd": -4.085813240019846,
+      "is_profitable": false,
+      "is_successful": false,
+      "execution_time_ms": 268.7049526019236
+    }
+  ]
+}

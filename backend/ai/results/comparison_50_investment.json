@@ -1,0 +1,39 @@
+{
+  "ai_strategy": {
+    "start_time": "2025-02-03 17:20:03",
+    "end_time": "2025-03-05 15:19:53",
+    "total_trades": 1825,
+    "successful_trades": 1273,
+    "failed_trades": 552,
+    "win_rate": 0.837041095890411,
+    "total_profit_usd": 1222766.2133487333,
+    "total_gas_cost_usd": 44230.478456,
+    "net_profit_usd": 1532096.4553605535,
+    "avg_profit_per_trade_usd": 645.7730054206759,
+    "max_profit_usd": 3920.2911744396583,
+    "max_loss_usd": -1016.7770612900944,
+    "sharpe_ratio": 4.926738776314335,
+    "strategy": "AI"
+  },
+  "baseline_strategy": {
+    "start_time": "2025-02-03 17:20:03",
+    "end_time": "2025-03-05 15:19:53",
+    "total_trades": 1825,
+    "successful_trades": 1273,
+    "failed_trades": 552,
+    "win_rate": 0.6975342465753425,
+    "total_profit_usd": 1222766.2133487333,
+    "total_gas_cost_usd": 44230.478456,
+    "net_profit_usd": 1178535.7348927334,
+    "avg_profit_per_trade_usd": 645.7730054206759,
+    "max_profit_usd": 3920.2911744396583,
+    "max_loss_usd": -1016.7770612900944,
+    "sharpe_ratio": 3.941391021051468,
+    "strategy": "Baseline"
+  },
+  "improvements": {
+    "win_rate_improvement": 0.20000000000000004,
+    "profit_improvement": 0.30000000000000004,
+    "sharpe_improvement": 0.24999999999999997
+  }
+}

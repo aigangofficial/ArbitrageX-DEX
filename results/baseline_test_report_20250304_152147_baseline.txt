@@ -1,0 +1,27 @@
+================================================================================
+ArbitrageX Baseline Test Report (Without Optimizations)
+================================================================================
+
+Date: 2025-03-04 15:21:47
+
+Test Configuration:
+  Networks: ethereum, arbitrum, polygon, optimism, base
+  Token Pairs: WETH-USDC, WBTC-DAI, ETH-DAI, USDC-USDT, WETH-WBTC
+  DEXes: uniswap_v3, sushiswap, curve, balancer, 1inch
+  Minimum Trades: 50
+  Batch Size: 50
+  Gas Strategy: dynamic
+  Parallel Processing: Disabled
+  AI Learning Loop: Disabled
+
+Summary:
+  Total Predictions: 62
+  Profitable Predictions: 50 (80.65%)
+  Executed Trades: 50
+  Successful Trades: 47
+  Success Rate: 94.00%
+  Total Profit: $5426.18
+  Total Execution Time: 0.02 seconds
+  Trades Per Second: 2229.33
+
+Note: This is a baseline test without optimizations for comparison purposes.

@@ -1,0 +1,78 @@
+{
+  "trades": {
+    "total": 186,
+    "successful": 143,
+    "failed": 43,
+    "success_rate": 76.88172043010752
+  },
+  "profit": {
+    "total_usd": -2807.8166861917475,
+    "gas_cost_usd": 5235.5395,
+    "net_profit_usd": -8043.356186191748,
+    "avg_profit_per_trade_usd": -56.24724605728495
+  },
+  "performance": {
+    "avg_execution_time_ms": 166.33777456161462,
+    "max_execution_time_ms": 816.0959726794671,
+    "min_execution_time_ms": 35.335678602419
+  },
+  "token_pairs": {
+    "WETH-USDC": {
+      "trades": 33,
+      "successful_trades": 23,
+      "net_profit_usd": -766.1458714871707
+    },
+    "WBTC-USDC": {
+      "trades": 39,
+      "successful_trades": 29,
+      "net_profit_usd": -2248.39468206908
+    },
+    "WETH-DAI": {
+      "trades": 32,
+      "successful_trades": 23,
+      "net_profit_usd": -708.4671868180127
+    },
+    "WBTC-DAI": {
+      "trades": 38,
+      "successful_trades": 28,
+      "net_profit_usd": -1992.1500752854486
+    },
+    "LINK-USDC": {
+      "trades": 44,
+      "successful_trades": 40,
+      "net_profit_usd": -1135.6386205320346
+    }
+  },
+  "dexes": {
+    "uniswap_v3": {
+      "trades": 91,
+      "successful_trades": 73,
+      "net_profit_usd": -1772.4094517702904
+    },
+    "sushiswap": {
+      "trades": 104,
+      "successful_trades": 82,
+      "net_profit_usd": -2013.1298240077954
+    },
+    "curve": {
+      "trades": 86,
+      "successful_trades": 60,
+      "net_profit_usd": -1376.194309469634
+    },
+    "balancer": {
+      "trades": 91,
+      "successful_trades": 71,
+      "net_profit_usd": -1689.0628509440273
+    }
+  },
+  "ml": {
+    "model_updates": 33,
+    "strategy_adaptations": 33,
+    "prediction_accuracy": 92.63896359057695
+  },
+  "system": {
+    "cpu_usage_percent": 25.307594217788196,
+    "memory_usage_mb": 7563.984549961044,
+    "disk_usage_mb": 11804.866805889887
+  }
+}

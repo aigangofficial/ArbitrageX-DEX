@@ -27,6 +27,7 @@ To run a multi-pair test, execute the following command:
 ```
 
 This will:
+
 1. Test all configured token pairs (WETH-USDC, WETH-DAI, WBTC-USDC, etc.)
 2. Generate a summary file in the `results` directory
 3. Log detailed output for each test
@@ -50,6 +51,7 @@ python3 visualize_multi_pair_results.py --summary results/multi_pair_summary_YYY
 ```
 
 This will create visualizations in the `results/visualizations` directory, including:
+
 - Success rate by token pair
 - Expected profit by token pair
 - Confidence vs. success rate scatter plot
@@ -62,6 +64,7 @@ This will create visualizations in the `results/visualizations` directory, inclu
 ### Token Pairs
 
 The system is configured to test the following token pairs:
+
 - WETH-USDC
 - WETH-DAI
 - WBTC-USDC
@@ -76,6 +79,7 @@ The system is configured to test the following token pairs:
 ### DEXes
 
 Each test includes the following DEXes:
+
 - Uniswap V3
 - Sushiswap
 - Curve
@@ -130,15 +134,15 @@ To support additional networks, modify the fork configuration in `run_multi_pair
   "mode": "mainnet_fork",
   "fork_url": "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
   "fork_block_number": "$BLOCK_NUMBER",
-  "networks": ["ethereum", "arbitrum", "polygon"],  // Add networks here
+  "networks": ["ethereum", "arbitrum", "polygon"], // Add networks here
   "tokens": {
     "ethereum": ["${PAIR%-*}", "${PAIR#*-}"],
-    "arbitrum": ["${PAIR%-*}", "${PAIR#*-}"],  // Add tokens for new networks
+    "arbitrum": ["${PAIR%-*}", "${PAIR#*-}"], // Add tokens for new networks
     "polygon": ["${PAIR%-*}", "${PAIR#*-}"]
   },
   "dexes": {
     "ethereum": ["uniswap_v3", "sushiswap", "curve", "balancer", "1inch"],
-    "arbitrum": ["uniswap_v3", "sushiswap", "balancer"],  // Add DEXes for new networks
+    "arbitrum": ["uniswap_v3", "sushiswap", "balancer"], // Add DEXes for new networks
     "polygon": ["uniswap_v3", "quickswap", "sushiswap"]
   }
 }
@@ -162,4 +166,4 @@ To support additional networks, modify the fork configuration in `run_multi_pair
 
 ## Conclusion
 
-The multi-pair testing system provides a comprehensive framework for evaluating the ArbitrageX AI system's performance across different token pairs. By analyzing the results, you can identify the most profitable trading opportunities and optimize the system's token pair selection strategy. 
+The multi-pair testing system provides a comprehensive framework for evaluating the ArbitrageX AI system's performance across different token pairs. By analyzing the results, you can identify the most profitable trading opportunities and optimize the system's token pair selection strategy.

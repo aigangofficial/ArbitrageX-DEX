@@ -69,7 +69,7 @@ class NetworkAdaptation:
         self._load_network_stats()
         
         # Initialize feature extractor and model trainer
-        self.feature_extractor = FeatureExtractor(data_dir=data_dir, models_dir=models_dir)
+        self.feature_extractor = FeatureExtractor(config_path="backend/ai/config/feature_extraction.json")
         self.model_trainer = ModelTrainer(models_dir=models_dir)
         
         # Initialize network selector model ID

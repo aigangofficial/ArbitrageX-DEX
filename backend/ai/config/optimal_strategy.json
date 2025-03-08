@@ -10,9 +10,9 @@
     "gas_strategy": "dynamic"
   },
   "priority_pairs": [
-    {"network": "polygon", "pair": "WETH-DAI", "dex": "uniswap_v3", "weight": 1.0},
-    {"network": "arbitrum", "pair": "WETH-DAI", "dex": "curve", "weight": 0.9},
-    {"network": "polygon", "pair": "WETH-USDC", "dex": "balancer", "weight": 0.85}
+    { "network": "polygon", "pair": "WETH-DAI", "dex": "uniswap_v3", "weight": 1.0 },
+    { "network": "arbitrum", "pair": "WETH-DAI", "dex": "curve", "weight": 0.9 },
+    { "network": "polygon", "pair": "WETH-USDC", "dex": "balancer", "weight": 0.85 }
   ],
   "network_specific": {
     "polygon": {
@@ -60,4 +60,4 @@
     "auto_adjust_thresholds": true,
     "alert_on_success_rate_drop": true
   }
-} 
+}

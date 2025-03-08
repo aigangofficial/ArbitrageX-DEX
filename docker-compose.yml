@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  arbitragex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arbitragex-bot
+    volumes:
+      - ./backend/ai/logs:/app/backend/ai/logs
+      - ./backend/ai/metrics:/app/backend/ai/metrics
+      - ./backend/ai/config:/app/backend/ai/config
+    restart: unless-stopped
+    environment:
+      - ETHEREUM_NODE_URL=${ETHEREUM_NODE_URL:-https://mainnet.infura.io/v3/your-infura-key}
+      - ARBITRUM_NODE_URL=${ARBITRUM_NODE_URL:-https://arb1.arbitrum.io/rpc}
+      - OPTIMISM_NODE_URL=${OPTIMISM_NODE_URL:-https://mainnet.optimism.io}
+      - POLYGON_NODE_URL=${POLYGON_NODE_URL:-https://polygon-rpc.com}
+      - BASE_NODE_URL=${BASE_NODE_URL:-https://mainnet.base.org}
+      - ETHEREUM_PRIVATE_KEY=${ETHEREUM_PRIVATE_KEY:-}
+      - FLASHBOTS_AUTH_KEY=${FLASHBOTS_AUTH_KEY:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - SIMULATION_MODE=${SIMULATION_MODE:-true}
+    command: start --trades=50
+    # Uncomment the following lines for production deployment
+    # command: start --no-simulation
+
+  dashboard:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: arbitragex-dashboard
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+    environment:
+      - API_URL=http://api:8000
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: arbitragex-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/ai/metrics:/app/metrics
+      - ./backend/ai/logs:/app/logs
+    restart: unless-stopped
+    depends_on:
+      - arbitragex
+    environment:
+      - METRICS_DIR=/app/metrics
+      - LOGS_DIR=/app/logs
+      - ENABLE_CORS=true
+      - AUTH_ENABLED=${API_AUTH_ENABLED:-false}
+      - AUTH_TOKEN=${API_AUTH_TOKEN:-}
+
+networks:
+  default:
+    name: arbitragex-network 

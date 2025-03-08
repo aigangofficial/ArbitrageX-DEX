@@ -1,0 +1,379 @@
+{
+  "timestamp": "2025-03-04 14:59:14",
+  "config": {
+    "network": "optimism",
+    "token_pair": [
+      "WBTC",
+      "DAI"
+    ],
+    "dex": "curve",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 21.408157894761885,
+      "confidence": 0.9562515032598158,
+      "execution_time": 164.3587918784964,
+      "price_impact": 0.0035419973886261307,
+      "slippage_tolerance": 0.009133845466139271,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 191.03862595382466,
+      "confidence": 0.9948364806998842,
+      "execution_time": 127.55219787483149,
+      "price_impact": 0.0045875629329736375,
+      "slippage_tolerance": 0.004803030388153958,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 122.38605203151859,
+      "confidence": 0.5027480632398255,
+      "execution_time": 114.63127145816358,
+      "price_impact": 0.0018782936676318665,
+      "slippage_tolerance": 0.0042435922484457276,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 81.62740595829942,
+      "confidence": 0.6831347063375048,
+      "execution_time": 145.08730330912874,
+      "price_impact": 0.0011002645501824598,
+      "slippage_tolerance": 0.0036590908218704942,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 160.15965298622194,
+      "confidence": 0.608118254261149,
+      "execution_time": 71.35147923134943,
+      "price_impact": 0.0047940906912993814,
+      "slippage_tolerance": 0.0028114406862337826,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 25.16262881413172,
+      "confidence": 0.9562515032598158,
+      "execution_time": 164.3587918784964,
+      "price_impact": 0.0035419973886261307,
+      "slippage_tolerance": 0.009133845466139271,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 177.80781255917188,
+      "confidence": 0.9948364806998842,
+      "execution_time": 127.55219787483149,
+      "price_impact": 0.0045875629329736375,
+      "slippage_tolerance": 0.004803030388153958,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 141.0549866416415,
+      "confidence": 0.5027480632398255,
+      "execution_time": 114.63127145816358,
+      "price_impact": 0.0018782936676318665,
+      "slippage_tolerance": 0.0042435922484457276,
+      "is_profitable": false,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 79.80637906762952,
+      "confidence": 0.6831347063375048,
+      "execution_time": 145.08730330912874,
+      "price_impact": 0.0011002645501824598,
+      "slippage_tolerance": 0.0036590908218704942,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 182.1973597393143,
+      "confidence": 0.608118254261149,
+      "execution_time": 71.35147923134943,
+      "price_impact": 0.0047940906912993814,
+      "slippage_tolerance": 0.0028114406862337826,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 25.16262881413172,
+      "confidence": 0.9562515032598158,
+      "execution_time": 164.3587918784964,
+      "price_impact": 0.0035419973886261307,
+      "slippage_tolerance": 0.009133845466139271,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 0.11100846117313479,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 177.80781255917188,
+      "confidence": 0.9948364806998842,
+      "execution_time": 127.55219787483149,
+      "price_impact": 0.0045875629329736375,
+      "slippage_tolerance": 0.004803030388153958,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 6.898819748355333,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 79.80637906762952,
+      "confidence": 0.6831347063375048,
+      "execution_time": 145.08730330912874,
+      "price_impact": 0.0011002645501824598,
+      "slippage_tolerance": 0.0036590908218704942,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 3.1178441869443527,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 182.1973597393143,
+      "confidence": 0.608118254261149,
+      "execution_time": 71.35147923134943,
+      "price_impact": 0.0047940906912993814,
+      "slippage_tolerance": 0.0028114406862337826,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 8.536160362347365,
+      "protection_strategy": "flashbots"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 25.16262881413172,
+      "confidence": 0.9562515032598158,
+      "execution_time": 164.3587918784964,
+      "price_impact": 0.0035419973886261307,
+      "slippage_tolerance": 0.009133845466139271,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 0.11100846117313479,
+      "protection_strategy": "flashbots",
+      "gas_price": 39.01964756576933,
+      "gas_used": 218580.64740561787,
+      "gas_cost": 2.5586819479394708e-05,
+      "status": "success",
+      "actual_profit": 21.36768661634547,
+      "actual_gas_price": 41.16740401058327,
+      "actual_gas_used": 227387.01493691694,
+      "actual_gas_cost": 2.8082799332005777e-05,
+      "net_profit": 21.256650072373002,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 177.80781255917188,
+      "confidence": 0.9948364806998842,
+      "execution_time": 127.55219787483149,
+      "price_impact": 0.0045875629329736375,
+      "slippage_tolerance": 0.004803030388153958,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 6.898819748355333,
+      "protection_strategy": "private_tx",
+      "gas_price": 20.528348015924195,
+      "gas_used": 175309.33754247008,
+      "gas_cost": 1.0796433274538853e-05,
+      "status": "success",
+      "actual_profit": 189.99848747829355,
+      "actual_gas_price": 21.585707566522107,
+      "actual_gas_used": 171786.92654543536,
+      "actual_gas_cost": 1.1124427080484144e-05,
+      "net_profit": 183.09965660551114,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 79.80637906762952,
+      "confidence": 0.6831347063375048,
+      "execution_time": 145.08730330912874,
+      "price_impact": 0.0011002645501824598,
+      "slippage_tolerance": 0.0036590908218704942,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 3.1178441869443527,
+      "protection_strategy": "backrunning",
+      "gas_price": 35.71824098587601,
+      "gas_used": 185954.81873119643,
+      "gas_cost": 1.9925937083777294e-05,
+      "status": "success",
+      "actual_profit": 85.5030089481257,
+      "actual_gas_price": 33.97245750267003,
+      "actual_gas_used": 174393.51972441925,
+      "actual_gas_cost": 1.7773729312736644e-05,
+      "net_profit": 82.38514698745203,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    },
+    {
+      "opportunity_id": "optimism_WBTC-DAI_curve_1741085954",
+      "network": "optimism",
+      "token_pair": [
+        "WBTC",
+        "DAI"
+      ],
+      "dex": "curve",
+      "expected_profit": 182.1973597393143,
+      "confidence": 0.608118254261149,
+      "execution_time": 71.35147923134943,
+      "price_impact": 0.0047940906912993814,
+      "slippage_tolerance": 0.0028114406862337826,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 14:59:14",
+      "mev_protected": true,
+      "protection_cost": 8.536160362347365,
+      "protection_strategy": "flashbots",
+      "gas_price": 29.319800027907196,
+      "gas_used": 247963.76347780824,
+      "gas_cost": 2.1810743878009845e-05,
+      "status": "success",
+      "actual_profit": 156.10340308802262,
+      "actual_gas_price": 28.9551389084956,
+      "actual_gas_used": 256698.80623332688,
+      "actual_gas_cost": 2.2298248776392928e-05,
+      "net_profit": 147.56722042742646,
+      "execution_timestamp": "2025-03-04 14:59:14"
+    }
+  ],
+  "metrics": {
+    "total_trades": 4,
+    "successful_trades": 4,
+    "success_rate": 1.0,
+    "total_profit": 452.97258613078736,
+    "total_gas_cost": 7.92792045016195e-05,
+    "net_profit": 434.30867409276266,
+    "avg_execution_time": 127.08744307345151
+  }
+}

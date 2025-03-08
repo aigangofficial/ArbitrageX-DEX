@@ -1,0 +1,16 @@
+{
+  "update_interval_minutes": 60,
+  "min_samples_for_update": 10,
+  "max_samples_per_update": 1000,
+  "learning_rate": 0.01,
+  "batch_size": 32,
+  "epochs_per_update": 5,
+  "network_config_path": "backend/config/network_settings.json",
+  "trade_analyzer_config": "backend/ai/config/trade_analyzer_config.json",
+  "model_update_threshold": 0.05,
+  "adaptation_interval_hours": 6,
+  "enable_continuous_learning": true,
+  "enable_automatic_adaptation": true,
+  "enable_performance_tracking": true,
+  "max_historical_results": 10000
+}

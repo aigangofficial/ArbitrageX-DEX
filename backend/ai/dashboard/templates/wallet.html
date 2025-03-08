@@ -1,0 +1,794 @@
+{% extends "base.html" %}
+
+{% block title %}Wallet Management - ArbitrageX{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Wallet Management</h1>
+        <p class="text-muted">Connect your MetaMask wallet to deposit funds or withdraw profits.</p>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div id="wallet-connect-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">Connect Wallet</h2>
+                        <div>
+                            <span id="connection-status" class="badge bg-secondary me-2">Disconnected</span>
+                            <button id="connect-wallet-btn" class="btn btn-primary">
+                                <i class="fas fa-wallet me-2"></i>Connect MetaMask
+                            </button>
+                            <button id="disconnect-wallet-btn" class="btn btn-outline-secondary" style="display: none;">
+                                <i class="fas fa-unlink me-2"></i>Disconnect
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" id="wallet-info" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Connected Wallet:</strong> <span id="wallet-address">Not connected</span>
+                            </div>
+                            <div>
+                                <strong>Network:</strong> <span id="network-name">Unknown</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Balances Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-3">Wallet Balances</h2>
+                <div id="balances-loading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading balances...</p>
+                </div>
+                <div id="balances-section" style="display: none;">
+                    <div class="alert alert-warning mb-3" id="no-wallet-alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Please connect your wallet to view balances.
+                    </div>
+                    <div class="row" id="balance-cards">
+                        <!-- Balance cards will be inserted here by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deposit/Withdraw Section -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3 mb-md-0">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h4 mb-3">Deposit Funds</h2>
+                <p class="text-muted">Add funds to your trading wallet.</p>
+                <form id="deposit-form" class="mt-auto">
+                    <div class="mb-3">
+                        <label for="deposit-token" class="form-label">Token</label>
+                        <select id="deposit-token" class="form-select" required>
+                            <option value="ETH">ETH</option>
+                            <option value="USDC">USDC</option>
+                            <option value="WETH">WETH</option>
+                            <option value="DAI">DAI</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deposit-amount" class="form-label">Amount</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="deposit-amount" min="0" step="any" required>
+                            <span class="input-group-text token-symbol">ETH</span>
+                        </div>
+                        <small class="form-text text-muted">
+                            Available: <span id="deposit-available">0.00</span> <span class="token-symbol">ETH</span>
+                        </small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success" id="deposit-btn" disabled>
+                            <i class="fas fa-arrow-circle-down me-2"></i>Deposit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+                <h2 class="h4 mb-3">Withdraw Funds</h2>
+                <p class="text-muted">Withdraw profits or reclaim capital.</p>
+                <form id="withdraw-form" class="mt-auto">
+                    <div class="mb-3">
+                        <label for="withdraw-token" class="form-label">Token</label>
+                        <select id="withdraw-token" class="form-select" required>
+                            <option value="ETH">ETH</option>
+                            <option value="USDC">USDC</option>
+                            <option value="WETH">WETH</option>
+                            <option value="DAI">DAI</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="withdraw-amount" class="form-label">Amount</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="withdraw-amount" min="0" step="any" required>
+                            <span class="input-group-text token-symbol">ETH</span>
+                        </div>
+                        <small class="form-text text-muted">
+                            Available: <span id="withdraw-available">0.00</span> <span class="token-symbol">ETH</span>
+                        </small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning" id="withdraw-btn" disabled>
+                            <i class="fas fa-arrow-circle-up me-2"></i>Withdraw
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction History -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h4 mb-0">Transaction History</h2>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary active" data-tx-filter="all">All</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-tx-filter="deposit">Deposits</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-tx-filter="withdrawal">Withdrawals</button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Token</th>
+                                <th>Status</th>
+                                <th>Transaction Hash</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-body">
+                            <!-- Transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="loading-transactions" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading transaction history...</p>
+                </div>
+                
+                <div id="no-transactions" class="alert alert-info" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>No transactions found.
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button id="load-more-tx" class="btn btn-outline-primary" style="display: none;">
+                        Load More
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Modal -->
+<div class="modal fade" id="tx-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Transaction Hash:</div>
+                    <div class="col-sm-8"><a href="#" id="tx-hash-link" target="_blank"></a></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Type:</div>
+                    <div class="col-sm-8" id="tx-type"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Date/Time:</div>
+                    <div class="col-sm-8" id="tx-time"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Amount:</div>
+                    <div class="col-sm-8" id="tx-amount"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Network:</div>
+                    <div class="col-sm-8" id="tx-network"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Gas Used:</div>
+                    <div class="col-sm-8" id="tx-gas"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-4 fw-bold">Status:</div>
+                    <div class="col-sm-8" id="tx-status"></div>
+                </div>
+                <div class="mt-3" id="tx-extra-info"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+<script>
+    // MetaMask connection
+    let currentAccount = null;
+    let currentProvider = null;
+    let currentChainId = null;
+    let tokenBalances = {};
+    let transactionPage = 1;
+    let hasMoreTransactions = false;
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Initialize UI
+        checkMetaMaskConnection();
+        setupEventListeners();
+        
+        // Check if wallet should auto-connect
+        const shouldAutoConnect = localStorage.getItem('autoConnectWallet') === 'true';
+        if (shouldAutoConnect) {
+            connectWallet();
+        }
+    });
+    
+    async function checkMetaMaskConnection() {
+        if (typeof window.ethereum === 'undefined') {
+            document.getElementById('connect-wallet-btn').innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>MetaMask Not Found';
+            document.getElementById('connect-wallet-btn').disabled = true;
+            showAlert('MetaMask not detected. Please install MetaMask to use wallet features.', 'warning');
+            return;
+        }
+        
+        // Check if already connected
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            await handleAccountsChanged(accounts);
+        }
+    }
+    
+    async function connectWallet() {
+        try {
+            currentProvider = new ethers.providers.Web3Provider(window.ethereum);
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            await handleAccountsChanged(accounts);
+            localStorage.setItem('autoConnectWallet', 'true');
+        } catch (error) {
+            console.error('Error connecting to MetaMask:', error);
+            showAlert('Failed to connect to MetaMask. ' + error.message, 'danger');
+        }
+    }
+    
+    async function disconnectWallet() {
+        currentAccount = null;
+        updateConnectionUI(false);
+        localStorage.removeItem('autoConnectWallet');
+        showAlert('Wallet disconnected.', 'info');
+    }
+    
+    async function handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+            // User disconnected
+            disconnectWallet();
+            return;
+        }
+        
+        currentAccount = accounts[0];
+        currentProvider = new ethers.providers.Web3Provider(window.ethereum);
+        
+        // Get current network
+        const network = await currentProvider.getNetwork();
+        currentChainId = network.chainId;
+        
+        updateConnectionUI(true, network.name);
+        loadBalances();
+        loadTransactionHistory();
+    }
+    
+    function updateConnectionUI(connected, networkName = '') {
+        const connectBtn = document.getElementById('connect-wallet-btn');
+        const disconnectBtn = document.getElementById('disconnect-wallet-btn');
+        const connectionStatus = document.getElementById('connection-status');
+        const walletInfo = document.getElementById('wallet-info');
+        const walletAddress = document.getElementById('wallet-address');
+        const networkNameEl = document.getElementById('network-name');
+        const depositBtn = document.getElementById('deposit-btn');
+        const withdrawBtn = document.getElementById('withdraw-btn');
+        
+        if (connected) {
+            connectBtn.style.display = 'none';
+            disconnectBtn.style.display = 'inline-block';
+            connectionStatus.textContent = 'Connected';
+            connectionStatus.className = 'badge bg-success me-2';
+            walletInfo.style.display = 'block';
+            walletAddress.textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
+            networkNameEl.textContent = networkName || 'Unknown';
+            depositBtn.disabled = false;
+            withdrawBtn.disabled = false;
+            
+            // Hide no wallet alert
+            document.getElementById('no-wallet-alert').style.display = 'none';
+        } else {
+            connectBtn.style.display = 'inline-block';
+            disconnectBtn.style.display = 'none';
+            connectionStatus.textContent = 'Disconnected';
+            connectionStatus.className = 'badge bg-secondary me-2';
+            walletInfo.style.display = 'none';
+            depositBtn.disabled = true;
+            withdrawBtn.disabled = true;
+            
+            // Show no wallet alert
+            document.getElementById('no-wallet-alert').style.display = 'block';
+        }
+    }
+    
+    async function loadBalances() {
+        if (!currentAccount || !currentProvider) {
+            document.getElementById('balances-loading').style.display = 'none';
+            document.getElementById('balances-section').style.display = 'block';
+            return;
+        }
+        
+        document.getElementById('balances-loading').style.display = 'block';
+        document.getElementById('balances-section').style.display = 'none';
+        
+        try {
+            // Get ETH balance
+            const ethBalance = await currentProvider.getBalance(currentAccount);
+            const ethBalanceFormatted = ethers.utils.formatEther(ethBalance);
+            tokenBalances.ETH = ethBalanceFormatted;
+            
+            // Update this with your token addresses and ABIs
+            const tokens = {
+                USDC: {
+                    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+                    decimals: 6
+                },
+                WETH: {
+                    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                    decimals: 18
+                },
+                DAI: {
+                    address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                    decimals: 18
+                }
+            };
+            
+            // Use a mock implementation for demo purposes
+            // In production, you would use the actual token contracts
+            tokenBalances.USDC = '1250.75';
+            tokenBalances.WETH = '0.45';
+            tokenBalances.DAI = '500.25';
+            
+            // Update balance cards
+            const balanceCards = document.getElementById('balance-cards');
+            balanceCards.innerHTML = '';
+            
+            // ETH card
+            balanceCards.innerHTML += createBalanceCard('ETH', ethBalanceFormatted);
+            
+            // Token cards
+            Object.keys(tokens).forEach(symbol => {
+                balanceCards.innerHTML += createBalanceCard(symbol, tokenBalances[symbol]);
+            });
+            
+            // Update available balances in forms
+            updateAvailableBalances();
+            
+            document.getElementById('balances-loading').style.display = 'none';
+            document.getElementById('balances-section').style.display = 'block';
+        } catch (error) {
+            console.error('Error loading balances:', error);
+            showAlert('Failed to load wallet balances.', 'danger');
+            document.getElementById('balances-loading').style.display = 'none';
+            document.getElementById('balances-section').style.display = 'block';
+        }
+    }
+    
+    function createBalanceCard(symbol, balance) {
+        // Get USD value (mock implementation)
+        const usdValues = {
+            ETH: 2500,
+            USDC: 1,
+            WETH: 2500,
+            DAI: 1
+        };
+        
+        const usdValue = parseFloat(balance) * usdValues[symbol];
+        
+        return `
+            <div class="col-md-6 col-lg-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title mb-0">${symbol}</h5>
+                            <span class="badge bg-light text-dark">
+                                ${getTokenIcon(symbol)}
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <h3>${parseFloat(balance).toFixed(4)}</h3>
+                            <p class="text-muted mb-0">≈ $${usdValue.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function getTokenIcon(symbol) {
+        const icons = {
+            ETH: '<i class="fab fa-ethereum"></i>',
+            USDC: '<span>USDC</span>',
+            WETH: '<i class="fab fa-ethereum"></i><small>W</small>',
+            DAI: '<span>DAI</span>'
+        };
+        
+        return icons[symbol] || symbol;
+    }
+    
+    function updateAvailableBalances() {
+        const depositToken = document.getElementById('deposit-token').value;
+        const withdrawToken = document.getElementById('withdraw-token').value;
+        
+        document.getElementById('deposit-available').textContent = tokenBalances[depositToken] || '0.00';
+        document.getElementById('withdraw-available').textContent = tokenBalances[withdrawToken] || '0.00';
+        
+        // Update token symbols in form
+        const tokenSymbolElements = document.querySelectorAll('.token-symbol');
+        tokenSymbolElements.forEach(el => {
+            if (el.parentElement.id === 'deposit-amount-group') {
+                el.textContent = depositToken;
+            } else if (el.parentElement.id === 'withdraw-amount-group') {
+                el.textContent = withdrawToken;
+            }
+        });
+    }
+    
+    async function loadTransactionHistory(reset = true) {
+        if (!currentAccount) {
+            document.getElementById('no-transactions').style.display = 'block';
+            document.getElementById('loading-transactions').style.display = 'none';
+            document.getElementById('load-more-tx').style.display = 'none';
+            return;
+        }
+        
+        if (reset) {
+            transactionPage = 1;
+            document.getElementById('transactions-body').innerHTML = '';
+        }
+        
+        document.getElementById('loading-transactions').style.display = 'block';
+        document.getElementById('no-transactions').style.display = 'none';
+        document.getElementById('load-more-tx').style.display = 'none';
+        
+        try {
+            // Mock transaction history for demo
+            // In production, you would fetch from your API or from blockchain
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading
+            
+            const mockTransactions = [
+                {
+                    type: 'deposit',
+                    amount: '1.5',
+                    token: 'ETH',
+                    timestamp: Date.now() - 3600000,
+                    hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+                    status: 'completed',
+                    network: 'mainnet',
+                    gas: '0.002134 ETH'
+                },
+                {
+                    type: 'withdrawal',
+                    amount: '500',
+                    token: 'USDC',
+                    timestamp: Date.now() - 86400000,
+                    hash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+                    status: 'completed',
+                    network: 'arbitrum',
+                    gas: '0.000134 ETH'
+                },
+                {
+                    type: 'deposit',
+                    amount: '0.25',
+                    token: 'WETH',
+                    timestamp: Date.now() - 172800000,
+                    hash: '0x7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef123456',
+                    status: 'completed',
+                    network: 'optimism',
+                    gas: '0.000089 ETH'
+                }
+            ];
+            
+            if (mockTransactions.length === 0 && transactionPage === 1) {
+                document.getElementById('no-transactions').style.display = 'block';
+            } else {
+                const tbody = document.getElementById('transactions-body');
+                
+                mockTransactions.forEach(tx => {
+                    tbody.innerHTML += `
+                        <tr data-tx-hash="${tx.hash}" data-tx-type="${tx.type}" class="transaction-row">
+                            <td>${new Date(tx.timestamp).toLocaleString()}</td>
+                            <td><span class="badge ${tx.type === 'deposit' ? 'bg-success' : 'bg-warning'}">${tx.type}</span></td>
+                            <td>${tx.amount}</td>
+                            <td>${tx.token}</td>
+                            <td><span class="badge bg-${getStatusBadge(tx.status)}">${tx.status}</span></td>
+                            <td><a href="#" class="tx-link">${tx.hash.substring(0, 6)}...${tx.hash.substring(tx.hash.length - 4)}</a></td>
+                        </tr>
+                    `;
+                });
+                
+                // Show load more button if there are more transactions
+                hasMoreTransactions = transactionPage < 3; // For demo purposes
+                if (hasMoreTransactions) {
+                    document.getElementById('load-more-tx').style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+            showAlert('Failed to load transaction history.', 'danger');
+        } finally {
+            document.getElementById('loading-transactions').style.display = 'none';
+        }
+    }
+    
+    function getStatusBadge(status) {
+        switch (status) {
+            case 'completed': return 'success';
+            case 'pending': return 'warning';
+            case 'failed': return 'danger';
+            default: return 'secondary';
+        }
+    }
+    
+    function showTransactionDetails(hash) {
+        // In a real app, we would fetch transaction details from the blockchain
+        // For demo, we'll use mock data
+        const mockTx = {
+            hash: hash,
+            type: hash.startsWith('0x123') ? 'deposit' : 'withdrawal',
+            token: hash.startsWith('0x123') ? 'ETH' : 'USDC',
+            amount: hash.startsWith('0x123') ? '1.5 ETH' : '500 USDC',
+            timestamp: Date.now() - 3600000,
+            network: 'Ethereum Mainnet',
+            gas: '0.002134 ETH',
+            status: 'Completed',
+            extraInfo: 'Transaction processed by ArbitrageX trading bot.'
+        };
+        
+        document.getElementById('tx-hash-link').textContent = hash;
+        document.getElementById('tx-hash-link').href = `https://etherscan.io/tx/${hash}`;
+        document.getElementById('tx-type').textContent = mockTx.type.charAt(0).toUpperCase() + mockTx.type.slice(1);
+        document.getElementById('tx-time').textContent = new Date(mockTx.timestamp).toLocaleString();
+        document.getElementById('tx-amount').textContent = mockTx.amount;
+        document.getElementById('tx-network').textContent = mockTx.network;
+        document.getElementById('tx-gas').textContent = mockTx.gas;
+        document.getElementById('tx-status').textContent = mockTx.status;
+        document.getElementById('tx-extra-info').textContent = mockTx.extraInfo;
+        
+        const txModal = new bootstrap.Modal(document.getElementById('tx-modal'));
+        txModal.show();
+    }
+    
+    async function handleDeposit(event) {
+        event.preventDefault();
+        
+        if (!currentAccount) {
+            showAlert('Please connect your wallet first.', 'warning');
+            return;
+        }
+        
+        const token = document.getElementById('deposit-token').value;
+        const amount = document.getElementById('deposit-amount').value;
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            showAlert('Please enter a valid amount.', 'warning');
+            return;
+        }
+        
+        // Check if amount exceeds balance
+        if (parseFloat(amount) > parseFloat(tokenBalances[token])) {
+            showAlert(`Insufficient ${token} balance.`, 'warning');
+            return;
+        }
+        
+        try {
+            // Show loading
+            document.getElementById('deposit-btn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+            document.getElementById('deposit-btn').disabled = true;
+            
+            // In a real application, we would send the transaction to the blockchain
+            // For demo purposes, we'll just simulate a delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Simulate successful deposit
+            showAlert(`Successfully deposited ${amount} ${token}.`, 'success');
+            
+            // Update balances
+            if (token === 'ETH') {
+                tokenBalances.ETH = (parseFloat(tokenBalances.ETH) - parseFloat(amount)).toString();
+            }
+            
+            // Reload balances and transaction history
+            loadBalances();
+            loadTransactionHistory();
+            
+            // Reset form
+            document.getElementById('deposit-form').reset();
+        } catch (error) {
+            console.error('Deposit error:', error);
+            showAlert(`Failed to deposit: ${error.message}`, 'danger');
+        } finally {
+            document.getElementById('deposit-btn').innerHTML = '<i class="fas fa-arrow-circle-down me-2"></i>Deposit';
+            document.getElementById('deposit-btn').disabled = false;
+        }
+    }
+    
+    async function handleWithdraw(event) {
+        event.preventDefault();
+        
+        if (!currentAccount) {
+            showAlert('Please connect your wallet first.', 'warning');
+            return;
+        }
+        
+        const token = document.getElementById('withdraw-token').value;
+        const amount = document.getElementById('withdraw-amount').value;
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            showAlert('Please enter a valid amount.', 'warning');
+            return;
+        }
+        
+        try {
+            // Show loading
+            document.getElementById('withdraw-btn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+            document.getElementById('withdraw-btn').disabled = true;
+            
+            // In a real application, we would send the withdrawal request to the backend
+            // For demo purposes, we'll just simulate a delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Simulate successful withdrawal
+            showAlert(`Successfully initiated withdrawal of ${amount} ${token}.`, 'success');
+            
+            // Reload transaction history
+            loadTransactionHistory();
+            
+            // Reset form
+            document.getElementById('withdraw-form').reset();
+        } catch (error) {
+            console.error('Withdrawal error:', error);
+            showAlert(`Failed to withdraw: ${error.message}`, 'danger');
+        } finally {
+            document.getElementById('withdraw-btn').innerHTML = '<i class="fas fa-arrow-circle-up me-2"></i>Withdraw';
+            document.getElementById('withdraw-btn').disabled = false;
+        }
+    }
+    
+    function showAlert(message, type = 'info') {
+        const alertsContainer = document.createElement('div');
+        alertsContainer.className = 'position-fixed top-0 end-0 p-3';
+        alertsContainer.style.zIndex = '5000';
+        alertsContainer.id = 'alerts-container';
+        
+        const existingContainer = document.getElementById('alerts-container');
+        const container = existingContainer || alertsContainer;
+        
+        if (!existingContainer) {
+            document.body.appendChild(container);
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = `toast align-items-center text-white bg-${type} border-0`;
+        alert.role = 'alert';
+        alert.ariaLive = 'assertive';
+        alert.ariaAtomic = 'true';
+        
+        alert.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        container.appendChild(alert);
+        
+        const bsAlert = new bootstrap.Toast(alert, { delay: 5000 });
+        bsAlert.show();
+        
+        alert.addEventListener('hidden.bs.toast', function() {
+            container.removeChild(alert);
+            if (container.children.length === 0 && container.id === 'alerts-container') {
+                document.body.removeChild(container);
+            }
+        });
+    }
+    
+    function setupEventListeners() {
+        // MetaMask events
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+            window.ethereum.on('chainChanged', () => window.location.reload());
+        }
+        
+        // UI Events
+        document.getElementById('connect-wallet-btn').addEventListener('click', connectWallet);
+        document.getElementById('disconnect-wallet-btn').addEventListener('click', disconnectWallet);
+        
+        // Form events
+        document.getElementById('deposit-form').addEventListener('submit', handleDeposit);
+        document.getElementById('withdraw-form').addEventListener('submit', handleWithdraw);
+        
+        // Token select events
+        document.getElementById('deposit-token').addEventListener('change', updateAvailableBalances);
+        document.getElementById('withdraw-token').addEventListener('change', updateAvailableBalances);
+        
+        // Transaction history filter buttons
+        document.querySelectorAll('[data-tx-filter]').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('[data-tx-filter]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-tx-filter');
+                const rows = document.querySelectorAll('.transaction-row');
+                
+                rows.forEach(row => {
+                    if (filter === 'all' || row.getAttribute('data-tx-type') === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Load more button
+        document.getElementById('load-more-tx').addEventListener('click', function() {
+            transactionPage++;
+            loadTransactionHistory(false);
+        });
+        
+        // Transaction detail view
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.tx-link')) {
+                e.preventDefault();
+                const hash = e.target.closest('[data-tx-hash]').getAttribute('data-tx-hash');
+                showTransactionDetails(hash);
+            }
+        });
+    }
+</script>
+{% endblock %} 

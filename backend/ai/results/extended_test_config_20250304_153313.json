@@ -1,0 +1,36 @@
+{
+  "networks": [
+    "ethereum",
+    "arbitrum",
+    "polygon"
+  ],
+  "token_pairs": [
+    [
+      "WETH",
+      "USDC"
+    ],
+    [
+      "WBTC",
+      "DAI"
+    ],
+    [
+      "ETH",
+      "DAI"
+    ]
+  ],
+  "dexes": [
+    "uniswap_v3",
+    "sushiswap",
+    "curve"
+  ],
+  "min_trades": 450,
+  "fork_block": 0,
+  "batch_size": 20,
+  "gas_strategy": "dynamic",
+  "output_dir": "results",
+  "debug": true,
+  "parallel": true,
+  "max_workers": 6,
+  "enable_learning": true,
+  "timestamp": "20250304_153313"
+}

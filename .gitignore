@@ -1,5 +1,4 @@
 # Dependency directories
-node_modules/
 .env
 .npm/
 .yarn/
@@ -12,7 +11,6 @@ __pycache__/
 # Hardhat files
 cache/
 artifacts/
-typechain-types/
 
 # IDE files
 .idea/
@@ -33,11 +31,7 @@ ehthumbs.db
 Thumbs.db
 
 # Build files
-dist/
 build/
-coverage/
-coverage.json
-*.tsbuildinfo
 
 # Deployment files
 deployments/*/solcInputs/
@@ -76,10 +70,6 @@ gasReporter.txt
 deployments/localhost/
 
 # Coverage directory
-coverage/
-.coverage_artifacts/
-.coverage_cache/
-.coverage_contracts/
 
 # Environment files
 .env.*
@@ -115,12 +105,7 @@ privatekey.json
 **/*.crt
 
 # Dependencies & Build
-node_modules/
-dist/
 build/
-coverage/
-coverage.json
-typechain-types/
 cache/
 artifacts/
 
@@ -140,16 +125,11 @@ debug/
 .debug/
 
 # Test & Coverage
-coverage/
-.coverage_artifacts/
-.coverage_cache/
-.coverage_contracts/
 .nyc_output/
 
 # Hardhat
 cache/
 artifacts/
-typechain-types/
 deployments/**/solcInputs/
 deployments/localhost/
 .openzeppelin/unknown-*.json
@@ -188,7 +168,6 @@ verify-*.json
 *.rej
 
 # Build output
-dist/
 build/
 
 # IDE
@@ -201,7 +180,6 @@ build/
 .env.*.local
 
 # Dependencies
-node_modules/
 .venv/
 
 # Logs
@@ -212,8 +190,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Testing
-coverage/
-coverage.json
 
 # Deployment
 deployments/
@@ -224,14 +200,11 @@ deployments/
 !.env.example
 
 # Dependencies
-node_modules/
 .npm
 .yarn
 
 # Build outputs
-dist/
 build/
-*.tsbuildinfo
 
 # Logs
 logs/
@@ -250,8 +223,6 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Test coverage
-coverage/
 
 # Hardhat
 cache/
@@ -266,7 +237,6 @@ venv/
 env/
 
 # Build outputs
-dist/
 build/
 
 # System files
@@ -302,7 +272,6 @@ npm-debug.log*
 .eslintcache
 
 # Production files
-.next/
 out/
 build/
 .vercel
@@ -319,8 +288,8 @@ docker-compose.override.yml
 .env.production.local
 *.pem
 .vercel
-.next
 .turbo
 
 # Sentry Config File
 .sentryclirc
+node_modules

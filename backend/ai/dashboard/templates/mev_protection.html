@@ -1,0 +1,828 @@
+{% extends "base.html" %}
+
+{% block title %}MEV Protection Insights | ArbitrageX{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">MEV Protection Insights</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+        <li class="breadcrumb-item active">MEV Protection</li>
+    </ol>
+    
+    <!-- Status and Summary Cards -->
+    <div class="row mb-4">
+        <!-- MEV Protection Status -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card" id="protection-status-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column">
+                            <div class="text-uppercase fw-bold text-xs mb-1">
+                                <span>Protection Status</span>
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="protection-status">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shield-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="protection-toggle" disabled>
+                        <label class="form-check-label" for="protection-toggle">Toggle Protection</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Protected Transactions -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column">
+                            <div class="text-uppercase fw-bold text-xs mb-1">
+                                <span>Protected Transactions</span>
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold" id="protected-count">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-lock fa-2x text-white-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#protection-details">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estimated Savings -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column">
+                            <div class="text-uppercase fw-bold text-xs mb-1">
+                                <span>Estimated Savings (Total)</span>
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold" id="estimated-savings">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-white-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#savings-chart">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Savings -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column">
+                            <div class="text-uppercase fw-bold text-xs mb-1">
+                                <span>Daily Savings (24h)</span>
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold" id="daily-savings">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-day fa-2x text-white-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#savings-chart">View Trends</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Protection Metrics Charts -->
+    <div class="row mb-4">
+        <!-- Protection Level Metrics -->
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    Protection Level Distribution
+                </div>
+                <div class="card-body">
+                    <canvas id="protectionLevelChart" width="100%" height="40"></canvas>
+                </div>
+                <div class="card-footer small text-muted" id="protection-level-updated">Last updated: Loading...</div>
+            </div>
+        </div>
+        
+        <!-- Risk Level Metrics -->
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    MEV Risk Level Distribution
+                </div>
+                <div class="card-body">
+                    <canvas id="riskLevelChart" width="100%" height="40"></canvas>
+                </div>
+                <div class="card-footer small text-muted" id="risk-level-updated">Last updated: Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Savings Over Time Chart -->
+    <div class="row mb-4" id="savings-chart">
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-area me-1"></i>
+                    Estimated Savings Over Time
+                </div>
+                <div class="card-body">
+                    <canvas id="savingsChart" width="100%" height="30"></canvas>
+                </div>
+                <div class="card-footer small text-muted" id="savings-updated">Last updated: Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Protection Details and High Risk Trades -->
+    <div class="row mb-4" id="protection-details">
+        <!-- Protection Methods Table -->
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    Protection Methods
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Transactions</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="protection-methods-body">
+                            <tr>
+                                <td colspan="3" class="text-center">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer small text-muted" id="protection-methods-updated">Last updated: Loading...</div>
+            </div>
+        </div>
+        
+        <!-- High Risk Trades -->
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Recent High Risk Trades
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Risk Level</th>
+                                    <th>Protection</th>
+                                    <th>Savings</th>
+                                </tr>
+                            </thead>
+                            <tbody id="high-risk-trades-body">
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer small text-muted" id="high-risk-updated">Last updated: Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MEV Protection Explainer -->
+    <div class="row mb-4">
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Understanding MEV Protection
+                </div>
+                <div class="card-body">
+                    <h5>What is MEV?</h5>
+                    <p>
+                        Miner Extractable Value (MEV) refers to the profit that miners (or validators in proof-of-stake systems) can extract by manipulating 
+                        the order of transactions. This can lead to various attacks on users' transactions, including:
+                    </p>
+                    <ul>
+                        <li><strong>Front-running</strong>: When a miner sees a pending transaction and submits their own transaction to execute before the user's.</li>
+                        <li><strong>Sandwich attacks</strong>: When a miner places transactions both before and after a user's transaction to profit from price movements.</li>
+                        <li><strong>Back-running</strong>: When a miner places a transaction immediately after a user's transaction to profit from its effects.</li>
+                    </ul>
+                    <hr>
+                    <h5>How MEV Protection Works</h5>
+                    <p>
+                        ArbitrageX implements several protection mechanisms to prevent MEV attacks:
+                    </p>
+                    <ol>
+                        <li><strong>Flashbots Integration</strong>: Submit trades directly to miners, bypassing the public mempool where they could be seen and front-run.</li>
+                        <li><strong>Transaction Bundling</strong>: Group multiple transactions to be executed atomically, preventing sandwich attacks.</li>
+                        <li><strong>MEV Risk Assessment</strong>: Analyze each trade for potential MEV risk and apply appropriate protection.</li>
+                        <li><strong>Optimized Slippage</strong>: Set transaction parameters to minimize the impact of potential MEV attacks.</li>
+                    </ol>
+                    <hr>
+                    <h5>Protection Levels</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">Basic Protection</div>
+                                <div class="card-body">
+                                    <p class="card-text">Standard protection for regular trades with moderate MEV risk.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">Enhanced Protection</div>
+                                <div class="card-body">
+                                    <p class="card-text">Advanced protection for higher-value trades or those with elevated MEV risk.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">Maximum Protection</div>
+                                <div class="card-body">
+                                    <p class="card-text">Comprehensive protection for high-value trades or those with extreme MEV risk.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for protection settings -->
+<div class="modal fade" id="protectionSettingsModal" tabindex="-1" aria-labelledby="protectionSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="protectionSettingsModalLabel">MEV Protection Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="modal-protection-toggle">
+                    <label class="form-check-label" for="modal-protection-toggle">Enable MEV Protection</label>
+                </div>
+                <div class="mb-3">
+                    <label for="default-protection-level" class="form-label">Default Protection Level</label>
+                    <select class="form-select" id="default-protection-level">
+                        <option value="basic">Basic</option>
+                        <option value="enhanced">Enhanced</option>
+                        <option value="maximum">Maximum</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="preferred-protection-method" class="form-label">Preferred Protection Method</label>
+                    <select class="form-select" id="preferred-protection-method">
+                        <option value="flashbots">Flashbots</option>
+                        <option value="eden_network">Eden Network</option>
+                        <option value="bloxroute">Bloxroute</option>
+                        <option value="transaction_bundle">Transaction Bundle</option>
+                        <option value="auto">Auto-select (Recommended)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="risk-threshold" class="form-label">Risk Threshold for Enhanced Protection</label>
+                    <select class="form-select" id="risk-threshold">
+                        <option value="low">Apply for Low risk and above</option>
+                        <option value="medium" selected>Apply for Medium risk and above</option>
+                        <option value="high">Apply for High risk and above</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="save-protection-settings">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    // Chart configuration
+    Chart.defaults.color = '#6c757d';
+    Chart.defaults.font.family = "'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+    
+    // Chart objects
+    let protectionLevelChart;
+    let riskLevelChart;
+    let savingsChart;
+    
+    // Data refresh interval (in milliseconds)
+    const refreshInterval = 10000; // 10 seconds
+    
+    // Colors for charts
+    const chartColors = {
+        blue: 'rgba(0, 123, 255, 0.7)',
+        green: 'rgba(40, 167, 69, 0.7)',
+        yellow: 'rgba(255, 193, 7, 0.7)',
+        red: 'rgba(220, 53, 69, 0.7)',
+        purple: 'rgba(111, 66, 193, 0.7)',
+        cyan: 'rgba(23, 162, 184, 0.7)',
+        gray: 'rgba(108, 117, 125, 0.7)',
+        lightBlue: 'rgba(13, 202, 240, 0.7)'
+    };
+    
+    // Fetch MEV protection data
+    function fetchMEVProtectionData() {
+        fetch('/api/mev-protection/metrics')
+            .then(response => response.json())
+            .then(data => {
+                updateStatusCard(data);
+                updateMetricsCards(data);
+                updateProtectionLevelChart(data);
+                updateRiskLevelChart(data);
+                updateProtectionMethodsTable(data);
+            })
+            .catch(error => console.error('Error fetching MEV protection metrics:', error));
+        
+        fetch('/api/mev-protection/insights')
+            .then(response => response.json())
+            .then(data => {
+                updateSavingsChart(data);
+                updateHighRiskTradesTable(data);
+            })
+            .catch(error => console.error('Error fetching MEV protection insights:', error));
+            
+        fetch('/api/mev-protection/summary')
+            .then(response => response.json())
+            .then(data => {
+                updateSummaryCards(data);
+            })
+            .catch(error => console.error('Error fetching MEV protection summary:', error));
+    }
+    
+    // Update Status Card
+    function updateStatusCard(data) {
+        const statusElement = document.getElementById('protection-status');
+        const toggleElement = document.getElementById('protection-toggle');
+        const modalToggleElement = document.getElementById('modal-protection-toggle');
+        const statusCard = document.getElementById('protection-status-card');
+        
+        if (data.protection_status) {
+            statusElement.textContent = 'ENABLED';
+            statusElement.classList.add('text-success');
+            statusElement.classList.remove('text-danger');
+            statusCard.classList.add('border-success');
+            statusCard.classList.remove('border-danger');
+        } else {
+            statusElement.textContent = 'DISABLED';
+            statusElement.classList.add('text-danger');
+            statusElement.classList.remove('text-success');
+            statusCard.classList.add('border-danger');
+            statusCard.classList.remove('border-success');
+        }
+        
+        toggleElement.checked = data.protection_status;
+        modalToggleElement.checked = data.protection_status;
+        toggleElement.disabled = false;
+    }
+    
+    // Update Metrics Cards
+    function updateMetricsCards(data) {
+        // Update protected transactions count
+        document.getElementById('protected-count').textContent = data.protected_transactions.total.toLocaleString();
+    }
+    
+    // Update Summary Cards
+    function updateSummaryCards(data) {
+        // Update savings
+        document.getElementById('estimated-savings').textContent = '$' + data.estimated_total_savings.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits:
+            2
+        });
+        
+        document.getElementById('daily-savings').textContent = '$' + data.estimated_daily_savings.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        
+        // Update last updated timestamps
+        const lastUpdated = new Date(data.last_updated);
+        const formattedDate = lastUpdated.toLocaleString();
+        
+        document.getElementById('protection-level-updated').textContent = 'Last updated: ' + formattedDate;
+        document.getElementById('risk-level-updated').textContent = 'Last updated: ' + formattedDate;
+        document.getElementById('protection-methods-updated').textContent = 'Last updated: ' + formattedDate;
+        document.getElementById('savings-updated').textContent = 'Last updated: ' + formattedDate;
+        document.getElementById('high-risk-updated').textContent = 'Last updated: ' + formattedDate;
+    }
+    
+    // Update Protection Level Chart
+    function updateProtectionLevelChart(data) {
+        const protectionLevels = data.protected_transactions;
+        
+        // Remove the total from the chart data
+        const chartData = {
+            labels: ['Basic', 'Enhanced', 'Maximum'],
+            datasets: [{
+                data: [
+                    protectionLevels.basic || 0,
+                    protectionLevels.enhanced || 0,
+                    protectionLevels.maximum || 0
+                ],
+                backgroundColor: [
+                    chartColors.blue,
+                    chartColors.green,
+                    chartColors.purple
+                ],
+                hoverBackgroundColor: [
+                    chartColors.blue.replace('0.7', '1'),
+                    chartColors.green.replace('0.7', '1'),
+                    chartColors.purple.replace('0.7', '1')
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        if (protectionLevelChart) {
+            protectionLevelChart.data = chartData;
+            protectionLevelChart.update();
+        } else {
+            const ctx = document.getElementById('protectionLevelChart');
+            protectionLevelChart = new Chart(ctx, {
+                type: 'pie',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.formattedValue;
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((context.raw / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    // Update Risk Level Chart
+    function updateRiskLevelChart(data) {
+        const riskLevels = data.risk_levels;
+        
+        const chartData = {
+            labels: ['Low', 'Medium', 'High', 'Extreme'],
+            datasets: [{
+                data: [
+                    riskLevels.low || 0,
+                    riskLevels.medium || 0,
+                    riskLevels.high || 0,
+                    riskLevels.extreme || 0
+                ],
+                backgroundColor: [
+                    chartColors.blue,
+                    chartColors.yellow,
+                    chartColors.orange || 'rgba(255, 128, 0, 0.7)',
+                    chartColors.red
+                ],
+                hoverBackgroundColor: [
+                    chartColors.blue.replace('0.7', '1'),
+                    chartColors.yellow.replace('0.7', '1'),
+                    (chartColors.orange || 'rgba(255, 128, 0, 0.7)').replace('0.7', '1'),
+                    chartColors.red.replace('0.7', '1')
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        if (riskLevelChart) {
+            riskLevelChart.data = chartData;
+            riskLevelChart.update();
+        } else {
+            const ctx = document.getElementById('riskLevelChart');
+            riskLevelChart = new Chart(ctx, {
+                type: 'pie',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.formattedValue;
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((context.raw / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    // Update Savings Chart
+    function updateSavingsChart(data) {
+        if (!data.savings_over_time || data.savings_over_time.length === 0) {
+            return;
+        }
+        
+        // Process and limit data to last 30 entries for better visualization
+        const savingsData = data.savings_over_time.slice(-30);
+        
+        // Format timestamps and aggregate by day
+        const dateFormat = new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+        
+        // Group data by date
+        const groupedData = {};
+        savingsData.forEach(entry => {
+            const date = new Date(entry.timestamp);
+            const formattedDate = dateFormat.format(date);
+            
+            if (!groupedData[formattedDate]) {
+                groupedData[formattedDate] = 0;
+            }
+            
+            groupedData[formattedDate] += entry.saving;
+        });
+        
+        // Convert grouped data to arrays for chart
+        const labels = Object.keys(groupedData);
+        const values = Object.values(groupedData);
+        
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: 'Estimated Savings ($)',
+                data: values,
+                fill: {
+                    target: 'origin',
+                    above: chartColors.green.replace('0.7', '0.2')
+                },
+                borderColor: chartColors.green.replace('0.7', '1'),
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: chartColors.green.replace('0.7', '1')
+            }]
+        };
+        
+        if (savingsChart) {
+            savingsChart.data = chartData;
+            savingsChart.update();
+        } else {
+            const ctx = document.getElementById('savingsChart');
+            savingsChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Savings: $' + context.raw.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    // Update Protection Methods Table
+    function updateProtectionMethodsTable(data) {
+        const tableBody = document.getElementById('protection-methods-body');
+        const methods = data.protection_methods;
+        
+        // Calculate total
+        const total = Object.values(methods).reduce((a, b) => a + b, 0);
+        
+        if (total === 0) {
+            tableBody.innerHTML = '<tr><td colspan="3" class="text-center">No protected transactions yet</td></tr>';
+            return;
+        }
+        
+        // Create table rows
+        let html = '';
+        for (const [method, count] of Object.entries(methods)) {
+            if (count > 0) {
+                const percentage = ((count / total) * 100).toFixed(1);
+                const methodName = method.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                
+                html += `
+                <tr>
+                    <td>${methodName}</td>
+                    <td>${count.toLocaleString()}</td>
+                    <td>${percentage}%</td>
+                </tr>
+                `;
+            }
+        }
+        
+        if (html === '') {
+            tableBody.innerHTML = '<tr><td colspan="3" class="text-center">No protected transactions yet</td></tr>';
+        } else {
+            tableBody.innerHTML = html;
+        }
+    }
+    
+    // Update High Risk Trades Table
+    function updateHighRiskTradesTable(data) {
+        const tableBody = document.getElementById('high-risk-trades-body');
+        const trades = data.high_risk_trades;
+        
+        if (!trades || trades.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">No high-risk trades recorded</td></tr>';
+            return;
+        }
+        
+        // Sort by timestamp (newest first)
+        const sortedTrades = [...trades].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Take the latest 10 trades
+        const recentTrades = sortedTrades.slice(0, 10);
+        
+        // Create table rows
+        let html = '';
+        for (const trade of recentTrades) {
+            const timestamp = new Date(trade.timestamp);
+            const formattedTime = timestamp.toLocaleString();
+            const riskClass = trade.risk_level === 'extreme' ? 'danger' : 'warning';
+            
+            html += `
+            <tr>
+                <td>${formattedTime}</td>
+                <td><span class="badge bg-${riskClass}">${trade.risk_level.toUpperCase()}</span></td>
+                <td>${trade.protection_level.toUpperCase()}</td>
+                <td>$${trade.estimated_saving.toFixed(2)}</td>
+            </tr>
+            `;
+        }
+        
+        tableBody.innerHTML = html;
+    }
+    
+    // Toggle protection status
+    function toggleProtectionStatus(status) {
+        fetch('/api/mev-protection/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showAlert('MEV Protection status updated successfully', 'success');
+                // Update UI
+                fetchMEVProtectionData();
+            } else {
+                // Show error message
+                showAlert('Failed to update MEV Protection status: ' + data.error, 'danger');
+                // Reset toggle to previous state
+                document.getElementById('protection-toggle').checked = !status;
+                document.getElementById('modal-protection-toggle').checked = !status;
+            }
+        })
+        .catch(error => {
+            console.error('Error toggling protection status:', error);
+            showAlert('Error toggling protection status: ' + error, 'danger');
+            // Reset toggle to previous state
+            document.getElementById('protection-toggle').checked = !status;
+            document.getElementById('modal-protection-toggle').checked = !status;
+        });
+    }
+    
+    // Save protection settings
+    function saveProtectionSettings() {
+        const settings = {
+            protection_status: document.getElementById('modal-protection-toggle').checked,
+            default_protection_level: document.getElementById('default-protection-level').value,
+            preferred_protection_method: document.getElementById('preferred-protection-method').value,
+            risk_threshold: document.getElementById('risk-threshold').value
+        };
+        
+        fetch('/api/mev-protection/settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(settings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showAlert('MEV Protection settings saved successfully', 'success');
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('protectionSettingsModal'));
+                modal.hide();
+                // Update UI
+                fetchMEVProtectionData();
+            } else {
+                // Show error message
+                showAlert('Failed to save MEV Protection settings: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving protection settings:', error);
+            showAlert('Error saving protection settings: ' + error, 'danger');
+        });
+    }
+    
+    // Show alert message
+    function showAlert(message, type) {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+        alertContainer.style.zIndex = '1050';
+        alertContainer.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        document.body.appendChild(alertContainer);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alertContainer.classList.remove('show');
+            setTimeout(() => alertContainer.remove(), 150);
+        }, 5000);
+    }
+    
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initial data fetch
+        fetchMEVProtectionData();
+        
+        // Set up refresh interval
+        setInterval(fetchMEVProtectionData, refreshInterval);
+        
+        // Protection toggle event listeners
+        document.getElementById('protection-toggle').addEventListener('change', function() {
+            toggleProtectionStatus(this.checked);
+        });
+        
+        document.getElementById('modal-protection-toggle').addEventListener('change', function() {
+            document.getElementById('protection-toggle').checked = this.checked;
+        });
+        
+        // Settings modal save button
+        document.getElementById('save-protection-settings').addEventListener('click', saveProtectionSettings);
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArbitrageX WebSocket Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .status-label {
+            width: 120px;
+            font-weight: bold;
+        }
+        .status-value {
+            flex-grow: 1;
+        }
+        .connected {
+            color: #27ae60;
+        }
+        .disconnected {
+            color: #e74c3c;
+        }
+        .connection-status {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .connected-status {
+            background-color: #27ae60;
+            color: white;
+        }
+        .disconnected-status {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #messageLog {
+            height: 300px;
+            overflow-y: auto;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 20px;
+        }
+        .message {
+            margin-bottom: 8px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 8px;
+        }
+        .message-time {
+            color: #95a5a6;
+            font-size: 0.8em;
+        }
+        .message-type {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .message-content {
+            margin-top: 4px;
+            white-space: pre-wrap;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>ArbitrageX WebSocket Test</h1>
+    
+    <div class="card">
+        <h2>Connection Status</h2>
+        <div id="connectionStatus" class="connection-status disconnected-status">Disconnected</div>
+        <button id="connectButton">Connect</button>
+        <button id="disconnectButton" disabled>Disconnect</button>
+    </div>
+    
+    <div class="card">
+        <h2>System Health</h2>
+        <div class="status">
+            <div class="status-label">Blockchain:</div>
+            <div id="blockchainStatus" class="status-value disconnected">Disconnected</div>
+        </div>
+        <div class="status">
+            <div class="status-label">MongoDB:</div>
+            <div id="mongodbStatus" class="status-value disconnected">Disconnected</div>
+        </div>
+        <div class="status">
+            <div class="status-label">Redis:</div>
+            <div id="redisStatus" class="status-value disconnected">Disconnected</div>
+        </div>
+        <div class="status">
+            <div class="status-label">Web3:</div>
+            <div id="web3Status" class="status-value disconnected">Disconnected</div>
+        </div>
+        <div class="status">
+            <div class="status-label">Last Update:</div>
+            <div id="lastUpdate" class="status-value">Never</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Message Log</h2>
+        <div id="messageLog"></div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const connectButton = document.getElementById('connectButton');
+        const disconnectButton = document.getElementById('disconnectButton');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const blockchainStatus = document.getElementById('blockchainStatus');
+        const mongodbStatus = document.getElementById('mongodbStatus');
+        const redisStatus = document.getElementById('redisStatus');
+        const web3Status = document.getElementById('web3Status');
+        const lastUpdate = document.getElementById('lastUpdate');
+        const messageLog = document.getElementById('messageLog');
+        
+        // WebSocket connection
+        let socket = null;
+        
+        // Connect to WebSocket server
+        function connect() {
+            // WebSocket server URL
+            const wsUrl = 'ws://localhost:3002/ws';
+            
+            // Create WebSocket connection
+            socket = new WebSocket(wsUrl);
+            
+            // Connection opened
+            socket.addEventListener('open', (event) => {
+                connectionStatus.textContent = 'Connected';
+                connectionStatus.classList.remove('disconnected-status');
+                connectionStatus.classList.add('connected-status');
+                
+                connectButton.disabled = true;
+                disconnectButton.disabled = false;
+                
+                logMessage('system', 'Connected to WebSocket server');
+            });
+            
+            // Listen for messages
+            socket.addEventListener('message', (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    
+                    // Log the message
+                    logMessage(message.type, JSON.stringify(message.data, null, 2));
+                    
+                    // Handle system health messages
+                    if (message.type === 'systemHealth') {
+                        updateSystemHealth(message.data);
+                    }
+                } catch (error) {
+                    logMessage('error', `Error parsing message: ${error.message}`);
+                    logMessage('raw', event.data);
+                }
+            });
+            
+            // Handle errors
+            socket.addEventListener('error', (event) => {
+                logMessage('error', 'WebSocket error occurred');
+            });
+            
+            // Connection closed
+            socket.addEventListener('close', (event) => {
+                connectionStatus.textContent = 'Disconnected';
+                connectionStatus.classList.remove('connected-status');
+                connectionStatus.classList.add('disconnected-status');
+                
+                connectButton.disabled = false;
+                disconnectButton.disabled = true;
+                
+                // Reset system health status
+                resetSystemHealth();
+                
+                logMessage('system', 'Disconnected from WebSocket server');
+            });
+        }
+        
+        // Disconnect from WebSocket server
+        function disconnect() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        }
+        
+        // Update system health status
+        function updateSystemHealth(data) {
+            updateStatus(blockchainStatus, data.blockchain);
+            updateStatus(mongodbStatus, data.mongodb);
+            updateStatus(redisStatus, data.redis);
+            updateStatus(web3Status, data.web3);
+            
+            lastUpdate.textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Reset system health status
+        function resetSystemHealth() {
+            updateStatus(blockchainStatus, false);
+            updateStatus(mongodbStatus, false);
+            updateStatus(redisStatus, false);
+            updateStatus(web3Status, false);
+        }
+        
+        // Update status element
+        function updateStatus(element, connected) {
+            if (connected) {
+                element.textContent = 'Connected';
+                element.classList.remove('disconnected');
+                element.classList.add('connected');
+            } else {
+                element.textContent = 'Disconnected';
+                element.classList.remove('connected');
+                element.classList.add('disconnected');
+            }
+        }
+        
+        // Log message to message log
+        function logMessage(type, content) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            
+            const timeElement = document.createElement('div');
+            timeElement.classList.add('message-time');
+            timeElement.textContent = new Date().toLocaleTimeString();
+            
+            const typeElement = document.createElement('span');
+            typeElement.classList.add('message-type');
+            typeElement.textContent = type;
+            
+            const contentElement = document.createElement('div');
+            contentElement.classList.add('message-content');
+            contentElement.textContent = content;
+            
+            messageElement.appendChild(timeElement);
+            timeElement.appendChild(document.createTextNode(' - '));
+            timeElement.appendChild(typeElement);
+            messageElement.appendChild(contentElement);
+            
+            messageLog.appendChild(messageElement);
+            messageLog.scrollTop = messageLog.scrollHeight;
+        }
+        
+        // Event listeners
+        connectButton.addEventListener('click', connect);
+        disconnectButton.addEventListener('click', disconnect);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,139 @@
+{
+  "timestamp": "2025-03-04 15:09:40",
+  "metrics": {
+    "total_trades": 411,
+    "successful_trades": 374,
+    "success_rate": 0.9099756690997567,
+    "total_profit": 40036.840004040365,
+    "total_gas_cost": 0.009126716050669323,
+    "net_profit": 39063.6070267021,
+    "avg_execution_time": 122.9977874364896
+  },
+  "network_metrics": {
+    "ethereum": {
+      "metrics": {
+        "total_trades": 411,
+        "successful_trades": 374,
+        "success_rate": 0.9099756690997567,
+        "total_profit": 40036.840004040365,
+        "total_gas_cost": 0.009126716050669323,
+        "net_profit": 39063.6070267021,
+        "avg_execution_time": 122.9977874364896
+      }
+    }
+  },
+  "token_pair_metrics": {
+    "WETH-USDC": {
+      "metrics": {
+        "total_trades": 91,
+        "successful_trades": 85,
+        "success_rate": 0.9340659340659341,
+        "total_profit": 9904.910378383025,
+        "total_gas_cost": 0.002121848915898911,
+        "net_profit": 9665.507950278325,
+        "avg_execution_time": 116.46437129984504
+      }
+    },
+    "WBTC-DAI": {
+      "metrics": {
+        "total_trades": 91,
+        "successful_trades": 84,
+        "success_rate": 0.9230769230769231,
+        "total_profit": 9392.656947486388,
+        "total_gas_cost": 0.0020804721060236316,
+        "net_profit": 9172.01697344816,
+        "avg_execution_time": 125.32547091579639
+      }
+    },
+    "ETH-DAI": {
+      "metrics": {
+        "total_trades": 83,
+        "successful_trades": 76,
+        "success_rate": 0.9156626506024096,
+        "total_profit": 7521.036083526141,
+        "total_gas_cost": 0.0017477824917796125,
+        "net_profit": 7334.578918852823,
+        "avg_execution_time": 127.28405632003076
+      }
+    },
+    "USDC-USDT": {
+      "metrics": {
+        "total_trades": 81,
+        "successful_trades": 73,
+        "success_rate": 0.9012345679012346,
+        "total_profit": 7081.345106276036,
+        "total_gas_cost": 0.0017288673161550152,
+        "net_profit": 6888.328045844722,
+        "avg_execution_time": 121.66031553733976
+      }
+    },
+    "WETH-WBTC": {
+      "metrics": {
+        "total_trades": 65,
+        "successful_trades": 56,
+        "success_rate": 0.8615384615384616,
+        "total_profit": 6136.891488368757,
+        "total_gas_cost": 0.001447745220812147,
+        "net_profit": 6003.175138278073,
+        "avg_execution_time": 125.07927325671959
+      }
+    }
+  },
+  "dex_metrics": {
+    "curve": {
+      "metrics": {
+        "total_trades": 88,
+        "successful_trades": 78,
+        "success_rate": 0.8863636363636364,
+        "total_profit": 9220.39999349322,
+        "total_gas_cost": 0.00199239782014632,
+        "net_profit": 9000.617744149342,
+        "avg_execution_time": 116.23465581338074
+      }
+    },
+    "uniswap_v3": {
+      "metrics": {
+        "total_trades": 83,
+        "successful_trades": 75,
+        "success_rate": 0.9036144578313253,
+        "total_profit": 7837.749075522277,
+        "total_gas_cost": 0.00177987923661606,
+        "net_profit": 7626.097542170689,
+        "avg_execution_time": 120.60768575282793
+      }
+    },
+    "sushiswap": {
+      "metrics": {
+        "total_trades": 87,
+        "successful_trades": 83,
+        "success_rate": 0.9540229885057471,
+        "total_profit": 7715.953561788559,
+        "total_gas_cost": 0.0018958871681413057,
+        "net_profit": 7547.155023006936,
+        "avg_execution_time": 123.39131135019102
+      }
+    },
+    "balancer": {
+      "metrics": {
+        "total_trades": 83,
+        "successful_trades": 74,
+        "success_rate": 0.891566265060241,
+        "total_profit": 8635.850657823477,
+        "total_gas_cost": 0.0019084718441433038,
+        "net_profit": 8424.564440032698,
+        "avg_execution_time": 131.738784122162
+      }
+    },
+    "1inch": {
+      "metrics": {
+        "total_trades": 70,
+        "successful_trades": 64,
+        "success_rate": 0.9142857142857143,
+        "total_profit": 6626.886715412813,
+        "total_gas_cost": 0.0015500799816223275,
+        "net_profit": 6465.172277342442,
+        "avg_execution_time": 123.48056911041326
+      }
+    }
+  }
+}

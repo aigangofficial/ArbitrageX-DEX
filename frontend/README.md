@@ -22,12 +22,14 @@ This is the frontend dashboard for the ArbitrageX project, an AI-driven arbitrag
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/arbitragex-new.git
    cd arbitragex-new/frontend
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    # or

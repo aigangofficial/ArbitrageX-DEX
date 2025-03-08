@@ -9,10 +9,12 @@ and adapts strategies based on network conditions and time-based patterns.
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Dense, LSTM, Dropout, BatchNormalization
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+# Import Keras directly for newer TensorFlow versions
+import keras
+from keras.models import Sequential, load_model
+from keras.layers import Dense, LSTM, Dropout, BatchNormalization
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
@@ -28,6 +30,9 @@ import uuid
 from dataclasses import dataclass
 import argparse
 
+# Import Web3 connector for real blockchain data
+from backend.ai.web3_connector import Web3Connector
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -38,6 +43,24 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("StrategyOptimizer")
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Strategy Optimizer for ArbitrageX')
+parser.add_argument('--market-data', type=str, help='Market data in JSON format')
+parser.add_argument('--mainnet-fork', type=str, default='true', help='Use mainnet fork data')
+parser.add_argument('--testnet', action='store_true', help='Run in testnet mode')
+parser.add_argument('--version', action='store_true', help='Show version information')
+args = parser.parse_args()
+
+# Check if running in testnet mode
+TESTNET_MODE = args.testnet
+if TESTNET_MODE:
+    logger.info("Running in TESTNET mode")
+
+# Check if using mainnet fork data
+USE_MAINNET_FORK = args.mainnet_fork.lower() == 'true'
+if USE_MAINNET_FORK:
+    logger.info("Using MAINNET FORK data for real blockchain interaction")
 
 @dataclass
 class Strategy:
@@ -79,20 +102,79 @@ class StrategyOptimizer:
     5. Predicting profitable arbitrage opportunities
     """
     
-    def __init__(self, config_path: str = None):
+    def __init__(self, config_path: str = None, fork_config_path: str = None, testnet: bool = None, mainnet_fork: str = None):
         """
         Initialize the StrategyOptimizer with configuration.
         
         Args:
             config_path: Path to configuration file (optional)
+            fork_config_path: Path to fork configuration file (optional)
+            testnet: Whether to run in testnet mode (optional)
+            mainnet_fork: Whether to use mainnet fork data (optional)
         """
+        # Set testnet mode
+        self.testnet_mode = testnet if testnet is not None else TESTNET_MODE
+        if self.testnet_mode:
+            logger.info("Running in TESTNET mode")
+            
+        # Set mainnet fork mode
+        self.use_mainnet_fork = True
+        if mainnet_fork is not None:
+            self.use_mainnet_fork = mainnet_fork.lower() == 'true'
+        else:
+            self.use_mainnet_fork = USE_MAINNET_FORK
+            
+        if self.use_mainnet_fork:
+            logger.info("Using MAINNET FORK data for real blockchain interaction")
+            
         self.config = self._load_config(config_path)
         self.models = {}
         self.scalers = {}
         self.strategies = []
         self.current_strategy = None
         self.historical_data = None
+        
+        # Initialize Web3 connector if fork_config_path is provided
+        self.web3_connector = None
+        self.use_web3 = False
+        if fork_config_path:
+            try:
+                self.web3_connector = Web3Connector(fork_config_path)
+                self.use_web3 = self.web3_connector.is_connected()
+                if self.use_web3:
+                    logger.info("Web3 connector initialized and connected to Hardhat fork")
+                else:
+                    logger.warning("Web3 connector initialized but not connected to Hardhat fork")
+            except Exception as e:
+                logger.error(f"Error initializing Web3 connector: {e}")
+        
+        # Load default strategy
+        self.default_strategy = self._create_default_strategy()
+        
         logger.info("StrategyOptimizer initialized")
+    
+    def _create_default_strategy(self) -> Strategy:
+        """
+        Create a default strategy with reasonable parameters.
+        
+        Returns:
+            Default strategy
+        """
+        return Strategy(
+            id=str(uuid.uuid4()),
+            name="Default Strategy",
+            parameters={
+                "min_profit_threshold_usd": 50.0,
+                "max_gas_price_gwei": 100,
+                "slippage_tolerance_bps": 50,  # 0.5%
+                "execution_timeout_ms": 5000,
+                "min_confidence_threshold": 0.7,
+                "preferred_dex": "uniswap_v3",
+                "preferred_network": "ethereum",
+                "gas_price_multiplier": 1.1,
+                "execution_priority": "medium"
+            }
+        )
     
     def _load_config(self, config_path: Optional[str] = None) -> Dict:
         """
@@ -150,75 +232,94 @@ class StrategyOptimizer:
         """
         start_time = time.time()
         
-        # For demonstration purposes, we'll use a simple heuristic
-        # In a real implementation, this would use the trained ML model
+        # Check if we should use Web3 for real blockchain data
+        if self.use_web3 and self.web3_connector:
+            # Get real blockchain data for the prediction
+            try:
+                # Get token balances
+                token_in_balance = self.web3_connector.get_token_balance(
+                    opportunity["token_in"], 
+                    self.web3_connector.web3.eth.accounts[0]
+                )
+                
+                # Get pool information
+                pool_info = self.web3_connector.get_uniswap_pool_info(
+                    opportunity["token_in"],
+                    opportunity["token_out"]
+                )
+                
+                # Get flash loan availability
+                flash_loan_available = self.web3_connector.get_aave_flash_loan_availability(
+                    opportunity["token_in"]
+                )
+                
+                # Add real blockchain data to the opportunity
+                opportunity["token_in_balance"] = token_in_balance
+                opportunity["pool_info"] = pool_info
+                opportunity["flash_loan_available"] = flash_loan_available
+                
+                logger.info("Using real blockchain data from Hardhat fork for prediction")
+            except Exception as e:
+                logger.error(f"Error getting blockchain data: {e}")
         
-        # Extract token symbols for demo (in real implementation, would lookup from addresses)
-        token_symbols = {
-            "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "WETH",
-            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": "USDC",
-            "0x6B175474E89094C44Da98b954EedeAC495271d0F": "DAI",
-            "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599": "WBTC"
-        }
+        # Get the best strategy for the current market conditions
+        strategy = self._get_best_strategy()
         
-        # Get token symbols or use addresses if not found
-        token_in_symbol = token_symbols.get(opportunity['token_in'], opportunity['token_in'][:8] + '...')
-        token_out_symbol = token_symbols.get(opportunity['token_out'], opportunity['token_out'][:8] + '...')
+        # Extract features from the opportunity
+        features = self._extract_features(opportunity)
         
-        # Simple time-based pattern (more profitable during high volatility hours)
-        current_hour = datetime.now().hour
-        time_factor = 1.2 if 12 <= current_hour <= 16 else 0.8
+        # If we have a trained model, use it for prediction
+        if "opportunity_classifier" in self.models:
+            model = self.models["opportunity_classifier"]
+            scaler = self.scalers.get("opportunity_classifier")
+            
+            # Scale features if a scaler is available
+            if scaler:
+                features_scaled = scaler.transform([features])
+            else:
+                features_scaled = np.array([features])
+            
+            # Make prediction
+            prediction = model.predict(features_scaled)[0][0]
+            confidence = float(prediction)
+            
+            # Determine if profitable based on confidence threshold
+            is_profitable = confidence >= strategy.parameters["min_confidence_threshold"]
+        else:
+            # If no model is available, use a simple heuristic
+            estimated_profit_usd = self._estimate_profit(opportunity)
+            gas_cost_usd = self._estimate_gas_cost(opportunity)
+            net_profit_usd = estimated_profit_usd - gas_cost_usd
+            
+            is_profitable = net_profit_usd > strategy.parameters["min_profit_threshold_usd"]
+            confidence = 0.5 + (net_profit_usd / 100) if is_profitable else 0.5 - (abs(net_profit_usd) / 100)
+            confidence = max(0.01, min(0.99, confidence))  # Clamp between 0.01 and 0.99
         
-        # Simple amount-based heuristic (larger amounts have better opportunities)
-        amount_eth = float(opportunity['amount']) / 1e18
-        amount_factor = min(amount_eth / 10, 1.5)  # Cap at 1.5x
+        # Calculate estimated profit and gas cost
+        estimated_profit_usd = self._estimate_profit(opportunity)
+        gas_cost_usd = self._estimate_gas_cost(opportunity)
+        net_profit_usd = estimated_profit_usd - gas_cost_usd
         
-        # Router preference (in real implementation, would be based on historical performance)
-        router_factors = {
-            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D": 1.1,  # Uniswap
-            "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F": 1.0,  # Sushiswap
-            "0x1111111254fb6c44bAC0beD2854e76F90643097d": 1.2   # 1inch
-        }
-        router_factor = router_factors.get(opportunity['router'], 0.9)
-        
-        # Token pair factor (some pairs have more arbitrage opportunities)
-        pair_factor = 1.2 if token_in_symbol == "WETH" and token_out_symbol == "USDC" else 0.9
-        
-        # Calculate confidence score
-        base_confidence = 0.65
-        confidence = base_confidence * time_factor * amount_factor * router_factor * pair_factor
-        confidence = min(max(confidence, 0), 1)  # Ensure between 0 and 1
-        
-        # Calculate estimated profit
-        base_profit_usd = amount_eth * 1800 * 0.002  # Assuming 0.2% profit on ETH price of $1800
-        estimated_profit_usd = base_profit_usd * time_factor * router_factor * pair_factor
-        
-        # Estimate gas cost
-        base_gas_units = 250000  # Base gas units for a swap
-        estimated_gas_units = base_gas_units * (1 + 0.1 * (amount_factor - 1))
-        gas_price_gwei = 20  # Assume 20 gwei
-        gas_cost_eth = estimated_gas_units * gas_price_gwei * 1e-9
-        gas_cost_usd = gas_cost_eth * 1800  # Assuming ETH price of $1800
-        
-        # Determine if profitable
-        is_profitable = estimated_profit_usd > gas_cost_usd and confidence > self.config["min_confidence_threshold"]
-        
-        # Calculate execution time (simulated)
-        execution_time_ms = 120 + np.random.normal(0, 20)
+        # Calculate execution time
+        execution_time_ms = time.time() - start_time
+        execution_time_ms *= 1000  # Convert to milliseconds
         
         # Prepare result
         result = {
             "is_profitable": is_profitable,
-            "confidence": round(confidence, 4),
-            "estimated_profit_usd": round(estimated_profit_usd, 2),
-            "execution_time_ms": round(execution_time_ms, 2),
-            "gas_cost_usd": round(gas_cost_usd, 2),
-            "net_profit_usd": round(estimated_profit_usd - gas_cost_usd, 2),
-            "token_pair": f"{token_in_symbol}-{token_out_symbol}",
-            "prediction_time_ms": round((time.time() - start_time) * 1000, 2)
+            "confidence": confidence,
+            "estimated_profit_usd": estimated_profit_usd,
+            "gas_cost_usd": gas_cost_usd,
+            "net_profit_usd": net_profit_usd,
+            "execution_time_ms": execution_time_ms,
+            "strategy_recommendations": {
+                "optimal_gas_price_gwei": strategy.parameters["max_gas_price_gwei"],
+                "recommended_dex": strategy.parameters["preferred_dex"],
+                "slippage_tolerance_percent": strategy.parameters["slippage_tolerance_bps"] / 100,
+                "execution_priority": strategy.parameters["execution_priority"]
+            }
         }
         
-        logger.info(f"Opportunity prediction: {result}")
         return result
     
     def _load_strategies(self) -> List[Strategy]:
@@ -730,6 +831,104 @@ class StrategyOptimizer:
             logger.info(f"Saved optimization visualization to {save_path}")
         else:
             plt.show()
+
+    def _extract_features(self, opportunity: Dict) -> List[float]:
+        """
+        Extract features from an opportunity for model prediction.
+        
+        Args:
+            opportunity: Dictionary containing opportunity details
+            
+        Returns:
+            List of features
+        """
+        # Example features (in a real implementation, these would be more sophisticated)
+        features = [
+            float(opportunity.get("amount", 0)) / 1e18,  # Normalize amount
+            float(opportunity.get("gas_price", 50)),  # Gas price in Gwei
+            float(opportunity.get("slippage", 0.5)),  # Slippage in percentage
+            float(opportunity.get("token_in_balance", 0)) / 1e18 if "token_in_balance" in opportunity else 0,
+            float(opportunity.get("flash_loan_available", 0)) / 1e18 if "flash_loan_available" in opportunity else 0
+        ]
+        
+        return features
+    
+    def _estimate_profit(self, opportunity: Dict) -> float:
+        """
+        Estimate the profit for an opportunity in USD.
+        
+        Args:
+            opportunity: Dictionary containing opportunity details
+            
+        Returns:
+            Estimated profit in USD
+        """
+        # In a real implementation, this would use real blockchain data
+        # and sophisticated price calculations
+        
+        # For now, use a simple random value for demonstration
+        if "estimated_profit_usd" in opportunity:
+            return float(opportunity["estimated_profit_usd"])
+        
+        # Generate a random profit between $1 and $20
+        return round(np.random.uniform(1, 20), 2)
+    
+    def _estimate_gas_cost(self, opportunity: Dict) -> float:
+        """
+        Estimate the gas cost for an opportunity in USD.
+        
+        Args:
+            opportunity: Dictionary containing opportunity details
+            
+        Returns:
+            Estimated gas cost in USD
+        """
+        # In a real implementation, this would use real gas price data
+        # and estimate the gas usage based on the operation
+        
+        # For now, use a simple random value for demonstration
+        if "gas_cost_usd" in opportunity:
+            return float(opportunity["gas_cost_usd"])
+        
+        # Generate a random gas cost between $5 and $15
+        return round(np.random.uniform(5, 15), 2)
+    
+    def execute_opportunity(self, opportunity: Dict) -> Dict:
+        """
+        Execute an arbitrage opportunity on the blockchain.
+        
+        Args:
+            opportunity: Dictionary containing opportunity details
+            
+        Returns:
+            Dictionary with execution results
+        """
+        if not self.use_web3 or not self.web3_connector:
+            logger.warning("Web3 connector not available, cannot execute opportunity")
+        return {
+                "success": False,
+                "error": "Web3 connector not available",
+                "simulated": True
+            }
+        
+        try:
+            # Execute the arbitrage using the Web3 connector
+            result = self.web3_connector.execute_arbitrage(opportunity)
+            
+            # Log the result
+            if result["success"]:
+                logger.info(f"Arbitrage executed successfully: {result}")
+            else:
+                logger.error(f"Arbitrage execution failed: {result}")
+            
+            return result
+        except Exception as e:
+            logger.error(f"Error executing arbitrage: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "simulated": False
+            }
 
 # Example usage
 if __name__ == "__main__":

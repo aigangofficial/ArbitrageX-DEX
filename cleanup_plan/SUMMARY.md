@@ -3,12 +3,14 @@
 ## What We've Done
 
 1. **Analyzed Duplicate Files**:
+
    - Identified duplicate Solidity contract files between `contracts/` and `artifacts/contracts/`
    - Identified duplicate test files:
      - `test/FlashLoanArbitrage.test.ts` and `tests/contracts/FlashLoanArbitrage.test.ts`
      - `tests/contracts/ArbitrageExecutor.test.ts` and `tests/unit/contracts/ArbitrageExecutor.test.ts`
 
 2. **Created a Cleanup Plan**:
+
    - Documented the analysis and cleanup plan in `duplicate_analysis.md`
    - Created a cleanup script (`cleanup_script.sh`) to automate the process
    - Created a test name updater script (`update_test_names.js`) to help with test name standardization
@@ -21,19 +23,23 @@
 ## Next Steps
 
 1. **Execute the Cleanup Plan**:
+
    ```bash
    cd /Users/sbh/Desktop/arbitragex-new/cleanup_plan
    ./cleanup_script.sh
    ```
 
 2. **Update Test Names**:
+
    ```bash
    cd /Users/sbh/Desktop/arbitragex-new/cleanup_plan
    node update_test_names.js
    ```
+
    Then manually update the test names in the files as suggested.
 
 3. **Verify the Changes**:
+
    ```bash
    cd /Users/sbh/Desktop/arbitragex-new
    npm test
@@ -66,4 +72,4 @@ To prevent duplicate files in the future:
 
 3. **Add CI Checks**: Consider adding CI checks to detect duplicate files.
 
-4. **Review Pull Requests**: Carefully review pull requests to ensure they follow the project's structure and naming conventions. 
+4. **Review Pull Requests**: Carefully review pull requests to ensure they follow the project's structure and naming conventions.

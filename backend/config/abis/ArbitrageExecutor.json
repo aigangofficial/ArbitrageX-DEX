@@ -1,0 +1,78 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sourceToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "targetToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "sourceDex",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "targetDex",
+        "type": "string"
+      }
+    ],
+    "name": "executeArbitrage",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "executor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "sourceToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "targetToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "profit",
+        "type": "uint256"
+      }
+    ],
+    "name": "ArbitrageExecuted",
+    "type": "event"
+  }
+]

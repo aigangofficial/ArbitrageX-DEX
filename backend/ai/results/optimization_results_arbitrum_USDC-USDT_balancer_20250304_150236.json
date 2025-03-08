@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-03-04 15:02:36",
+  "config": {
+    "network": "arbitrum",
+    "token_pair": [
+      "USDC",
+      "USDT"
+    ],
+    "dex": "balancer",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 105.08827045496847,
+      "confidence": 0.7116003241445334,
+      "execution_time": 82.68413986006169,
+      "price_impact": 0.003233583607068689,
+      "slippage_tolerance": 0.0025596235202288683,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 168.83729044341692,
+      "confidence": 0.9916165345122301,
+      "execution_time": 130.95082363775424,
+      "price_impact": 0.0029143860474406067,
+      "slippage_tolerance": 0.003848293780325383,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 79.65690632523042,
+      "confidence": 0.7481199483068175,
+      "execution_time": 109.40923927074519,
+      "price_impact": 0.0035588865750012764,
+      "slippage_tolerance": 0.004830770739620044,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 126.63719916019514,
+      "confidence": 0.5835975356501149,
+      "execution_time": 133.57037907737285,
+      "price_impact": 0.0024535833879461327,
+      "slippage_tolerance": 0.005716943265276412,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 128.03667257575322,
+      "confidence": 0.6091084506416787,
+      "execution_time": 53.617698669821976,
+      "price_impact": 0.002824079288879472,
+      "slippage_tolerance": 0.008544985585805328,
+      "timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 123.08611966209716,
+      "confidence": 0.7116003241445334,
+      "execution_time": 82.68413986006169,
+      "price_impact": 0.003233583607068689,
+      "slippage_tolerance": 0.0025596235202288683,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 146.84309028850186,
+      "confidence": 0.9916165345122301,
+      "execution_time": 130.95082363775424,
+      "price_impact": 0.0029143860474406067,
+      "slippage_tolerance": 0.003848293780325383,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 83.17241301152065,
+      "confidence": 0.7481199483068175,
+      "execution_time": 109.40923927074519,
+      "price_impact": 0.0035588865750012764,
+      "slippage_tolerance": 0.004830770739620044,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 106.37558183642317,
+      "confidence": 0.5835975356501149,
+      "execution_time": 133.57037907737285,
+      "price_impact": 0.0024535833879461327,
+      "slippage_tolerance": 0.005716943265276412,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 106.52606971410802,
+      "confidence": 0.6091084506416787,
+      "execution_time": 53.617698669821976,
+      "price_impact": 0.002824079288879472,
+      "slippage_tolerance": 0.008544985585805328,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 123.08611966209716,
+      "confidence": 0.7116003241445334,
+      "execution_time": 82.68413986006169,
+      "price_impact": 0.003233583607068689,
+      "slippage_tolerance": 0.0025596235202288683,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.188551397844525,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 146.84309028850186,
+      "confidence": 0.9916165345122301,
+      "execution_time": 130.95082363775424,
+      "price_impact": 0.0029143860474406067,
+      "slippage_tolerance": 0.003848293780325383,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 0.19286376940654515,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 83.17241301152065,
+      "confidence": 0.7481199483068175,
+      "execution_time": 109.40923927074519,
+      "price_impact": 0.0035588865750012764,
+      "slippage_tolerance": 0.004830770739620044,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.2914175835200368,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 106.37558183642317,
+      "confidence": 0.5835975356501149,
+      "execution_time": 133.57037907737285,
+      "price_impact": 0.0024535833879461327,
+      "slippage_tolerance": 0.005716943265276412,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.61528388033269,
+      "protection_strategy": "time_delay"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 106.52606971410802,
+      "confidence": 0.6091084506416787,
+      "execution_time": 53.617698669821976,
+      "price_impact": 0.002824079288879472,
+      "slippage_tolerance": 0.008544985585805328,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.4042095354364093,
+      "protection_strategy": "backrunning"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 123.08611966209716,
+      "confidence": 0.7116003241445334,
+      "execution_time": 82.68413986006169,
+      "price_impact": 0.003233583607068689,
+      "slippage_tolerance": 0.0025596235202288683,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.188551397844525,
+      "protection_strategy": "private_tx",
+      "gas_price": 29.34962042416621,
+      "gas_used": 315010.8577152294,
+      "gas_cost": 2.773634731029904e-05,
+      "status": "success",
+      "actual_profit": 141.0536723116986,
+      "actual_gas_price": 28.393293079806114,
+      "actual_gas_used": 345436.55421357305,
+      "actual_gas_cost": 2.9424243972792935e-05,
+      "net_profit": 138.8650914896101,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 146.84309028850186,
+      "confidence": 0.9916165345122301,
+      "execution_time": 130.95082363775424,
+      "price_impact": 0.0029143860474406067,
+      "slippage_tolerance": 0.003848293780325383,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 0.19286376940654515,
+      "protection_strategy": "time_delay",
+      "gas_price": 35.45184071373883,
+      "gas_used": 238202.00401843234,
+      "gas_cost": 2.5334098512464525e-05,
+      "status": "success",
+      "actual_profit": 136.60351558439,
+      "actual_gas_price": 33.48614905519628,
+      "actual_gas_used": 243712.6935478062,
+      "actual_gas_cost": 2.4482998748355635e-05,
+      "net_profit": 136.4106273319847,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 83.17241301152065,
+      "confidence": 0.7481199483068175,
+      "execution_time": 109.40923927074519,
+      "price_impact": 0.0035588865750012764,
+      "slippage_tolerance": 0.004830770739620044,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.2914175835200368,
+      "protection_strategy": "time_delay",
+      "gas_price": 39.64803312316817,
+      "gas_used": 258129.52855668406,
+      "gas_cost": 3.070298429484958e-05,
+      "status": "success",
+      "actual_profit": 66.56534443761139,
+      "actual_gas_price": 42.97382759457079,
+      "actual_gas_used": 247578.80706471507,
+      "actual_gas_cost": 3.191822691260571e-05,
+      "net_profit": 64.27389493586443,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 106.37558183642317,
+      "confidence": 0.5835975356501149,
+      "execution_time": 133.57037907737285,
+      "price_impact": 0.0024535833879461327,
+      "slippage_tolerance": 0.005716943265276412,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.61528388033269,
+      "protection_strategy": "time_delay",
+      "gas_price": 28.768113239528127,
+      "gas_used": 264075.4652761762,
+      "gas_cost": 2.2790858666538345e-05,
+      "status": "success",
+      "actual_profit": 96.11800071109722,
+      "actual_gas_price": 29.24102044128997,
+      "actual_gas_used": 252777.9361673538,
+      "actual_gas_cost": 2.217445439573005e-05,
+      "net_profit": 93.50269465631013,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "arbitrum_USDC-USDT_balancer_1741086156",
+      "network": "arbitrum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "balancer",
+      "expected_profit": 106.52606971410802,
+      "confidence": 0.6091084506416787,
+      "execution_time": 53.617698669821976,
+      "price_impact": 0.002824079288879472,
+      "slippage_tolerance": 0.008544985585805328,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.4042095354364093,
+      "protection_strategy": "backrunning",
+      "gas_price": 22.615432368537473,
+      "gas_used": 203084.66421295193,
+      "gas_cost": 1.3778542465785471e-05,
+      "status": "success",
+      "actual_profit": 86.34439205022899,
+      "actual_gas_price": 22.399615988887163,
+      "actual_gas_used": 184371.17091613807,
+      "actual_gas_cost": 1.2389530283828922e-05,
+      "net_profit": 83.9401701252623,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "metrics": {
+    "total_trades": 5,
+    "successful_trades": 5,
+    "success_rate": 1.0,
+    "total_profit": 526.6849250950262,
+    "total_gas_cost": 0.00012038945431331326,
+    "net_profit": 516.9924785390317,
+    "avg_execution_time": 102.0464561031512
+  }
+}

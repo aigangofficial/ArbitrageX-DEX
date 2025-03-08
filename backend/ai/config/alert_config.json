@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "log_alerts": true,
+  "email_alerts": false,
+  "email_config": {
+    "smtp_server": "smtp.example.com",
+    "smtp_port": 587,
+    "smtp_username": "alerts@example.com",
+    "smtp_password": "password",
+    "from_email": "alerts@example.com",
+    "to_email": "admin@example.com"
+  },
+  "thresholds": {
+    "consecutive_failed_trades": 3,
+    "low_success_rate": 0.5,
+    "negative_profit_threshold": -10.0,
+    "high_gas_cost_percent": 50.0,
+    "execution_time_threshold_ms": 5000.0,
+    "cpu_usage_threshold_percent": 80.0,
+    "memory_usage_threshold_mb": 1000.0,
+    "disk_usage_threshold_mb": 10000.0
+  }
+}

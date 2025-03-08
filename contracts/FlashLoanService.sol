@@ -46,7 +46,10 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
     using SafeERC20 for IERC20;
 
     // Execution Mode enum (must match ArbitrageExecutor's enum)
-    enum ExecutionMode { MAINNET, FORK }
+    enum ExecutionMode {
+        MAINNET,
+        FORK
+    }
 
     uint256 private constant BPS = 10000;
     uint256 private constant MIN_PROFIT_BPS = 50; // 0.5% minimum profit
@@ -71,7 +74,7 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
     IMEVProtection public mevProtection;
     bool public useMEVProtection = true;
     mapping(bytes32 => bool) public pendingTransactions;
-    
+
     // Enhanced MEV Protection
     uint256 public commitmentMinAge = 1; // Minimum blocks before a commitment can be revealed
     uint256 public commitmentMaxAge = 50; // Maximum blocks before a commitment expires
@@ -93,11 +96,7 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         uint256 premium,
         address indexed initiator
     );
-    event ProfitAccrued(
-        address indexed token,
-        uint256 amount,
-        uint256 totalProfit
-    );
+    event ProfitAccrued(address indexed token, uint256 amount, uint256 totalProfit);
     event ExecutorUpdated(address oldExecutor, address newExecutor);
     event MinProfitBpsUpdated(uint16 oldValue, uint16 newValue);
     event FlashLoanProviderAdded(address indexed provider);
@@ -105,12 +104,14 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
     event ArbitrageExecutorUpdated(address indexed executor);
     event TokenSupportUpdated(address indexed token, bool supported);
     event ExecutionModeChanged(ExecutionMode mode);
-    event EmergencyWithdrawal(
-        address indexed token,
-        uint256 amount,
-        address indexed recipient
+    event EmergencyWithdrawal(address indexed token, uint256 amount, address indexed recipient);
+    event ArbitrageExecuted(
+        address indexed tokenIn,
+        address indexed tokenOut,
+        uint256 amountIn,
+        uint256 amountOut,
+        uint256 profit
     );
-    event ArbitrageExecuted(address indexed tokenIn, address indexed tokenOut, uint256 amountIn, uint256 amountOut, uint256 profit);
     event ProfitWithdrawn(address indexed token, uint256 amount, address indexed recipient);
     event MEVProtectionEnabled(bool enabled);
     event MEVProtectionContractUpdated(address indexed newProtection);
@@ -130,17 +131,17 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         require(_aavePool != address(0), "Invalid Aave pool address");
         require(_arbitrageExecutor != address(0), "Invalid arbitrage executor address");
         require(_maxAmount > _minAmount, "Invalid amount bounds");
-        
+
         aavePool = IPool(_aavePool);
         arbitrageExecutor = _arbitrageExecutor;
         minFlashLoanAmount = _minAmount;
         maxFlashLoanAmount = _maxAmount;
-        
+
         // Set up MEV protection if provided
         if (_mevProtection != address(0)) {
             mevProtection = IMEVProtection(_mevProtection);
         }
-        
+
         // Add Aave as a flash loan provider
         flashLoanProviders[_aavePool] = true;
     }
@@ -153,31 +154,33 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         bytes calldata params
     ) external override returns (bool) {
         // Security check 1: Validate caller is Aave pool or this is a test
-        if (msg.sender != address(aavePool) && msg.sender != owner()) revert UnauthorizedInitiator(msg.sender);
-        
+        if (msg.sender != address(aavePool) && msg.sender != owner())
+            revert UnauthorizedInitiator(msg.sender);
+
         // Security check 2: Validate initiator is authorized
-        if (initiator != address(this) && initiator != owner()) revert UnauthorizedInitiator(initiator);
-        
+        if (initiator != address(this) && initiator != owner())
+            revert UnauthorizedInitiator(initiator);
+
         // Decode and validate parameters first
         (address tokenIn, address tokenOut, address router) = abi.decode(
             params,
             (address, address, address)
         );
-        
+
         // Security check 3: Validate router first
         if (!IArbitrageExecutor(arbitrageExecutor).isApprovedRouter(router)) revert InvalidPath();
-        
+
         // Security check 4: Validate tokens
         if (!supportedTokens[tokenIn] || !supportedTokens[tokenOut]) revert UnsupportedToken();
-        
+
         // Security check 5: Validate asset support
         if (!supportedTokens[asset]) revert UnsupportedToken();
-        
+
         // Security check 6: Validate amount boundaries
         if (amount < minFlashLoanAmount || amount > maxFlashLoanAmount) {
             revert InvalidFlashLoanAmount(amount, minFlashLoanAmount, maxFlashLoanAmount);
         }
-        
+
         // Security check 7: Validate contract has sufficient balance for repayment
         uint256 repaymentAmount = amount + premium;
         uint256 contractBalance = IERC20(asset).balanceOf(address(this));
@@ -186,29 +189,31 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         // Transfer tokens to ArbitrageExecutor
         IERC20(asset).safeTransfer(arbitrageExecutor, amount);
 
-        try IArbitrageExecutor(arbitrageExecutor).executeArbitrage(
-            tokenIn,
-            tokenOut,
-            amount,
-            router
-        ) returns (uint256 profit) {
+        try
+            IArbitrageExecutor(arbitrageExecutor).executeArbitrage(
+                tokenIn,
+                tokenOut,
+                amount,
+                router
+            )
+        returns (uint256 profit) {
             // Security check 8: Minimum profit validation including flash loan fee
             uint256 minProfit = (amount * minProfitBps) / BPS + premium;
             if (profit < minProfit) revert InsufficientProfit(profit, minProfit);
-            
+
             // Security check 9: Ensure profit covers repayment
             uint256 finalBalance = IERC20(asset).balanceOf(address(this));
             if (finalBalance < repaymentAmount) revert InsufficientFundsForRepayment();
-            
+
             // Track remaining profit
             profits[asset] += finalBalance - repaymentAmount;
-            
+
             // Approve repayment
             IERC20(asset).safeApprove(msg.sender, repaymentAmount);
-            
+
             emit FlashLoanExecuted(asset, amount, premium, initiator);
             emit ProfitAccrued(asset, profit, profits[asset]);
-            
+
             return true;
         } catch Error(string memory reason) {
             revert(reason);
@@ -228,13 +233,13 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
 
         // Execute trade through router
         IERC20(tokenIn).safeApprove(router, amount);
-        
+
         address[] memory path = new address[](2);
         path[0] = tokenIn;
         path[1] = tokenOut;
 
         uint256 balanceBefore = IERC20(tokenOut).balanceOf(address(this));
-        
+
         IUniswapV2Router02(router).swapExactTokensForTokens(
             amount,
             0, // Accept any amount of tokenOut
@@ -248,13 +253,7 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
 
         // Convert back to original token if needed
         if (tokenOut != tokenIn) {
-            received = _convertToInputToken(
-                tokenOut,
-                tokenIn,
-                router,
-                received,
-                requiredAmount
-            );
+            received = _convertToInputToken(tokenOut, tokenIn, router, received, requiredAmount);
         }
 
         // Calculate profit
@@ -273,7 +272,7 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         uint256 minReturn
     ) internal returns (uint256) {
         IERC20(fromToken).safeApprove(router, amount);
-        
+
         address[] memory path = new address[](2);
         path[0] = fromToken;
         path[1] = toToken;
@@ -328,14 +327,10 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
-    function withdrawProfit(
-        address token,
-        address recipient,
-        uint256 amount
-    ) external onlyOwner {
+    function withdrawProfit(address token, address recipient, uint256 amount) external onlyOwner {
         uint256 availableProfit = profits[token];
         require(amount <= availableProfit, "Insufficient profit");
-        
+
         profits[token] -= amount;
         IERC20(token).safeTransfer(recipient, amount);
     }
@@ -481,31 +476,33 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         if (!useMEVProtection || address(mevProtection) == address(0)) {
             revert MEVProtectionFailed();
         }
-        
+
         // Store the current timestamp and nonce
         uint256 commitmentTimestamp = block.timestamp;
         uint256 timeBasedNonce = mevProtection.getTimeBasedNonce();
-        
+
         // Create commitment hash with additional entropy
-        bytes32 commitmentHash = keccak256(abi.encodePacked(
-            msg.sender,
-            tokenAddress,
-            amount,
-            secret,
-            block.number,
-            commitmentTimestamp,
-            timeBasedNonce
-        ));
-        
+        bytes32 commitmentHash = keccak256(
+            abi.encodePacked(
+                msg.sender,
+                tokenAddress,
+                amount,
+                secret,
+                block.number,
+                commitmentTimestamp,
+                timeBasedNonce
+            )
+        );
+
         // Submit commitment to MEV protection contract
         mevProtection.submitCommitment(commitmentHash);
-        
+
         // Store pending transaction and block number
         pendingTransactions[commitmentHash] = true;
         commitmentBlocks[commitmentHash] = block.number;
         commitmentTimestamps[commitmentHash] = commitmentTimestamp;
         commitmentNonces[commitmentHash] = timeBasedNonce;
-        
+
         emit TransactionCommitted(commitmentHash, block.number);
         return commitmentHash;
     }
@@ -526,20 +523,20 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         if (!useMEVProtection || address(mevProtection) == address(0)) {
             revert MEVProtectionFailed();
         }
-        
+
         // Verify commitment exists
         if (!pendingTransactions[commitmentHash]) {
             revert CommitmentRequired();
         }
-        
+
         // Verify commitment hasn't been used
         if (usedCommitments[commitmentHash]) {
             revert InvalidCommitment();
         }
-        
+
         // Verify commitment age
         uint256 commitmentBlock = commitmentBlocks[commitmentHash];
-        
+
         // Always check the commitment age, even in test mode
         if (block.number < commitmentBlock + commitmentMinAge) {
             revert CommitmentNotReady();
@@ -547,30 +544,32 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         if (block.number > commitmentBlock + commitmentMaxAge) {
             revert CommitmentExpired();
         }
-        
+
         // Verify the commitment hash matches
-        bytes32 calculatedHash = keccak256(abi.encodePacked(
-            msg.sender,
-            tokenAddress,
-            amount,
-            secret,
-            commitmentBlock,
-            commitmentTimestamps[commitmentHash],
-            commitmentNonces[commitmentHash]
-        ));
-        
+        bytes32 calculatedHash = keccak256(
+            abi.encodePacked(
+                msg.sender,
+                tokenAddress,
+                amount,
+                secret,
+                commitmentBlock,
+                commitmentTimestamps[commitmentHash],
+                commitmentNonces[commitmentHash]
+            )
+        );
+
         if (calculatedHash != commitmentHash) {
             revert InvalidCommitment();
         }
-        
+
         // Mark commitment as used
         usedCommitments[commitmentHash] = true;
-        
+
         // Clear pending transaction
         delete pendingTransactions[commitmentHash];
-        
+
         emit CommitmentRevealed(commitmentHash, msg.sender);
-        
+
         // Execute the flash loan
         if (useFlashbots && flashbotsRelayer != address(0)) {
             _executeFlashLoanViaFlashbots(tokenAddress, amount);
@@ -584,30 +583,23 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
      * @param tokenAddress The token to borrow in the flash loan
      * @param amount The amount to borrow
      */
-    function _executeFlashLoanViaFlashbots(
-        address tokenAddress,
-        uint256 amount
-    ) internal {
+    function _executeFlashLoanViaFlashbots(address tokenAddress, uint256 amount) internal {
         if (flashbotsRelayer == address(0)) {
             revert FlashbotsRelayerRequired();
         }
-        
+
         // Prepare the flash loan parameters
         bytes memory params = abi.encode(tokenAddress, amount, msg.sender);
-        
+
         // Request the Flashbots relayer to execute the transaction
         (bool success, ) = flashbotsRelayer.call(
             abi.encodeWithSignature(
                 "relayTransaction(address,bytes)",
                 address(this),
-                abi.encodeWithSignature(
-                    "executeFlashLoan(address,uint256)",
-                    tokenAddress,
-                    amount
-                )
+                abi.encodeWithSignature("executeFlashLoan(address,uint256)", tokenAddress, amount)
             )
         );
-        
+
         if (!success) {
             revert MEVProtectionFailed();
         }
@@ -621,35 +613,27 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
         if (useMEVProtection && address(mevProtection) != address(0)) {
             revert CommitmentRequired();
         }
-        
+
         _executeFlashLoan(tokenAddress, amount);
     }
 
-    function _executeFlashLoan(
-        address tokenAddress,
-        uint256 amount
-    ) internal {
+    function _executeFlashLoan(address tokenAddress, uint256 amount) internal {
         // Validate parameters
         if (tokenAddress == address(0)) revert InvalidParameter("Invalid token address");
         if (amount == 0) revert InvalidParameter("Amount must be greater than 0");
         if (amount < minTradeAmount) revert InvalidAmount(amount, minTradeAmount);
-        if (maxTradeAmount > 0 && amount > maxTradeAmount) revert InvalidAmount(amount, maxTradeAmount);
-        
+        if (maxTradeAmount > 0 && amount > maxTradeAmount)
+            revert InvalidAmount(amount, maxTradeAmount);
+
         // Skip actual flash loan execution in FORK mode
         if (executionMode == ExecutionMode.FORK) {
             emit FlashLoanExecuted(tokenAddress, amount, 0, msg.sender);
             return;
         }
-        
+
         // Execute flash loan
         bytes memory params = abi.encode(msg.sender);
-        aavePool.flashLoanSimple(
-            address(this),
-            tokenAddress,
-            amount,
-            params,
-            REFERRAL_CODE
-        );
+        aavePool.flashLoanSimple(address(this), tokenAddress, amount, params, REFERRAL_CODE);
     }
 
     /**
@@ -658,13 +642,13 @@ contract FlashLoanService is IFlashLoanSimpleReceiver, SecurityAdmin {
      */
     function setExecutionMode(ExecutionMode _mode) external onlyOwner {
         executionMode = _mode;
-        
+
         // Align testMode with FORK execution mode
         testMode = (_mode == ExecutionMode.FORK);
-        
+
         emit ExecutionModeChanged(_mode);
     }
-    
+
     /**
      * @dev Get the current execution mode
      * @return The current execution mode

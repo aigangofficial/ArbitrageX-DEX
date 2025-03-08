@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-03-04 15:02:36",
+  "config": {
+    "network": "ethereum",
+    "token_pair": [
+      "USDC",
+      "USDT"
+    ],
+    "dex": "curve",
+    "trade_count": 5,
+    "gas_strategy": "dynamic",
+    "parallel_execution": true,
+    "max_workers": 2
+  },
+  "opportunities": [
+    {
+      "id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 187.75542094725864,
+      "confidence": 0.9776232671635341,
+      "execution_time": 163.07166869144416,
+      "price_impact": 0.0035044617919840464,
+      "slippage_tolerance": 0.005778519671789306,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 32.860412929771655,
+      "confidence": 0.8384013182090753,
+      "execution_time": 168.08089029091354,
+      "price_impact": 0.00406282808365732,
+      "slippage_tolerance": 0.0048541440851547265,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 141.5875556572989,
+      "confidence": 0.5827096758740931,
+      "execution_time": 119.16854111857653,
+      "price_impact": 0.004610442752187848,
+      "slippage_tolerance": 0.009115334929904302,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 54.916395474517465,
+      "confidence": 0.5590702446599312,
+      "execution_time": 191.1342216907581,
+      "price_impact": 0.001358295738782538,
+      "slippage_tolerance": 0.007810726597439306,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 172.53280912966392,
+      "confidence": 0.9333709411889219,
+      "execution_time": 194.91192963569964,
+      "price_impact": 0.0024549473293493185,
+      "slippage_tolerance": 0.001143179299798406,
+      "timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "predictions": [
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 199.68765469652175,
+      "confidence": 0.9776232671635341,
+      "execution_time": 163.07166869144416,
+      "price_impact": 0.0035044617919840464,
+      "slippage_tolerance": 0.005778519671789306,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 31.749532311089148,
+      "confidence": 0.8384013182090753,
+      "execution_time": 168.08089029091354,
+      "price_impact": 0.00406282808365732,
+      "slippage_tolerance": 0.0048541440851547265,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 114.11625477281699,
+      "confidence": 0.5827096758740931,
+      "execution_time": 119.16854111857653,
+      "price_impact": 0.004610442752187848,
+      "slippage_tolerance": 0.009115334929904302,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 53.849434631797614,
+      "confidence": 0.5590702446599312,
+      "execution_time": 191.1342216907581,
+      "price_impact": 0.001358295738782538,
+      "slippage_tolerance": 0.007810726597439306,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 157.3430449478381,
+      "confidence": 0.9333709411889219,
+      "execution_time": 194.91192963569964,
+      "price_impact": 0.0024549473293493185,
+      "slippage_tolerance": 0.001143179299798406,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "protected_trades": [
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 199.68765469652175,
+      "confidence": 0.9776232671635341,
+      "execution_time": 163.07166869144416,
+      "price_impact": 0.0035044617919840464,
+      "slippage_tolerance": 0.005778519671789306,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 4.2186516836674635,
+      "protection_strategy": "private_tx"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 31.749532311089148,
+      "confidence": 0.8384013182090753,
+      "execution_time": 168.08089029091354,
+      "price_impact": 0.00406282808365732,
+      "slippage_tolerance": 0.0048541440851547265,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 0.33595560575845307,
+      "protection_strategy": "backrunning"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 114.11625477281699,
+      "confidence": 0.5827096758740931,
+      "execution_time": 119.16854111857653,
+      "price_impact": 0.004610442752187848,
+      "slippage_tolerance": 0.009115334929904302,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 3.9125130343014805,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 53.849434631797614,
+      "confidence": 0.5590702446599312,
+      "execution_time": 191.1342216907581,
+      "price_impact": 0.001358295738782538,
+      "slippage_tolerance": 0.007810726597439306,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 0.8457739024485604,
+      "protection_strategy": "flashbots"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 157.3430449478381,
+      "confidence": 0.9333709411889219,
+      "execution_time": 194.91192963569964,
+      "price_impact": 0.0024549473293493185,
+      "slippage_tolerance": 0.001143179299798406,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.7070810418039857,
+      "protection_strategy": "gas_price_bump"
+    }
+  ],
+  "execution_results": [
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 199.68765469652175,
+      "confidence": 0.9776232671635341,
+      "execution_time": 163.07166869144416,
+      "price_impact": 0.0035044617919840464,
+      "slippage_tolerance": 0.005778519671789306,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 4.2186516836674635,
+      "protection_strategy": "private_tx",
+      "gas_price": 30.583664605400045,
+      "gas_used": 192486.57288631907,
+      "gas_cost": 1.766083435859422e-05,
+      "status": "success",
+      "actual_profit": 208.19012703483045,
+      "actual_gas_price": 33.070634887789396,
+      "actual_gas_used": 203360.1801333094,
+      "actual_gas_cost": 2.0175750803711272e-05,
+      "net_profit": 203.9714551754122,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 31.749532311089148,
+      "confidence": 0.8384013182090753,
+      "execution_time": 168.08089029091354,
+      "price_impact": 0.00406282808365732,
+      "slippage_tolerance": 0.0048541440851547265,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 0.33595560575845307,
+      "protection_strategy": "backrunning",
+      "gas_price": 34.42173630364283,
+      "gas_used": 308959.4182108707,
+      "gas_cost": 3.1904758866544485e-05,
+      "status": "success",
+      "actual_profit": 35.40124759046666,
+      "actual_gas_price": 36.918608422166706,
+      "actual_gas_used": 287135.2398176873,
+      "actual_gas_cost": 3.180190044910238e-05,
+      "net_profit": 35.06526018280776,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 114.11625477281699,
+      "confidence": 0.5827096758740931,
+      "execution_time": 119.16854111857653,
+      "price_impact": 0.004610442752187848,
+      "slippage_tolerance": 0.009115334929904302,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 3.9125130343014805,
+      "protection_strategy": "flashbots",
+      "gas_price": 25.544003913042083,
+      "gas_used": 316167.5146411089,
+      "gas_cost": 2.422855269350783e-05,
+      "status": "failed",
+      "actual_profit": 0,
+      "actual_gas_price": 27.479080577204126,
+      "actual_gas_used": 319818.3093671433,
+      "actual_gas_cost": 2.6364939279494783e-05,
+      "net_profit": -2.6364939279494783e-05,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 53.849434631797614,
+      "confidence": 0.5590702446599312,
+      "execution_time": 191.1342216907581,
+      "price_impact": 0.001358295738782538,
+      "slippage_tolerance": 0.007810726597439306,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 0.8457739024485604,
+      "protection_strategy": "flashbots",
+      "gas_price": 27.813577150719354,
+      "gas_used": 168685.7204968226,
+      "gas_cost": 1.4075259903789171e-05,
+      "status": "success",
+      "actual_profit": 48.99335588258846,
+      "actual_gas_price": 26.072025289219383,
+      "actual_gas_used": 164352.23643140445,
+      "actual_gas_cost": 1.285498699373802e-05,
+      "net_profit": 48.147569125152906,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    },
+    {
+      "opportunity_id": "ethereum_USDC-USDT_curve_1741086156",
+      "network": "ethereum",
+      "token_pair": [
+        "USDC",
+        "USDT"
+      ],
+      "dex": "curve",
+      "expected_profit": 157.3430449478381,
+      "confidence": 0.9333709411889219,
+      "execution_time": 194.91192963569964,
+      "price_impact": 0.0024549473293493185,
+      "slippage_tolerance": 0.001143179299798406,
+      "is_profitable": true,
+      "timestamp": "2025-03-04 15:02:36",
+      "mev_protected": true,
+      "protection_cost": 2.7070810418039857,
+      "protection_strategy": "gas_price_bump",
+      "gas_price": 36.59048168806348,
+      "gas_used": 376221.48874808894,
+      "gas_cost": 4.1298376484078786e-05,
+      "status": "success",
+      "actual_profit": 166.20246797335133,
+      "actual_gas_price": 34.34209927142646,
+      "actual_gas_used": 359239.08865323564,
+      "actual_gas_cost": 3.701107333411857e-05,
+      "net_profit": 163.495349920474,
+      "execution_timestamp": "2025-03-04 15:02:36"
+    }
+  ],
+  "metrics": {
+    "total_trades": 5,
+    "successful_trades": 4,
+    "success_rate": 0.8,
+    "total_profit": 458.78719848123694,
+    "total_gas_cost": 0.00012820865086016504,
+    "net_profit": 450.67960803890765,
+    "avg_execution_time": 167.2734502854784
+  }
+}

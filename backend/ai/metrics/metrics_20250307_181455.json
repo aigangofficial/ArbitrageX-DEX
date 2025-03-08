@@ -1,0 +1,50 @@
+{
+  "trades": {
+    "total": 1,
+    "successful": 1,
+    "failed": 0,
+    "success_rate": 1.0
+  },
+  "profit": {
+    "total_usd": 10.0,
+    "gas_cost_usd": 2.0,
+    "net_profit_usd": 8.0,
+    "avg_profit_per_trade_usd": 8.0
+  },
+  "performance": {
+    "avg_execution_time_ms": 150.0,
+    "max_execution_time_ms": 150.0,
+    "min_execution_time_ms": 150.0
+  },
+  "ml": {
+    "model_updates": 1,
+    "strategy_adaptations": 1,
+    "prediction_accuracy": 0.85
+  },
+  "system": {
+    "cpu_usage_percent": 19.0,
+    "memory_usage_mb": 6812.953125,
+    "disk_usage_mb": 10642.4453125
+  },
+  "networks": {
+    "ethereum": {
+      "trades": 1,
+      "successful_trades": 1,
+      "net_profit_usd": 8.0
+    }
+  },
+  "token_pairs": {
+    "WETH-USDC": {
+      "trades": 1,
+      "successful_trades": 1,
+      "net_profit_usd": 8.0
+    }
+  },
+  "dexes": {
+    "uniswap_v3": {
+      "trades": 1,
+      "successful_trades": 1,
+      "net_profit_usd": 8.0
+    }
+  }
+}

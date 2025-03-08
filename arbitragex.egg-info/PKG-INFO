@@ -1,0 +1,21 @@
+Metadata-Version: 2.2
+Name: arbitragex
+Version: 1.0.0
+Summary: ArbitrageX - Multi-Chain DEX Arbitrage Platform with AI
+Author: ArbitrageX Team
+Author-email: info@arbitragex.io
+Requires-Python: >=3.8
+Requires-Dist: flask>=2.3.3
+Requires-Dist: flask-cors>=4.0.0
+Requires-Dist: pymongo>=4.6.1
+Requires-Dist: redis>=5.0.1
+Requires-Dist: web3>=6.15.1
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: websockets>=12.0
+Requires-Dist: pydantic>=2.5.3
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

@@ -17,25 +17,25 @@ interface IFormalVerification {
         bool temporalPropertiesSatisfied;
         bool securityPropertiesSatisfied;
     }
-    
+
     /**
      * @dev Add a new authorized verifier
      * @param verifier Address of the verifier to add
      */
     function addVerifier(address verifier) external;
-    
+
     /**
      * @dev Remove an authorized verifier
      * @param verifier Address of the verifier to remove
      */
     function removeVerifier(address verifier) external;
-    
+
     /**
      * @dev Request verification for a contract
      * @param contractAddress Address of the contract to verify
      */
     function requestVerification(address contractAddress) external;
-    
+
     /**
      * @dev Verify a contract and record the results
      * @param contractAddress Address of the contract to verify
@@ -49,7 +49,7 @@ interface IFormalVerification {
         bool success,
         string calldata details
     ) external;
-    
+
     /**
      * @dev Verify specific invariants for a contract
      * @param contractAddress Address of the contract to verify
@@ -61,7 +61,7 @@ interface IFormalVerification {
         bytes32[] calldata invariantHashes,
         bool[] calldata results
     ) external;
-    
+
     /**
      * @dev Verify temporal properties for a contract
      * @param contractAddress Address of the contract to verify
@@ -73,7 +73,7 @@ interface IFormalVerification {
         bytes32[] calldata propertyHashes,
         bool[] calldata results
     ) external;
-    
+
     /**
      * @dev Verify security properties for a contract
      * @param contractAddress Address of the contract to verify
@@ -85,18 +85,20 @@ interface IFormalVerification {
         bytes32[] calldata propertyHashes,
         bool[] calldata results
     ) external;
-    
+
     /**
      * @dev Check if a contract is verified
      * @param contractAddress Address of the contract to check
      * @return Whether the contract is verified
      */
     function isContractVerified(address contractAddress) external view returns (bool);
-    
+
     /**
      * @dev Get detailed verification results for a contract
      * @param contractAddress Address of the contract to check
      * @return Detailed verification results
      */
-    function getVerificationDetails(address contractAddress) external view returns (VerificationResult memory);
-} 
+    function getVerificationDetails(
+        address contractAddress
+    ) external view returns (VerificationResult memory);
+}

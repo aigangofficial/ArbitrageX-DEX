@@ -16,11 +16,6 @@
       "*": ["./node_modules/*"]
     }
   },
-  "include": [
-    "./tests/**/*.ts",
-    "./scripts/**/*.ts",
-    "./typechain/**/*.ts",
-    "./hardhat.config.ts"
-  ],
+  "include": ["./tests/**/*.ts", "./scripts/**/*.ts", "./typechain/**/*.ts", "./hardhat.config.ts"],
   "files": ["./hardhat.config.ts"]
 }

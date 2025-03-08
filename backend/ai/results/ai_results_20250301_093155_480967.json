@@ -34,10 +34,7 @@
   "success_rate": 0.2,
   "fork_config": {
     "mode": "mainnet_fork",
-    "networks": [
-      "arbitrum",
-      "polygon"
-    ],
+    "networks": ["arbitrum", "polygon"],
     "network_configs": {
       "ethereum": {
         "fork_url": "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
@@ -53,50 +50,14 @@
       }
     },
     "tokens": {
-      "ethereum": [
-        "WETH",
-        "USDC",
-        "DAI",
-        "USDT",
-        "WBTC",
-        "LINK"
-      ],
-      "arbitrum": [
-        "WETH",
-        "USDC",
-        "DAI",
-        "USDT",
-        "WBTC",
-        "LINK"
-      ],
-      "polygon": [
-        "WMATIC",
-        "WETH",
-        "USDC",
-        "DAI",
-        "USDT",
-        "WBTC"
-      ]
+      "ethereum": ["WETH", "USDC", "DAI", "USDT", "WBTC", "LINK"],
+      "arbitrum": ["WETH", "USDC", "DAI", "USDT", "WBTC", "LINK"],
+      "polygon": ["WMATIC", "WETH", "USDC", "DAI", "USDT", "WBTC"]
     },
     "dexes": {
-      "ethereum": [
-        "uniswap_v3",
-        "sushiswap",
-        "curve",
-        "balancer"
-      ],
-      "arbitrum": [
-        "uniswap_v3",
-        "sushiswap",
-        "balancer",
-        "camelot"
-      ],
-      "polygon": [
-        "uniswap_v3",
-        "sushiswap",
-        "quickswap",
-        "balancer"
-      ]
+      "ethereum": ["uniswap_v3", "sushiswap", "curve", "balancer"],
+      "arbitrum": ["uniswap_v3", "sushiswap", "balancer", "camelot"],
+      "polygon": ["uniswap_v3", "sushiswap", "quickswap", "balancer"]
     },
     "fork_block_number": "latest",
     "slippage_tolerance": 0.005,

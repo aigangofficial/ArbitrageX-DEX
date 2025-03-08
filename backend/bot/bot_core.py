@@ -139,12 +139,12 @@ class BotCore:
             # This allows for easier testing and component replacement
             
             # Network Scanner
-            network_scanner_module = importlib.import_module("backend.bot.network_scanner")
+            network_scanner_module = importlib.import_module(".network_scanner", package="backend.bot")
             self.network_scanner = network_scanner_module.NetworkScanner(self.config)
             logger.info("Initialized Network Scanner")
             
             # Trade Executor
-            trade_executor_module = importlib.import_module("backend.bot.trade_executor")
+            trade_executor_module = importlib.import_module(".trade_executor", package="backend.bot")
             self.trade_executor = trade_executor_module.TradeExecutor(self.config)
             logger.info("Initialized Trade Executor")
             
@@ -253,50 +253,42 @@ class BotCore:
         self.paused = False
     
     def _scanner_loop(self):
-        """Main loop for scanning networks for arbitrage opportunities"""
+        """Main scanner loop that continuously scans for arbitrage opportunities"""
         logger.info("Starting network scanner loop")
         
-        while self.running:
-            try:
-                if self.paused:
-                    time.sleep(1)
-                    continue
-                
-                # Scan for opportunities
-                opportunities = self.network_scanner.scan_networks()
-                
-                if opportunities:
-                    logger.info(f"Found {len(opportunities)} potential arbitrage opportunities")
-                    self.stats["opportunities_found"] += len(opportunities)
+        try:
+            while self.running and not self.paused:
+                try:
+                    # Scan for opportunities
+                    if hasattr(self.network_scanner, 'scan_networks'):
+                        opportunities = self.network_scanner.scan_networks()
+                    elif hasattr(self.network_scanner, 'scan'):
+                        opportunities = self.network_scanner.scan()
+                    else:
+                        logger.error("NetworkScanner has no scan method")
+                        opportunities = []
                     
-                    # Apply AI filtering if enabled
-                    if self.config.get("ai_integration", {}).get("use_ai_predictions", False) and self.ai_strategy:
+                    # Filter opportunities with AI if enabled
+                    if self.config.get("ai_integration", {}).get("use_ai_predictions", False):
                         opportunities = self._filter_with_ai(opportunities)
                     
-                    # Analyze profitability
+                    # Add opportunities to queue for execution
                     for opportunity in opportunities:
-                        # Get optimal gas price
-                        gas_price = self.gas_optimizer.get_optimal_gas_price(opportunity["network"])
-                        opportunity["gas_price"] = gas_price
-                        
-                        # Calculate expected profit
-                        profit_analysis = self.profit_analyzer.analyze_opportunity(opportunity)
-                        opportunity.update(profit_analysis)
-                        
-                        # Add to queue if profitable
-                        if profit_analysis["is_profitable"]:
-                            try:
-                                self.opportunity_queue.put(opportunity, block=False)
-                                logger.info(f"Added profitable opportunity to queue: {opportunity['id']}")
-                            except queue.Full:
-                                logger.warning("Opportunity queue is full, skipping opportunity")
-                
-                # Sleep for scan interval
-                time.sleep(self.config.get("scan_interval", 5))
-                
-            except Exception as e:
-                logger.error(f"Error in scanner loop: {e}")
-                time.sleep(5)  # Sleep on error to prevent rapid retries
+                        if not self.opportunity_queue.full():
+                            self.opportunity_queue.put(opportunity)
+                            self.stats["opportunities_found"] += 1
+                        else:
+                            logger.warning("Opportunity queue is full, skipping opportunity")
+                    
+                    # Sleep for scan interval
+                    scan_interval = self.config.get("scan_interval", 5)
+                    time.sleep(scan_interval)
+                    
+                except Exception as e:
+                    logger.error(f"Error in scanner loop: {e}")
+                    time.sleep(5)  # Sleep on error to avoid tight loop
+        except KeyboardInterrupt:
+            logger.info("Scanner loop interrupted")
     
     def _executor_loop(self):
         """Main loop for executing arbitrage trades"""
@@ -346,34 +338,38 @@ class BotCore:
                 time.sleep(5)  # Sleep on error to prevent rapid retries
     
     def _monitor_loop(self):
-        """Monitor loop for tracking competitors and updating strategies"""
+        """Monitor loop for tracking competitors and system health"""
         logger.info("Starting monitor loop")
         
-        last_competitor_track = 0
-        last_stats_save = 0
-        
-        while self.running:
-            try:
-                current_time = time.time()
-                
-                # Track competitors
-                if self.config.get("competitor_tracking", {}).get("enabled", True):
-                    track_interval = self.config.get("competitor_tracking", {}).get("track_interval", 60)
-                    if current_time - last_competitor_track >= track_interval:
-                        self.competitor_tracker.track_competitors()
-                        last_competitor_track = current_time
-                
-                # Save stats periodically
-                if current_time - last_stats_save >= 300:  # Every 5 minutes
+        try:
+            while self.running:
+                try:
+                    # Track competitors if enabled
+                    if self.config.get("competitor_tracking", {}).get("enabled", False):
+                        if hasattr(self.competitor_tracker, 'track_competitors'):
+                            self.competitor_tracker.track_competitors()
+                        elif hasattr(self.competitor_tracker, 'track'):
+                            self.competitor_tracker.track()
+                        else:
+                            logger.error("CompetitorTracker has no track method")
+                    
+                    # Check circuit breaker
+                    if self._check_circuit_breaker():
+                        logger.warning("Circuit breaker triggered, pausing bot")
+                        self.pause()
+                    
+                    # Save stats
                     self._save_stats()
-                    last_stats_save = current_time
-                
-                # Sleep to prevent high CPU usage
-                time.sleep(1)
-                
-            except Exception as e:
-                logger.error(f"Error in monitor loop: {e}")
-                time.sleep(5)  # Sleep on error to prevent rapid retries
+                    
+                    # Sleep for monitor interval
+                    monitor_interval = self.config.get("competitor_tracking", {}).get("track_interval", 60)
+                    time.sleep(monitor_interval)
+                    
+                except Exception as e:
+                    logger.error(f"Error in monitor loop: {e}")
+                    time.sleep(5)  # Sleep on error to avoid tight loop
+        except KeyboardInterrupt:
+            logger.info("Monitor loop interrupted")
     
     def _filter_with_ai(self, opportunities: List[Dict]) -> List[Dict]:
         """Filter opportunities using AI predictions"""
